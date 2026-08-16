@@ -1,0 +1,13 @@
+name = "compress"
+compatibility_date = "2026-08-16"
+workers_dev = false
+preview_urls = false
+routes = [
+  { pattern = "compress.trombett.org", custom_domain = true }
+]
+
+[observability]
+enabled = true
+
+[assets]
+directory = "./public"
