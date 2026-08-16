@@ -1,1 +1,1 @@
-{ "compilerOptions": { "strict": true }, "include": ["js"] }
+{ "compilerOptions": { "strict": true }, "include": ["public/js"] }
