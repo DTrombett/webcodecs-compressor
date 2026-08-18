@@ -39,6 +39,7 @@ export default () => ({
 		autoDownload: true,
 		discardVideo: false,
 		mono: false,
+		crop: {},
 	},
 	isHdrSource: false,
 	presets: RESOLUTION_PRESETS,
@@ -95,8 +96,8 @@ export default () => ({
 			this.codecs = await Promise.all(
 				CODEC_DEFINITIONS.map(async (def) => {
 					const [encodeOk, decodeOk] = await Promise.all([
-						canEncodeVideo(def.mbCodec).catch(() => false),
-						canDecodeVideo(def.mbCodec).catch(() => false),
+						canEncodeVideo(def.id).catch(() => false),
+						canDecodeVideo(def.id).catch(() => false),
 					]);
 					const tooltipParts = [];
 
@@ -244,6 +245,7 @@ export default () => ({
 			autoDownload: true,
 			discardVideo: false,
 			mono: false,
+			crop: {},
 		};
 		if (this.$refs?.fileInput) this.$refs.fileInput.value = "";
 	},
@@ -334,7 +336,18 @@ export default () => ({
 				new BlobSource(this.file),
 				{
 					codec: this.settings.videoCodec,
-					crop: this.settings.crop,
+					crop: {
+						height:
+							this.settings.crop.height ??
+							this.metadata.video?.displayH ??
+							Infinity,
+						width:
+							this.settings.crop.width ??
+							this.metadata.video?.displayW ??
+							Infinity,
+						left: this.settings.crop.left ?? 0,
+						top: this.settings.crop.top ?? 0,
+					},
 					discard: this.settings.discardVideo,
 					frameRate: this.settings.frameRate,
 					height:
@@ -347,7 +360,7 @@ export default () => ({
 						:	undefined,
 					keyFrameInterval: this.settings.keyFrameInterval,
 					quality: new Quality({
-						bitrate: Math.round(
+						bitrate: Math.floor(
 							(this.settings.size * 1000 * 1000 * 8) / this.metadata.duration,
 						),
 					}),

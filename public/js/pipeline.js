@@ -161,11 +161,12 @@ export const processVideo = async (
 				metadata.video.displayH,
 			),
 		);
-	} else video.discard = true;
+	} else video = { discard: true };
+	if (!metadata.audio) audio = { discard: true };
 	const output = new Output({
 		format: new (computeOutputFormat(
-			metadata.audio?.codec,
-			metadata.video?.codec,
+			audio.discard ? undefined : (audio.codec ?? metadata.audio?.codec),
+			video.discard ? undefined : (video.codec ?? metadata.video?.codec),
 		))(),
 		target: new BufferTarget(),
 	});

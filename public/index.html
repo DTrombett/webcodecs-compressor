@@ -164,7 +164,7 @@
 
 			.form-row {
 				display: grid;
-				grid-template-columns: 1fr 1fr;
+				grid-template-columns: 1fr 1fr 1fr 1fr;
 				gap: 0.75rem;
 			}
 
@@ -854,7 +854,6 @@
 					</div>
 				</div>
 
-				<!-- Bitrate (auto only) -->
 				<div class="form-group">
 					<label>Target size <span style="color: #666">(MB)</span></label>
 					<input
@@ -866,6 +865,68 @@
 						placeholder="20" />
 				</div>
 
+				<div class="form-group">
+					<label>Frame rate <span style="color: #666">(fps)</span></label>
+					<input
+						type="number"
+						x-model.number="settings.frameRate"
+						min="1"
+						max="10000"
+						step="1"
+						placeholder="Original" />
+				</div>
+				<div class="form-group">
+					<label
+						>Keyframe interval <span style="color: #666">(seconds)</span></label
+					>
+					<input
+						type="number"
+						x-model.number="settings.keyFrameInterval"
+						min="1"
+						max="10000"
+						step="1"
+						placeholder="5 seconds" />
+				</div>
+
+				<div class="form-group">
+					<label
+						>Crop
+						<span style="color: #666">(leave blank for no crop)</span></label
+					>
+					<div class="form-row" style="margin-top: 0.5rem">
+						<input
+							type="number"
+							x-model.number="settings.crop.left"
+							placeholder="Left"
+							min="0" />
+						<input
+							type="number"
+							x-model.number="settings.crop.top"
+							placeholder="Top"
+							min="0" />
+						<input
+							type="number"
+							x-model.number="settings.crop.width"
+							placeholder="Width"
+							min="2"
+							step="2" />
+						<input
+							type="number"
+							x-model.number="settings.crop.height"
+							placeholder="Height"
+							min="2"
+							step="2" />
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="checkbox-group">
+						<input
+							type="checkbox"
+							id="discard_video"
+							x-model="settings.discardVideo" />
+						<label for="discard_video">Discard video</label>
+					</div>
+				</div>
 				<!-- Audio toggle -->
 				<div class="form-group" x-show="!metadata || metadata.audio">
 					<div class="checkbox-group">

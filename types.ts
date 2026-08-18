@@ -42,13 +42,7 @@ declare global {
 	type CropRectangle = CRectangle;
 
 	type ResolutionPreset = { label: string; height?: number; id: string };
-	type CodecDefinition = {
-		id: VCodec;
-		label: string;
-		mbCodec: VCodec;
-		ext: `.${string}`;
-		decodeMimeType: string;
-	};
+	type CodecDefinition = { id: VCodec; label: string };
 	type Codec = {
 		id: VCodec;
 		label: string;
@@ -103,13 +97,13 @@ declare global {
 		currentConversion: Conversion | null;
 		settings: {
 			autoDownload: boolean;
+			crop: Partial<CropRectangle>;
 			discardAudio: boolean;
 			discardVideo: boolean;
 			mono: boolean;
 			resolution: keyof typeof RESOLUTION_PRESETS;
 			size: number;
 			audioCodec?: ACodec;
-			crop?: CropRectangle;
 			customHeight?: number;
 			customWidth?: number;
 			frameRate?: number;
