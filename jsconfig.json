@@ -1,1 +1,4 @@
-{ "compilerOptions": { "strict": true }, "include": ["public/js"] }
+{
+	"compilerOptions": { "strict": true, "allowJs": true, "checkJs": true },
+	"include": ["public/js", "types.ts"]
+}

@@ -10,18 +10,18 @@
  */
 export const CODEC_DEFINITIONS = [
 	{
-		id: "av1",
-		label: "AV1 (MP4/WebM)",
-		mbCodec: "av1",
-		ext: ".mp4",
-		decodeMimeType: 'video/webm; codecs="av01.0.05M.08"',
-	},
-	{
 		id: "vp9",
 		label: "VP9 (WebM)",
 		mbCodec: "vp9",
 		ext: ".webm",
 		decodeMimeType: 'video/webm; codecs="vp09.00.10.08"',
+	},
+	{
+		id: "av1",
+		label: "AV1 (MP4/WebM)",
+		mbCodec: "av1",
+		ext: ".mp4",
+		decodeMimeType: 'video/webm; codecs="av01.0.05M.08"',
 	},
 	{
 		id: "vp8",
@@ -46,55 +46,18 @@ export const CODEC_DEFINITIONS = [
 	},
 ];
 
-/**
- * Common resolution presets.
- * @type {ResolutionPreset[]}
- */
-export const RESOLUTION_PRESETS = [
-	{ id: "original", label: "Original (unchanged)" },
-	{ id: "2160", label: "4K (2160p)", height: 2160 },
-	{ id: "1440", label: "2K (1440p)", height: 1440 },
-	{ id: "1080", label: "1080p (FHD)", height: 1080 },
-	{ id: "720", label: "720p (HD)", height: 720 },
-	{ id: "480", label: "480p (SD)", height: 480 },
-	{ id: "360", label: "360p", height: 360 },
-	{ id: "custom", label: "Custom…", height: "custom" },
-];
-
-/**
- * Given a target height and source dimensions, compute width preserving
- * aspect ratio, snapped to even numbers (WebCodecs requirement).
- * @param {number?} targetHeight
- * @param {number} srcW
- * @param {number} srcH
- */
-export function dimensionsFromPreset(targetHeight, srcW, srcH) {
-	if (targetHeight == null) return { width: srcW, height: srcH };
-	const w = Math.round(srcW * (targetHeight / srcH));
-	return {
-		width: w % 2 === 0 ? w : w + 1,
-		height: targetHeight % 2 === 0 ? targetHeight : targetHeight + 1,
-	};
-}
-
-/**
- * Calculate target dimensions when both width and height are explicitly
- * specified (custom mode), preserving aspect ratio via contain.
- * @param {number} targetW
- * @param {number} targetH
- */
-export function calculateCustomResize(targetW, targetH) {
-	let w = targetW;
-	let h = targetH;
-	if (w % 2 !== 0) w += 1;
-	if (h % 2 !== 0) h += 1;
-	return { width: w, height: h };
-}
-
-/**
- * Check whether speed change is meaningful.
- * @param {number} speed
- */
-export function needsSpeed(speed) {
-	return Math.abs(speed - 1.0) > 0.001;
-}
+/** @satisfies {Record<string, ResolutionPreset>} */
+export const RESOLUTION_PRESETS = {
+	original: {
+		label: "Original (unchanged)",
+		height: undefined,
+		id: "original",
+	},
+	custom: { label: "Custom…", height: undefined, id: "custom" },
+	360: { label: "360p", height: 360, id: "360p" },
+	480: { label: "480p (SD)", height: 480, id: "480p" },
+	720: { label: "720p (HD)", height: 720, id: "720p" },
+	1080: { label: "1080p (FHD)", height: 1080, id: "1080p" },
+	1440: { label: "2K (1440p)", height: 1440, id: "1440p" },
+	2160: { label: "4K (2160p)", height: 2160, id: "2160p" },
+};

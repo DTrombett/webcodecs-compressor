@@ -10,6 +10,7 @@ import {
 	canEncodeVideo,
 	ConversionCanceledError,
 	Input,
+	Quality,
 } from "mediabunny";
 import { processVideo } from "./pipeline.js";
 import { CODEC_DEFINITIONS, RESOLUTION_PRESETS } from "./video.js";
@@ -32,14 +33,12 @@ export default () => ({
 	codecs: [],
 	currentConversion: null,
 	settings: {
-		codec: "av1",
 		resolution: "original",
-		customWidth: null,
-		customHeight: null,
-		speed: 1.0,
 		size: 20,
-		keepAudio: true,
+		discardAudio: false,
 		autoDownload: true,
+		discardVideo: false,
+		mono: false,
 	},
 	isHdrSource: false,
 	presets: RESOLUTION_PRESETS,
@@ -51,7 +50,7 @@ export default () => ({
 		return this.codecs.filter((c) => !c.supported);
 	},
 	get selectedCodec() {
-		return this.codecs.find((c) => c.id === this.settings.codec);
+		return this.codecs.find((c) => c.id === this.settings.videoCodec);
 	},
 	get selectedUnsupported() {
 		const obj = this.selectedCodec;
@@ -78,27 +77,17 @@ export default () => ({
 			return "Browser does not support decoding this codec";
 		return "Decoding supported";
 	},
-	get resolutionDisabled() {
-		return (/** @type {ResolutionPreset} */ preset) => {
-			if (!this.metadata?.video) return false;
-			if (preset.id === "original" || preset.id === "custom") return false;
-			const srcH = this.metadata.video.displayH;
-
-			if (!srcH) return false;
-			return typeof preset.height === "number" && preset.height > srcH;
-		};
+	resolutionDisabled(preset) {
+		return (
+			this.metadata?.video?.displayH != null &&
+			preset.height != null &&
+			preset.height > this.metadata.video.displayH
+		);
 	},
-	get resolutionTooltip() {
-		return (/** @type {ResolutionPreset} */ preset) => {
-			if (!this.metadata?.video) return "";
-			if (preset.id === "original" || preset.id === "custom") return "";
-			const srcH = this.metadata.video.displayH;
-
-			if (!srcH) return "";
-			if (typeof preset.height === "number" && preset.height > srcH)
-				return `Higher than source (${srcH}p)`;
-			return "";
-		};
+	resolutionTooltip(preset) {
+		return this.metadata?.video && this.resolutionDisabled(preset) ?
+				`Higher than source (${this.metadata.video.displayH}p)`
+			:	"";
 	},
 	/* ── init: detect codecs ────────────────────────────────────── */
 	async init() {
@@ -123,7 +112,7 @@ export default () => ({
 				}),
 			);
 			const first = this.codecs.find((c) => c.supported);
-			if (first) this.settings.codec = first.id;
+			if (first) this.settings.videoCodec = first.id;
 		} catch (e) {
 			console.warn("[codecs] detection failed", e);
 			this.codecs = [];
@@ -248,36 +237,35 @@ export default () => ({
 		this.metadata = null;
 		this.error = null;
 		this.downloadUrl = null;
-		this.settings.resolution = "original";
-		this.settings.customWidth = null;
-		this.settings.customHeight = null;
+		this.settings = {
+			resolution: "original",
+			size: 20,
+			discardAudio: false,
+			autoDownload: true,
+			discardVideo: false,
+			mono: false,
+		};
 		if (this.$refs?.fileInput) this.$refs.fileInput.value = "";
 	},
-	/* ── resolution safety: never upscale ───────────────────────── */
 	warning: null,
-	setResolution(id) {
+	setResolution(preset) {
 		const srcH = this.metadata?.video?.displayH;
-		if (!srcH || id === "original") {
-			this.settings.resolution = id;
+		if (!srcH || !preset.height) {
+			this.settings.resolution =
+				/** @type {keyof typeof RESOLUTION_PRESETS} */ (preset.id);
 			return;
 		}
-		const preset = this.presets.find((p) => p.id === id);
-		if (!preset) return;
-		if (preset.height === "custom") {
-			this.settings.resolution = "custom";
-			return;
-		}
-		if (preset.height != null && preset.height > srcH) {
-			// Cap to original resolution
+		if (preset.height > srcH) {
 			this.settings.resolution = "original";
 			this.warning = `Selected resolution would exceed source (${srcH}p). Capped to original.`;
-			// Auto-clear warning after 5s
 			setTimeout(() => {
 				this.warning = null;
 			}, 5000);
 			return;
 		}
-		this.settings.resolution = id;
+		this.settings.resolution = /** @type {keyof typeof RESOLUTION_PRESETS} */ (
+			preset.id
+		);
 		this.warning = null;
 	},
 	/** Validate that custom dimensions don't exceed source */
@@ -323,7 +311,11 @@ export default () => ({
 		}
 
 		// Warn about HDR→SDR conversion
-		if (this.isHdrSource && SDR_ONLY_CODEC_IDS.includes(this.settings.codec)) {
+		if (
+			this.isHdrSource &&
+			this.settings.videoCodec &&
+			SDR_ONLY_CODEC_IDS.includes(this.settings.videoCodec)
+		) {
 			this.warning =
 				"HDR source will be converted to SDR. Colors may appear washed.";
 			setTimeout(() => {
@@ -338,34 +330,51 @@ export default () => ({
 		this.downloadUrl = null;
 		this.currentConversion = null;
 		try {
-			const result = await processVideo({
-				file: this.file,
-				codec: this.settings.codec,
-				resolution: this.settings.resolution,
-				customWidth: this.settings.customWidth || undefined,
-				customHeight: this.settings.customHeight || undefined,
-				speed: this.settings.speed || 1.0,
-				keepAudio: this.settings.keepAudio,
-				bitrate:
-					(this.settings.size * 1000 * 1000 * 8) / this.metadata.duration,
-				metadata: this.metadata,
-				onProgress: (p) => {
-					this.progress = p;
-					this.statusMessage = `Processing... (${Math.floor(p * 100)}%)`;
+			const result = await processVideo(
+				new BlobSource(this.file),
+				{
+					codec: this.settings.videoCodec,
+					crop: this.settings.crop,
+					discard: this.settings.discardVideo,
+					frameRate: this.settings.frameRate,
+					height:
+						this.settings.resolution === "custom" ?
+							this.settings.customHeight
+						:	RESOLUTION_PRESETS[this.settings.resolution]?.height,
+					width:
+						this.settings.resolution === "custom" ?
+							this.settings.customWidth
+						:	undefined,
+					keyFrameInterval: this.settings.keyFrameInterval,
+					quality: new Quality({
+						bitrate: Math.round(
+							(this.settings.size * 1000 * 1000 * 8) / this.metadata.duration,
+						),
+					}),
 				},
-				onStatus: (msg) => {
-					this.statusMessage = msg;
+				{
+					codec: this.settings.audioCodec,
+					discard: this.settings.discardAudio,
+					mono: this.settings.mono,
+					sampleRate: this.settings.sampleRate,
 				},
-				onConversionReady: (conv) => {
-					this.currentConversion = conv;
+				{
+					metadata: this.metadata,
+					onProgress: (p) => {
+						this.progress = p;
+						this.statusMessage = `Processing... (${Math.floor(p * 100)}%)`;
+					},
+					onConversionReady: (conv) => {
+						this.statusMessage = "Processing...";
+						this.currentConversion = conv;
+					},
 				},
-			});
+			);
 			const blob = new Blob([result.buffer], { type: result.mimeType });
 			const url = URL.createObjectURL(blob);
 			this.downloadUrl = url;
 			this.outputFileName = result.fileName;
 			const pct = ((result.outputSize / result.inputSize) * 100).toFixed(1);
-
 			this.statusMessage = `Done! ${this.formatSize(result.outputSize)} (${pct}% of source)`;
 			if (this.settings.autoDownload)
 				this._triggerDownload(url, result.fileName);

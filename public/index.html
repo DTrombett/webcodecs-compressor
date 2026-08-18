@@ -793,7 +793,7 @@
 					<div
 						class="codec-wrap"
 						:class="{ 'show-tooltip': selectedUnsupported }">
-						<select x-model="settings.codec">
+						<select x-model="settings.videoCodec">
 							<template x-for="c in codecs" :key="c.id">
 								<option
 									:value="c.id"
@@ -826,10 +826,10 @@
 							<span
 								class="pill"
 								:class="{
-              					  'active': settings.resolution === p.id,
-              					  'disabled': resolutionDisabled(p)
+              						'active': settings.resolution === p.id,
+              						'disabled': resolutionDisabled(p)
               					}"
-								@click="!resolutionDisabled(p) && setResolution(p.id)"
+								@click="!resolutionDisabled(p) && setResolution(p)"
 								:title="resolutionTooltip(p)"
 								x-text="p.label"></span>
 						</template>
@@ -866,26 +866,16 @@
 						placeholder="20" />
 				</div>
 
-				<!-- Speed -->
-				<div class="form-group">
-					<label>Playback speed</label>
-					<input
-						type="number"
-						x-model.number="settings.speed"
-						min="0.1"
-						max="10"
-						step="0.05"
-						placeholder="1.0" />
-				</div>
-
 				<!-- Audio toggle -->
 				<div class="form-group" x-show="!metadata || metadata.audio">
 					<div class="checkbox-group">
 						<input
 							type="checkbox"
-							id="keep_audio"
-							x-model="settings.keepAudio" />
-						<label for="keep_audio">Keep audio track</label>
+							id="discard_audio"
+							x-model="settings.discardAudio" />
+						<label for="discard_audio">Discard audio track</label>
+						<input type="checkbox" id="mono_audio" x-model="settings.mono" />
+						<label for="mono_audio">Merge audio channels</label>
 					</div>
 				</div>
 

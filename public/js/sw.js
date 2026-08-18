@@ -5,12 +5,11 @@
 
 const CACHE_NAME = "video-compressor-v1";
 const ASSETS_TO_CACHE = [
-	"./",
-	"./index.html",
+	"../",
 	"./main.js",
-	"./js/pipeline.js",
-	"./js/video.js",
-	"./manifest.json",
+	"./pipeline.js",
+	"./video.js",
+	"../manifest.json",
 	"https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js",
 ];
 
