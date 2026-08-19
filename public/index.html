@@ -74,7 +74,8 @@
 				margin: 0 auto 1rem;
 				max-width: var(--default-width);
 			}
-			.card h2 {
+			.card h2,
+			summary.cardTitle {
 				font-size: 1.25rem;
 				line-height: 1.4;
 			}
@@ -82,8 +83,14 @@
 			/* drop zone */
 			.drop-zone:hover,
 			.drop-zone.drag-over {
-				border-color: #81c784;
-				background: rgba(129, 199, 132, 0.05);
+				background: #81c7840d;
+			}
+			.drop-zone.drag-over {
+				border-color: #81c784 !important;
+			}
+			.drop-zone.drag-invalid {
+				border-color: #c78184 !important;
+				background: #c781840d;
 			}
 
 			/* file info */
@@ -115,13 +122,15 @@
 				white-space: nowrap;
 			}
 
-			.file-info .remove {
+			.remove {
 				background: none;
 				border: none;
 				color: #ef5350;
 				cursor: pointer;
-				font-size: 1.25rem;
-				padding: 0.25rem;
+				font-size: 1.75rem;
+				line-height: 1.75rem;
+				padding-block: 0;
+				padding-inline: 0.5rem;
 			}
 
 			/* form */
@@ -567,9 +576,9 @@
 				device with MediaBunny &amp; WebCodecs without needing to upload
 			</small>
 		</header>
-		<div class="card">
+		<div class="card" id="fileSelection">
 			<h2>Select a file to get started</h2>
-			<div
+			<label
 				class="drop-zone"
 				id="dropZone"
 				style="
@@ -603,222 +612,212 @@
 				<small style="margin-top: 0.5rem; color: #888">
 					Click or drag video file here
 				</small>
+			</label>
+		</div>
+		<!-- Metadata -->
+		<div class="card" id="metadata" style="display: none">
+			<h2 style="display: flex; align-items: center">
+				<span id="fileName"></span>
+				<button class="remove" id="removeFile">&times;</button>
+			</h2>
+			<!-- Basic info: open by default -->
+			<details class="meta-section" open>
+				<summary>File info</summary>
+				<table class="meta-table">
+					<tr>
+						<th>File</th>
+						<td id="metadataFileName"></td>
+					</tr>
+					<tr>
+						<th>Size</th>
+						<td id="metadataFileSizeStr"></td>
+					</tr>
+					<tr>
+						<th>Container</th>
+						<td id="metadataContainer"></td>
+					</tr>
+					<tr>
+						<th>Duration</th>
+						<td id="metadataDurationStr"></td>
+					</tr>
+					<tr>
+						<th>Avg. bitrate</th>
+						<td id="metadataTotalBitrateStr"></td>
+					</tr>
+				</table>
+			</details>
+
+			<!-- Video: collapsed by default -->
+			<details class="meta-section" id="metadataVideo" style="display: none">
+				<summary>Video</summary>
+				<table class="meta-table">
+					<tr>
+						<th>Codec</th>
+						<td id="metadataVideoCodec"></td>
+					</tr>
+					<tr>
+						<th>Display size</th>
+						<td id="metadataVideoDisplaySize"></td>
+					</tr>
+					<tr>
+						<th>Frame rate</th>
+						<td id="metadataVideoFps"></td>
+					</tr>
+					<tr>
+						<th>Bitrate</th>
+						<td id="metadataVideoBitrate"></td>
+					</tr>
+					<tr>
+						<th>Color space</th>
+						<td id="metadataVideoColorSpace"></td>
+					</tr>
+				</table>
+			</details>
+
+			<!-- Audio: collapsed by default -->
+			<details class="meta-section" id="metadataAudio">
+				<summary>Audio</summary>
+				<table class="meta-table">
+					<tr>
+						<th>Codec</th>
+						<td id="metadataAudioCodec"></td>
+					</tr>
+					<tr>
+						<th>Channels</th>
+						<td id="metadataAudioChannelLabel"></td>
+					</tr>
+					<tr>
+						<th>Sample rate</th>
+						<td id="metadataAudioSampleRate"></td>
+					</tr>
+					<tr>
+						<th>Bitrate</th>
+						<td id="metadataAudioBitrate"></td>
+					</tr>
+				</table>
+			</details>
+		</div>
+
+		<!-- Settings -->
+		<div class="card">
+			<!-- Codec selector with unsupported detection -->
+			<div class="form-group">
+				<span class="label">Video codec</span>
+				<div class="codec-wrap">
+					<select name="videoCodec" id="settingsVideoCodec">
+						<option></option>
+					</select>
+				</div>
 			</div>
 
-			<div class="file-info" id="fileInfo" style="display: none">
-				<span class="icon">&#x1f3ac;</span>
-				<span class="name" id="fileName"></span>
-				<span class="size" id="fileSize"></span>
-				<button class="remove" id="removeFile">&times;</button>
+			<!-- Resolution -->
+			<div class="form-group">
+				<span class="label">Resolution</span>
+				<div class="pill-row" id="presets"></div>
+				<div class="form-row customResolution" style="margin-top: 0.5rem">
+					<input
+						type="number"
+						name="width"
+						placeholder="Width"
+						min="64"
+						max="3840" />
+					<input
+						type="number"
+						name="height"
+						placeholder="Height"
+						min="64"
+						max="2160" />
+				</div>
+			</div>
+
+			<div class="form-group">
+				<span class="label"
+					>Target size <span style="color: #666">(MB)</span></span
+				>
+				<input
+					type="number"
+					name="size"
+					min="1"
+					max="10000"
+					step="1"
+					value="20" />
+			</div>
+
+			<div class="form-group">
+				<span class="label"
+					>Frame rate <span style="color: #666">(fps)</span></span
+				>
+				<input
+					type="number"
+					name="frameRate"
+					min="1"
+					max="10000"
+					step="1"
+					placeholder="Original" />
+			</div>
+			<div class="form-group">
+				<span class="label"
+					>Keyframe interval <span style="color: #666">(seconds)</span></span
+				>
+				<input
+					type="number"
+					name="keyFrameInterval"
+					min="1"
+					max="10000"
+					step="1"
+					placeholder="5 seconds" />
+			</div>
+
+			<div class="form-group">
+				<span class="label"
+					>Crop <span style="color: #666">(leave blank for no crop)</span></span
+				>
+				<div class="form-row" style="margin-top: 0.5rem">
+					<input type="number" name="cropLeft" placeholder="Left" min="0" />
+					<input type="number" name="cropTop" placeholder="Top" min="0" />
+					<input
+						type="number"
+						name="cropWidth"
+						placeholder="Width"
+						min="2"
+						step="2" />
+					<input
+						type="number"
+						name="cropHeight"
+						placeholder="Height"
+						min="2"
+						step="2" />
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="checkbox-group">
+					<input type="checkbox" id="discard_video" name="discardVideo" />
+					<label for="discard_video">Discard video</label>
+				</div>
+			</div>
+			<!-- Audio toggle -->
+			<div class="form-group">
+				<div class="checkbox-group">
+					<input type="checkbox" id="discard_audio" name="discardAudio" />
+					<label for="discard_audio">Discard audio track</label>
+					<input type="checkbox" id="mono_audio" name="mono" />
+					<label for="mono_audio">Merge audio channels</label>
+				</div>
+			</div>
+
+			<!-- Auto-download -->
+			<div class="form-group">
+				<div class="checkbox-group">
+					<input type="checkbox" id="auto_dl" name="autoDownload" />
+					<label for="auto_dl">Auto-download after processing</label>
+				</div>
 			</div>
 		</div>
-		<div class="container">
-			<!-- File upload -->
 
-			<!-- Metadata -->
-			<div class="card" id="metadata" style="display: none">
-				<!-- Basic info: open by default -->
-				<details class="meta-section" open>
-					<summary>Source file info</summary>
-					<table class="meta-table">
-						<tr>
-							<th colspan="2" class="meta-section-header">General</th>
-						</tr>
-						<tr>
-							<th>File</th>
-							<td id="metadataFileName"></td>
-						</tr>
-						<tr>
-							<th>Size</th>
-							<td id="metadataFileSizeStr"></td>
-						</tr>
-						<tr>
-							<th>Container</th>
-							<td id="metadataContainer"></td>
-						</tr>
-						<tr>
-							<th>Duration</th>
-							<td id="metadataDurationStr"></td>
-						</tr>
-						<tr>
-							<th>Avg. bitrate</th>
-							<td id="metadataTotalBitrateStr"></td>
-						</tr>
-					</table>
-				</details>
+		<!-- Action -->
+		<input type="submit" class="btn btn-primary" value="Start processing" />
 
-				<!-- Video: collapsed by default -->
-				<details class="meta-section" id="metadataVideo" style="display: none">
-					<summary>Video</summary>
-					<table class="meta-table">
-						<tr>
-							<th>Codec</th>
-							<td id="metadataVideoCodec"></td>
-						</tr>
-						<tr>
-							<th>Display size</th>
-							<td id="metadataVideoDisplaySize"></td>
-						</tr>
-						<tr>
-							<th>Frame rate</th>
-							<td id="metadataVideoFps"></td>
-						</tr>
-						<tr>
-							<th>Bitrate</th>
-							<td id="metadataVideoBitrate"></td>
-						</tr>
-						<tr>
-							<th>Color space</th>
-							<td id="metadataVideoColorSpace"></td>
-						</tr>
-					</table>
-				</details>
-
-				<!-- Audio: collapsed by default -->
-				<details class="meta-section" id="metadataAudio">
-					<summary>Audio</summary>
-					<table class="meta-table">
-						<tr>
-							<th>Codec</th>
-							<td id="metadataAudioCodec"></td>
-						</tr>
-						<tr>
-							<th>Channels</th>
-							<td id="metadataAudioChannelLabel"></td>
-						</tr>
-						<tr>
-							<th>Sample rate</th>
-							<td id="metadataAudioSampleRate"></td>
-						</tr>
-						<tr>
-							<th>Bitrate</th>
-							<td id="metadataAudioBitrate"></td>
-						</tr>
-					</table>
-				</details>
-			</div>
-
-			<!-- Settings -->
-			<div class="card">
-				<!-- Codec selector with unsupported detection -->
-				<div class="form-group">
-					<span class="label">Video codec</span>
-					<div class="codec-wrap">
-						<select name="videoCodec" id="settingsVideoCodec">
-							<option></option>
-						</select>
-					</div>
-				</div>
-
-				<!-- Resolution -->
-				<div class="form-group">
-					<span class="label">Resolution</span>
-					<div class="pill-row" id="presets"></div>
-					<div class="form-row customResolution" style="margin-top: 0.5rem">
-						<input
-							type="number"
-							name="width"
-							placeholder="Width"
-							min="64"
-							max="3840" />
-						<input
-							type="number"
-							name="height"
-							placeholder="Height"
-							min="64"
-							max="2160" />
-					</div>
-				</div>
-
-				<div class="form-group">
-					<span class="label"
-						>Target size <span style="color: #666">(MB)</span></span
-					>
-					<input
-						type="number"
-						name="size"
-						min="1"
-						max="10000"
-						step="1"
-						value="20" />
-				</div>
-
-				<div class="form-group">
-					<span class="label"
-						>Frame rate <span style="color: #666">(fps)</span></span
-					>
-					<input
-						type="number"
-						name="frameRate"
-						min="1"
-						max="10000"
-						step="1"
-						placeholder="Original" />
-				</div>
-				<div class="form-group">
-					<span class="label"
-						>Keyframe interval <span style="color: #666">(seconds)</span></span
-					>
-					<input
-						type="number"
-						name="keyFrameInterval"
-						min="1"
-						max="10000"
-						step="1"
-						placeholder="5 seconds" />
-				</div>
-
-				<div class="form-group">
-					<span class="label"
-						>Crop
-						<span style="color: #666">(leave blank for no crop)</span></span
-					>
-					<div class="form-row" style="margin-top: 0.5rem">
-						<input type="number" name="cropLeft" placeholder="Left" min="0" />
-						<input type="number" name="cropTop" placeholder="Top" min="0" />
-						<input
-							type="number"
-							name="cropWidth"
-							placeholder="Width"
-							min="2"
-							step="2" />
-						<input
-							type="number"
-							name="cropHeight"
-							placeholder="Height"
-							min="2"
-							step="2" />
-					</div>
-				</div>
-				<div class="form-group">
-					<div class="checkbox-group">
-						<input type="checkbox" id="discard_video" name="discardVideo" />
-						<label for="discard_video">Discard video</label>
-					</div>
-				</div>
-				<!-- Audio toggle -->
-				<div class="form-group">
-					<div class="checkbox-group">
-						<input type="checkbox" id="discard_audio" name="discardAudio" />
-						<label for="discard_audio">Discard audio track</label>
-						<input type="checkbox" id="mono_audio" name="mono" />
-						<label for="mono_audio">Merge audio channels</label>
-					</div>
-				</div>
-
-				<!-- Auto-download -->
-				<div class="form-group">
-					<div class="checkbox-group">
-						<input type="checkbox" id="auto_dl" name="autoDownload" />
-						<label for="auto_dl">Auto-download after processing</label>
-					</div>
-				</div>
-			</div>
-
-			<!-- Action -->
-			<input type="submit" class="btn btn-primary" value="Start processing" />
-
-			<!-- <template x-if="processing">
+		<!-- <template x-if="processing">
 				<button class="btn btn-cancel" @click="cancelProcessing">Cancel</button>
 			</template>
 
@@ -849,7 +848,6 @@
 					</a>
 				</div>
 			</template> -->
-		</div>
 
 		<script type="module" src="./js/main.js"></script>
 

@@ -2,6 +2,7 @@ import type {
 	AudioCodec as ACodec,
 	Conversion,
 	CropRectangle as CRectangle,
+	Input,
 	Source as MBSource,
 	OutputFormat,
 	VideoCodec as VCodec,
@@ -101,7 +102,7 @@ declare global {
 	};
 
 	type AppState = {
-		file: File | null;
+		input: Input | null;
 		processing: boolean;
 		progress: number;
 		error: string | null;
