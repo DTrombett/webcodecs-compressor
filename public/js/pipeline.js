@@ -200,7 +200,7 @@ export const processVideo = async (
 	conversion.onProgress = onProgress;
 	onConversionReady?.(conversion);
 	await conversion.execute();
-	if (!output.target.buffer) throw new Error("Conversion not completed!");
+	if (!output.target.buffer) throw new Error("Output is not finalized!");
 	return {
 		buffer: output.target.buffer,
 		fileName: metadata.fileName.replace(

@@ -621,7 +621,7 @@
 	</head>
 
 	<body>
-		<div class="container" x-data="videoCompressor" x-init="init()">
+		<div class="container">
 			<h1>Video Compressor</h1>
 			<p class="subtitle">
 				Local video processing &mdash; MediaBunny &amp; WebCodecs
@@ -629,19 +629,11 @@
 
 			<!-- File upload -->
 			<div class="card">
-				<div
-					class="drop-zone"
-					:class="{ 'drag-over': dragging }"
-					@dragover.prevent="dragging = true"
-					@dragleave="dragging = false"
-					@drop.prevent="handleDrop($event)"
-					@click="$refs.fileInput.click()">
+				<div class="drop-zone" id="dropZone">
 					<input
 						type="file"
-						x-ref="fileInput"
-						accept="video/*,.mkv,.webm,.mp4"
-						@change="handleFileSelect($event)"
-						@click="$event.target.value = null"
+						id="fileInput"
+						accept="video/*,audio/*"
 						style="display: none" />
 					<svg
 						width="40"
@@ -657,165 +649,105 @@
 					<p>Click or drag video file here</p>
 				</div>
 
-				<template x-if="file">
-					<div class="file-info">
-						<span class="icon">&#x1f3ac;</span>
-						<span class="name" x-text="file.name"></span>
-						<span class="size" x-text="formatSize(file.size)"></span>
-						<button class="remove" @click.stop="clearFile()">&times;</button>
-					</div>
-				</template>
+				<div class="file-info" id="fileInfo" style="display: none">
+					<span class="icon">&#x1f3ac;</span>
+					<span class="name" id="fileName"></span>
+					<span class="size" id="fileSize"></span>
+					<button class="remove" id="removeFile">&times;</button>
+				</div>
 			</div>
 
 			<!-- Metadata -->
-			<template x-if="metadata">
-				<div class="card">
-					<!-- Basic info: open by default -->
-					<details class="meta-section" open>
-						<summary>Source file info</summary>
-						<table class="meta-table">
-							<tr>
-								<th colspan="2" class="meta-section-header">General</th>
-							</tr>
-							<tr>
-								<th>File</th>
-								<td x-text="metadata.fileName"></td>
-							</tr>
-							<tr>
-								<th>Size</th>
-								<td x-text="metadata.fileSizeStr"></td>
-							</tr>
-							<tr>
-								<th>Container</th>
-								<td x-text="metadata.container"></td>
-							</tr>
-							<tr>
-								<th>Duration</th>
-								<td x-text="metadata.durationStr"></td>
-							</tr>
-							<tr>
-								<th>Avg. bitrate</th>
-								<td x-text="metadata.totalBitrateStr"></td>
-							</tr>
-						</table>
-					</details>
+			<div class="card" id="metadata" style="display: none">
+				<!-- Basic info: open by default -->
+				<details class="meta-section" open>
+					<summary>Source file info</summary>
+					<table class="meta-table">
+						<tr>
+							<th colspan="2" class="meta-section-header">General</th>
+						</tr>
+						<tr>
+							<th>File</th>
+							<td id="metadataFileName"></td>
+						</tr>
+						<tr>
+							<th>Size</th>
+							<td id="metadataFileSizeStr"></td>
+						</tr>
+						<tr>
+							<th>Container</th>
+							<td id="metadataContainer"></td>
+						</tr>
+						<tr>
+							<th>Duration</th>
+							<td id="metadataDurationStr"></td>
+						</tr>
+						<tr>
+							<th>Avg. bitrate</th>
+							<td id="metadataTotalBitrateStr"></td>
+						</tr>
+					</table>
+				</details>
 
-					<!-- Video: collapsed by default -->
-					<template x-if="metadata.video">
-						<details class="meta-section">
-							<summary>Video</summary>
-							<table class="meta-table">
-								<tr>
-									<th>Codec</th>
-									<td x-text="metadata.video.codec"></td>
-								</tr>
-								<tr>
-									<th>Coded size</th>
-									<td
-										x-text="metadata.video.codedW + '\u00d7' + metadata.video.codedH"></td>
-								</tr>
-								<tr>
-									<th>Display size</th>
-									<td
-										x-text="metadata.video.displayW + '\u00d7' + metadata.video.displayH"></td>
-								</tr>
-								<tr>
-									<th>Frame rate</th>
-									<td x-text="metadata.video.fps + ' fps'"></td>
-								</tr>
-								<tr>
-									<th>Rotation</th>
-									<td x-text="(metadata.video.rotation || 0) + '\u00b0'"></td>
-								</tr>
-								<tr>
-									<th>Bitrate</th>
-									<td
-										x-text="metadata.video.bitrate ? (metadata.video.bitrate / 1000).toFixed(0) + ' kbps' : 'unknown'"></td>
-								</tr>
-								<tr>
-									<th>Pixel aspect</th>
-									<td x-text="metadata.video.aspectRatio"></td>
-								</tr>
-								<tr>
-									<th>Color space</th>
-									<td x-text="metadata.video.colorSpace"></td>
-								</tr>
-							</table>
-						</details>
-					</template>
+				<!-- Video: collapsed by default -->
+				<details class="meta-section" id="metadataVideo" style="display: none">
+					<summary>Video</summary>
+					<table class="meta-table">
+						<tr>
+							<th>Codec</th>
+							<td id="metadataVideoCodec"></td>
+						</tr>
+						<tr>
+							<th>Display size</th>
+							<td id="metadataVideoDisplaySize"></td>
+						</tr>
+						<tr>
+							<th>Frame rate</th>
+							<td id="metadataVideoFps"></td>
+						</tr>
+						<tr>
+							<th>Bitrate</th>
+							<td id="metadataVideoBitrate"></td>
+						</tr>
+						<tr>
+							<th>Color space</th>
+							<td id="metadataVideoColorSpace"></td>
+						</tr>
+					</table>
+				</details>
 
-					<!-- Audio: collapsed by default -->
-					<template x-if="metadata.audio">
-						<details class="meta-section">
-							<summary>Audio</summary>
-							<table class="meta-table">
-								<tr>
-									<th>Codec</th>
-									<td x-text="metadata.audio.codec"></td>
-								</tr>
-								<tr>
-									<th>Channels</th>
-									<td x-text="metadata.audio.channelLabel"></td>
-								</tr>
-								<tr>
-									<th>Sample rate</th>
-									<td x-text="metadata.audio.sampleRate + ' Hz'"></td>
-								</tr>
-								<tr>
-									<th>Bitrate</th>
-									<td
-										x-text="metadata.audio.bitrate ? (metadata.audio.bitrate / 1000).toFixed(0) + ' kbps' : 'unknown'"></td>
-								</tr>
-							</table>
-						</details>
-					</template>
-
-					<template x-if="!metadata.audio">
-						<details class="meta-section">
-							<summary>Audio</summary>
-							<table class="meta-table">
-								<tr>
-									<td colspan="2" style="color: #888; padding-top: 0.25rem">
-										No audio track
-									</td>
-								</tr>
-							</table>
-						</details>
-					</template>
-				</div>
-			</template>
+				<!-- Audio: collapsed by default -->
+				<details class="meta-section" id="metadataAudio">
+					<summary>Audio</summary>
+					<table class="meta-table">
+						<tr>
+							<th>Codec</th>
+							<td id="metadataAudioCodec"></td>
+						</tr>
+						<tr>
+							<th>Channels</th>
+							<td id="metadataAudioChannelLabel"></td>
+						</tr>
+						<tr>
+							<th>Sample rate</th>
+							<td id="metadataAudioSampleRate"></td>
+						</tr>
+						<tr>
+							<th>Bitrate</th>
+							<td id="metadataAudioBitrate"></td>
+						</tr>
+					</table>
+				</details>
+			</div>
 
 			<!-- Settings -->
 			<div class="card">
 				<!-- Codec selector with unsupported detection -->
 				<div class="form-group">
 					<label>Video codec</label>
-					<div
-						class="codec-wrap"
-						:class="{ 'show-tooltip': selectedUnsupported }">
-						<select x-model="settings.videoCodec">
-							<template x-for="c in codecs" :key="c.id">
-								<option
-									:value="c.id"
-									:disabled="!c.supported"
-									x-text="c.label + (c.supported ? '' : '  \u2717')"></option>
-							</template>
-						</select>
-						<span
-							class="codec-tooltip"
-							x-text="selectedUnsupported ? unsupportedTooltip : ''"></span>
+					<div class="codec-wrap">
+						<select id="settingsVideoCodec"></select>
 					</div>
-
-					<template x-if="disabledCodecs.length">
-						<div class="badges">
-							<template x-for="c in disabledCodecs" :key="c.id">
-								<span
-									class="badge-disabled"
-									:title="c.tooltip || 'Not supported'"
-									x-text="c.label + ' \u2717'"></span>
-							</template>
-						</div>
-					</template>
 				</div>
 
 				<!-- Resolution -->
@@ -1003,20 +935,7 @@
 			</template>
 		</div>
 
-		<script type="module">
-			import registerApp from "./js/main.js";
-
-			if (window.Alpine) {
-				window.Alpine.data("videoCompressor", registerApp);
-			} else {
-				document.addEventListener("alpine:init", () => {
-					window.Alpine.data("videoCompressor", registerApp);
-				});
-			}
-		</script>
-		<script
-			defer
-			src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
+		<script type="module" src="./js/main.js"></script>
 
 		<!-- PWA Service Worker Registration -->
 		<script>

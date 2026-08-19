@@ -12,8 +12,8 @@ export const CODEC_DEFINITIONS = [
 	{ id: "vp9", label: "VP9" },
 	{ id: "av1", label: "AV1" },
 	{ id: "vp8", label: "VP8" },
-	{ id: "hevc", label: "H.265 / HEVC (MP4)" },
-	{ id: "avc", label: "H.264 / AVC (MP4)" },
+	{ id: "hevc", label: "H.265 / HEVC" },
+	{ id: "avc", label: "H.264 / AVC" },
 ];
 
 /** @satisfies {Record<string, ResolutionPreset>} */
