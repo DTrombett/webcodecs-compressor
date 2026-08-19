@@ -111,7 +111,6 @@ declare global {
 		metadata: Readonly<Metadata> | null;
 		codecs: Codec[];
 		currentConversion: Conversion | null;
-		readonly settings: Settings;
 		isHdrSource: boolean;
 	};
 }

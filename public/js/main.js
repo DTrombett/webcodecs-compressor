@@ -1,6 +1,6 @@
 import { ALL_FORMATS, BlobSource, canEncodeVideo, Input } from "mediabunny";
 import { channelLabel, formatDuration, formatSize } from "./utils.js";
-import { CODEC_DEFINITIONS } from "./video.js";
+import { CODEC_DEFINITIONS, RESOLUTION_PRESETS } from "./video.js";
 
 const elements = {
 	fileInfo: /** @type {HTMLDivElement} */ (document.getElementById("fileInfo")),
@@ -69,20 +69,15 @@ const elements = {
 	settingsVideoCodec: /** @type {HTMLSelectElement} */ (
 		document.getElementById("settingsVideoCodec")
 	),
+	presets: /** @type {HTMLDivElement} */ (document.getElementById("presets")),
 };
 
 /** @type {{ [P in keyof AppState]?: (value: AppState[P]) => void; } & { [K: string | symbol]: (value: any) => void; }} */
 const setHandlers = {
 	file: (file) => {
-		if (file) {
-			elements.fileName.textContent = file.name;
-			elements.fileSize.textContent = formatSize(file.size);
-			elements.fileInfo.style.display = "";
-		} else {
-			elements.fileName.textContent = null;
-			elements.fileSize.textContent = null;
-			elements.fileInfo.style.display = "none";
-		}
+		elements.fileName.textContent = file?.name ?? null;
+		elements.fileSize.textContent = file ? formatSize(file.size) : null;
+		elements.fileInfo.style.display = file ? "" : "none";
 	},
 	metadata: (metadata) => {
 		elements.metadataFileName.textContent = metadata?.fileName ?? null;
@@ -122,8 +117,6 @@ const setHandlers = {
 		elements.metadata.style.display = metadata ? "" : "none";
 	},
 };
-/** @type {{ [P in keyof Settings]?: (value: Settings[P]) => void; } & { [K: string | symbol]: (value: any) => void; }} */
-const settingsHandler = {};
 
 /** @type {AppState} */
 const state = new Proxy(
@@ -139,24 +132,6 @@ const state = new Proxy(
 		codecs: [],
 		currentConversion: null,
 		isHdrSource: false,
-		settings: new Proxy(
-			{
-				resolution: "original",
-				size: 20,
-				discardAudio: false,
-				autoDownload: true,
-				discardVideo: false,
-				mono: false,
-				crop: {},
-			},
-			{
-				set: (target, p, value, receiver) => {
-					Reflect.set(target, p, value, receiver);
-					settingsHandler[p]?.(value);
-					return true;
-				},
-			},
-		),
 	},
 	{
 		set: (target, p, value, receiver) => {
@@ -281,6 +256,33 @@ const clearFile = () => {
 	elements.fileInput.value = "";
 };
 
+for (const resolution of Object.values(RESOLUTION_PRESETS)) {
+	const input = document.createElement("input");
+	const label = document.createElement("label");
+
+	input.id = input.value = resolution.id;
+	input.style.display = "none";
+	input.name = "resolution";
+	input.type = "radio";
+	label.textContent = resolution.label;
+	label.appendChild(input);
+	label.className = "pill";
+	label.htmlFor = input.id;
+	elements.presets.appendChild(label);
+}
+await Promise.allSettled(
+	CODEC_DEFINITIONS.map(async (def, i) => {
+		if (await canEncodeVideo(def.id)) {
+			const option = document.createElement("option");
+
+			option.text = def.label;
+			option.value = def.id;
+			elements.settingsVideoCodec.options.add(option, i + 1);
+		}
+	}),
+);
+elements.settingsVideoCodec.options.remove(0);
+elements.settingsVideoCodec.selectedIndex = 0;
 elements.dropZone.addEventListener("dragenter", (ev) => {
 	ev.preventDefault();
 	elements.dropZone.classList.add("drag-over");
@@ -300,28 +302,9 @@ elements.fileInput.addEventListener("change", () => {
 	if (elements.fileInput.files?.length) setFile(elements.fileInput.files[0]);
 });
 elements.removeFile.addEventListener("click", () => clearFile());
-elements.settingsVideoCodec.addEventListener("change", () => {
-	state.settings.videoCodec = /** @type {VideoCodec} */ (
-		elements.settingsVideoCodec.value
-	);
-});
-await Promise.allSettled(
-	CODEC_DEFINITIONS.map(async (def, i) => {
-		if (await canEncodeVideo(def.id)) {
-			const option = document.createElement("option");
-
-			option.text = def.label;
-			option.value = def.id;
-			elements.settingsVideoCodec.options.add(option, i);
-		}
-	}),
-);
 
 /** @returns {AppState} */
 // export default () => ({
-// 	get canStart() {
-// 		return this.file != null && !this.processing;
-// 	},
 // 	get disabledCodecs() {
 // 		return this.codecs.filter((c) => !c.supported);
 // 	},

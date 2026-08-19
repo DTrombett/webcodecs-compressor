@@ -154,7 +154,7 @@
 				margin-bottom: 1rem;
 			}
 
-			.form-group label {
+			.form-group .label {
 				display: block;
 				font-size: 0.875rem;
 				font-weight: 500;
@@ -164,7 +164,7 @@
 
 			.form-row {
 				display: grid;
-				grid-template-columns: 1fr 1fr 1fr 1fr;
+				grid-template-columns: 1fr 1fr;
 				gap: 0.75rem;
 			}
 
@@ -236,7 +236,7 @@
 				background: #252525;
 				border: 1px solid #444;
 				font-size: 0.75rem;
-				cursor: pointer;
+				cursor: pointer !important;
 				color: #ccc;
 				transition: all 0.15s;
 				user-select: none;
@@ -246,7 +246,7 @@
 				border-color: #81c784;
 			}
 
-			.pill.active {
+			.pill:has(input:checked) {
 				background: #81c784;
 				color: #0f0f0f;
 				border-color: #81c784;
@@ -257,6 +257,10 @@
 				opacity: 0.4;
 				cursor: not-allowed;
 				background: #1a1a1a;
+			}
+
+			:has(input#custom:not(:checked)) ~ .customResolution {
+				display: none;
 			}
 
 			/* codec wrapper + tooltip */
@@ -744,42 +748,28 @@
 			<div class="card">
 				<!-- Codec selector with unsupported detection -->
 				<div class="form-group">
-					<label>Video codec</label>
+					<span class="label">Video codec</span>
 					<div class="codec-wrap">
-						<select id="settingsVideoCodec"></select>
+						<select name="videoCodec" id="settingsVideoCodec">
+							<option></option>
+						</select>
 					</div>
 				</div>
 
 				<!-- Resolution -->
 				<div class="form-group">
-					<label>Resolution</label>
-					<div class="pill-row">
-						<template x-for="p in presets" :key="p.id">
-							<span
-								class="pill"
-								:class="{
-              						'active': settings.resolution === p.id,
-              						'disabled': resolutionDisabled(p)
-              					}"
-								@click="!resolutionDisabled(p) && setResolution(p)"
-								:title="resolutionTooltip(p)"
-								x-text="p.label"></span>
-						</template>
-					</div>
-
-					<div
-						class="form-row"
-						style="margin-top: 0.5rem"
-						x-show="settings.resolution === 'custom'">
+					<span class="label">Resolution</span>
+					<div class="pill-row" id="presets"></div>
+					<div class="form-row customResolution" style="margin-top: 0.5rem">
 						<input
 							type="number"
-							x-model.number="settings.customWidth"
+							name="width"
 							placeholder="Width"
 							min="64"
 							max="3840" />
 						<input
 							type="number"
-							x-model.number="settings.customHeight"
+							name="height"
 							placeholder="Height"
 							min="64"
 							max="2160" />
@@ -787,33 +777,37 @@
 				</div>
 
 				<div class="form-group">
-					<label>Target size <span style="color: #666">(MB)</span></label>
+					<span class="label"
+						>Target size <span style="color: #666">(MB)</span></span
+					>
 					<input
 						type="number"
-						x-model.number="settings.size"
+						name="size"
 						min="1"
 						max="10000"
 						step="1"
-						placeholder="20" />
+						value="20" />
 				</div>
 
 				<div class="form-group">
-					<label>Frame rate <span style="color: #666">(fps)</span></label>
+					<span class="label"
+						>Frame rate <span style="color: #666">(fps)</span></span
+					>
 					<input
 						type="number"
-						x-model.number="settings.frameRate"
+						name="frameRate"
 						min="1"
 						max="10000"
 						step="1"
 						placeholder="Original" />
 				</div>
 				<div class="form-group">
-					<label
-						>Keyframe interval <span style="color: #666">(seconds)</span></label
+					<span class="label"
+						>Keyframe interval <span style="color: #666">(seconds)</span></span
 					>
 					<input
 						type="number"
-						x-model.number="settings.keyFrameInterval"
+						name="keyFrameInterval"
 						min="1"
 						max="10000"
 						step="1"
@@ -821,30 +815,22 @@
 				</div>
 
 				<div class="form-group">
-					<label
+					<span class="label"
 						>Crop
-						<span style="color: #666">(leave blank for no crop)</span></label
+						<span style="color: #666">(leave blank for no crop)</span></span
 					>
 					<div class="form-row" style="margin-top: 0.5rem">
+						<input type="number" name="cropLeft" placeholder="Left" min="0" />
+						<input type="number" name="cropTop" placeholder="Top" min="0" />
 						<input
 							type="number"
-							x-model.number="settings.crop.left"
-							placeholder="Left"
-							min="0" />
-						<input
-							type="number"
-							x-model.number="settings.crop.top"
-							placeholder="Top"
-							min="0" />
-						<input
-							type="number"
-							x-model.number="settings.crop.width"
+							name="cropWidth"
 							placeholder="Width"
 							min="2"
 							step="2" />
 						<input
 							type="number"
-							x-model.number="settings.crop.height"
+							name="cropHeight"
 							placeholder="Height"
 							min="2"
 							step="2" />
@@ -852,22 +838,16 @@
 				</div>
 				<div class="form-group">
 					<div class="checkbox-group">
-						<input
-							type="checkbox"
-							id="discard_video"
-							x-model="settings.discardVideo" />
+						<input type="checkbox" id="discard_video" name="discardVideo" />
 						<label for="discard_video">Discard video</label>
 					</div>
 				</div>
 				<!-- Audio toggle -->
-				<div class="form-group" x-show="!metadata || metadata.audio">
+				<div class="form-group">
 					<div class="checkbox-group">
-						<input
-							type="checkbox"
-							id="discard_audio"
-							x-model="settings.discardAudio" />
+						<input type="checkbox" id="discard_audio" name="discardAudio" />
 						<label for="discard_audio">Discard audio track</label>
-						<input type="checkbox" id="mono_audio" x-model="settings.mono" />
+						<input type="checkbox" id="mono_audio" name="mono" />
 						<label for="mono_audio">Merge audio channels</label>
 					</div>
 				</div>
@@ -875,35 +855,19 @@
 				<!-- Auto-download -->
 				<div class="form-group">
 					<div class="checkbox-group">
-						<input
-							type="checkbox"
-							id="auto_dl"
-							x-model="settings.autoDownload" />
+						<input type="checkbox" id="auto_dl" name="autoDownload" />
 						<label for="auto_dl">Auto-download after processing</label>
 					</div>
 				</div>
 			</div>
 
-			<!-- Resolution warning toast -->
-			<template x-if="warning">
-				<div class="toast-warning">
-					<span class="warn-icon">⚠️</span>
-					<span x-text="warning"></span>
-				</div>
-			</template>
-
 			<!-- Action -->
-			<button
-				class="btn btn-primary"
-				:disabled="!canStart"
-				@click="startProcessing"
-				x-text="processing ? 'Processing …' : 'Start processing'"></button>
+			<input type="submit" class="btn btn-primary" value="Start processing" />
 
-			<template x-if="processing">
+			<!-- <template x-if="processing">
 				<button class="btn btn-cancel" @click="cancelProcessing">Cancel</button>
 			</template>
 
-			<!-- Progress -->
 			<template x-if="processing || progress > 0">
 				<div style="margin-top: 1rem">
 					<progress :value="progress" max="1"></progress>
@@ -911,12 +875,10 @@
 				</div>
 			</template>
 
-			<!-- Error -->
 			<template x-if="error">
 				<p class="status error" x-text="error"></p>
 			</template>
 
-			<!-- Success -->
 			<template x-if="downloadUrl">
 				<div class="status success">
 					<p>Processing complete!</p>
@@ -932,7 +894,7 @@
 						Download <span x-text="outputFileName"></span>
 					</a>
 				</div>
-			</template>
+			</template> -->
 		</div>
 
 		<script type="module" src="./js/main.js"></script>
