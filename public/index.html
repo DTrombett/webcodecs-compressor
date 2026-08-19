@@ -48,20 +48,17 @@
 		</script>
 
 		<style>
-			* {
-				margin: 0;
-				padding: 0;
-				box-sizing: border-box;
-				-webkit-tap-highlight-color: transparent;
+			@font-face {
+				font-family: "Open Sans";
+				font-style: normal;
+				font-weight: 300 800;
+				src: url("/fonts/OpenSans.ttf");
 			}
-
-			body {
-				font-family:
-					-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-				background: #0f0f0f;
-				color: #e0e0e0;
-				min-height: 100vh;
-				padding: 2rem 1rem;
+			@font-face {
+				font-family: "Open Sans";
+				font-style: italic;
+				font-weight: 300 800;
+				src: url("/fonts/OpenSans-Italic.ttf");
 			}
 
 			.container {
@@ -69,46 +66,24 @@
 				margin: 0 auto;
 			}
 
-			h1 {
-				font-size: 1.75rem;
-				margin-bottom: 0.25rem;
-				color: #81c784;
-			}
-
-			.subtitle {
-				color: #888;
-				font-size: 0.875rem;
-				margin-bottom: 1.5rem;
-			}
-
 			.card {
 				background: #1a1a1a;
 				border: 1px solid #333;
 				border-radius: 12px;
-				padding: 1.5rem;
-				margin-bottom: 1rem;
+				padding: 0 1.5rem 1.5rem;
+				margin: 0 auto 1rem;
+				max-width: var(--default-width);
+			}
+			.card h2 {
+				font-size: 1.25rem;
+				line-height: 1.4;
 			}
 
 			/* drop zone */
-			.drop-zone {
-				border: 2px dashed #555;
-				border-radius: 8px;
-				padding: 2rem;
-				text-align: center;
-				cursor: pointer;
-				transition: all 0.2s;
-			}
-
 			.drop-zone:hover,
 			.drop-zone.drag-over {
 				border-color: #81c784;
 				background: rgba(129, 199, 132, 0.05);
-			}
-
-			.drop-zone p {
-				margin-top: 0.5rem;
-				color: #888;
-				font-size: 0.875rem;
 			}
 
 			/* file info */
@@ -573,93 +548,72 @@
 				width: 16px;
 				height: 16px;
 			}
-
-			/* mobile */
-			@media (max-width: 480px) {
-				body {
-					padding: 1rem 0.75rem;
-				}
-
-				.card {
-					padding: 1rem;
-				}
-
-				h1 {
-					font-size: 1.4rem;
-				}
-
-				.subtitle {
-					font-size: 0.8rem;
-				}
-
-				.form-row {
-					grid-template-columns: 1fr;
-				}
-
-				.drop-zone {
-					padding: 1.25rem;
-				}
-
-				.drop-zone svg {
-					width: 32px;
-					height: 32px;
-				}
-
-				.pill {
-					font-size: 0.65rem;
-					padding: 0.3rem 0.5rem;
-				}
-
-				.btn {
-					padding: 0.75rem;
-					font-size: 0.95rem;
-				}
-
-				.meta-table th,
-				.meta-table td {
-					padding: 0.25rem 0.375rem;
-					font-size: 0.75rem;
-				}
-			}
 		</style>
 	</head>
 
-	<body>
-		<div class="container">
-			<h1>Video Compressor</h1>
-			<p class="subtitle">
-				Local video processing &mdash; MediaBunny &amp; WebCodecs
-			</p>
-
-			<!-- File upload -->
-			<div class="card">
-				<div class="drop-zone" id="dropZone">
-					<input
-						type="file"
-						id="fileInput"
-						accept="video/*,audio/*"
-						style="display: none" />
-					<svg
-						width="40"
-						height="40"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="#81c784"
-						stroke-width="1.5">
-						<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-						<polyline points="17 8 12 3 7 8" />
-						<line x1="12" y1="3" x2="12" y2="15" />
-					</svg>
-					<p>Click or drag video file here</p>
-				</div>
-
-				<div class="file-info" id="fileInfo" style="display: none">
-					<span class="icon">&#x1f3ac;</span>
-					<span class="name" id="fileName"></span>
-					<span class="size" id="fileSize"></span>
-					<button class="remove" id="removeFile">&times;</button>
-				</div>
+	<body
+		style="
+			font-family: &quot;Open Sans&quot;;
+			background: #0f0f0f;
+			color: #e0e0e0;
+			min-height: 100vh;
+			padding: 0 1rem 0.75rem;
+			--default-width: 425px;
+		">
+		<header style="max-width: var(--default-width); margin: 0 auto 1.75rem">
+			<h1 style="color: #81c784; margin-block-end: 0.5rem">Video Processing</h1>
+			<small style="color: #888">
+				Convert, compress, resize, recode and crop videos entirely on your
+				device with MediaBunny &amp; WebCodecs without needing to upload
+			</small>
+		</header>
+		<div class="card">
+			<h2>Select a file to get started</h2>
+			<div
+				class="drop-zone"
+				id="dropZone"
+				style="
+					border: 2px dashed #8888;
+					border-radius: 8px;
+					text-align: center;
+					cursor: pointer;
+					transition: all 0.2s;
+					aspect-ratio: 2 / 1;
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					align-items: center;
+				">
+				<input
+					type="file"
+					id="fileInput"
+					accept="video/*,audio/*"
+					style="display: none" />
+				<svg
+					width="40"
+					height="40"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="#81c784"
+					stroke-width="1.5">
+					<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+					<polyline points="17 8 12 3 7 8" />
+					<line x1="12" y1="3" x2="12" y2="15" />
+				</svg>
+				<small style="margin-top: 0.5rem; color: #888">
+					Click or drag video file here
+				</small>
 			</div>
+
+			<div class="file-info" id="fileInfo" style="display: none">
+				<span class="icon">&#x1f3ac;</span>
+				<span class="name" id="fileName"></span>
+				<span class="size" id="fileSize"></span>
+				<button class="remove" id="removeFile">&times;</button>
+			</div>
+		</div>
+		<div class="container">
+			<!-- File upload -->
 
 			<!-- Metadata -->
 			<div class="card" id="metadata" style="display: none">
