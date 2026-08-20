@@ -73,11 +73,20 @@
 				padding: 0 1.5rem 1.5rem;
 				margin: 0 auto 1rem;
 				max-width: var(--default-width);
+				display: flex;
+				flex-direction: column;
+				gap: 1rem;
 			}
-			.card h2,
-			summary.cardTitle {
+			.card h2 {
 				font-size: 1.25rem;
 				line-height: 1.4;
+			}
+			.card h3 {
+				line-height: 1.75rem;
+			}
+			.card h2,
+			.card h3 {
+				margin-block-end: 0;
 			}
 
 			/* drop zone */
@@ -134,39 +143,42 @@
 			}
 
 			/* form */
-			.form-group {
-				margin-bottom: 1rem;
-			}
-
-			.form-group .label {
-				display: block;
-				font-size: 0.875rem;
-				font-weight: 500;
-				margin-bottom: 0.375rem;
+			.form-group h4 {
+				margin-block: 0 0.5rem;
 				color: #bbb;
-			}
-
-			.form-row {
-				display: grid;
-				grid-template-columns: 1fr 1fr;
-				gap: 0.75rem;
+				line-height: normal;
 			}
 
 			.form-group input,
 			.form-group select {
-				width: 100%;
-				padding: 0.625rem 0.75rem;
+				width: stretch;
+				padding: 0.5rem 0.75rem;
 				background: #252525;
 				border: 1px solid #444;
 				border-radius: 6px;
 				color: #e0e0e0;
-				font-size: 0.875rem;
+				font-size: 1rem;
+				font-family: "Open Sans";
 			}
 
 			.form-group input:focus,
 			.form-group select:focus {
 				outline: none;
 				border-color: #81c784;
+			}
+
+			.form-row {
+				display: flex;
+				gap: 0.75rem;
+			}
+			.form-row input {
+				width: 50%;
+			}
+
+			.form-column {
+				display: flex;
+				flex-direction: column;
+				gap: 0.5rem;
 			}
 
 			select {
@@ -351,10 +363,6 @@
 			}
 
 			/* metadata */
-			.meta-section {
-				margin-top: 1rem;
-			}
-
 			.meta-section summary {
 				cursor: pointer;
 				color: #81c784;
@@ -564,6 +572,7 @@
 			color: #e0e0e0;
 			min-height: 100vh;
 			padding: 0 1rem 0.75rem;
+			line-height: 1.5;
 			--default-width: 425px;
 		">
 		<header style="max-width: var(--default-width); margin: 0 auto 1.75rem">
@@ -697,9 +706,10 @@
 
 		<!-- Settings -->
 		<div class="card">
+			<h2>Video options</h2>
 			<!-- Codec selector with unsupported detection -->
 			<div class="form-group">
-				<span class="label">Video codec</span>
+				<h4>Codec</h4>
 				<div class="codec-wrap">
 					<select name="videoCodec" id="settingsVideoCodec">
 						<option></option>
@@ -709,9 +719,9 @@
 
 			<!-- Resolution -->
 			<div class="form-group">
-				<span class="label">Resolution</span>
+				<h4>Resolution</h4>
 				<div class="pill-row" id="presets"></div>
-				<div class="form-row customResolution" style="margin-top: 0.5rem">
+				<div class="form-row customResolution" style="margin-top: 0.75rem">
 					<input
 						type="number"
 						name="width"
@@ -728,22 +738,7 @@
 			</div>
 
 			<div class="form-group">
-				<span class="label"
-					>Target size <span style="color: #666">(MB)</span></span
-				>
-				<input
-					type="number"
-					name="size"
-					min="1"
-					max="10000"
-					step="1"
-					value="20" />
-			</div>
-
-			<div class="form-group">
-				<span class="label"
-					>Frame rate <span style="color: #666">(fps)</span></span
-				>
+				<h4>Frame rate <span style="color: #666">(fps)</span></h4>
 				<input
 					type="number"
 					name="frameRate"
@@ -753,9 +748,7 @@
 					placeholder="Original" />
 			</div>
 			<div class="form-group">
-				<span class="label"
-					>Keyframe interval <span style="color: #666">(seconds)</span></span
-				>
+				<h4>Keyframe interval <span style="color: #666">(seconds)</span></h4>
 				<input
 					type="number"
 					name="keyFrameInterval"
@@ -766,47 +759,40 @@
 			</div>
 
 			<div class="form-group">
-				<span class="label"
-					>Crop <span style="color: #666">(leave blank for no crop)</span></span
-				>
-				<div class="form-row" style="margin-top: 0.5rem">
-					<input type="number" name="cropLeft" placeholder="Left" min="0" />
-					<input type="number" name="cropTop" placeholder="Top" min="0" />
-					<input
-						type="number"
-						name="cropWidth"
-						placeholder="Width"
-						min="2"
-						step="2" />
-					<input
-						type="number"
-						name="cropHeight"
-						placeholder="Height"
-						min="2"
-						step="2" />
+				<h4>Crop</h4>
+				<div class="form-column">
+					<div class="form-row">
+						<input
+							type="number"
+							name="cropLeft"
+							placeholder="Left (px)"
+							min="0" />
+						<input
+							type="number"
+							name="cropTop"
+							placeholder="Top (px)"
+							min="0" />
+					</div>
+					<div class="form-row">
+						<input
+							type="number"
+							name="cropWidth"
+							placeholder="Width (px)"
+							min="2"
+							step="2" />
+						<input
+							type="number"
+							name="cropHeight"
+							placeholder="Height (px)"
+							min="2"
+							step="2" />
+					</div>
 				</div>
 			</div>
 			<div class="form-group">
 				<div class="checkbox-group">
 					<input type="checkbox" id="discard_video" name="discardVideo" />
 					<label for="discard_video">Discard video</label>
-				</div>
-			</div>
-			<!-- Audio toggle -->
-			<div class="form-group">
-				<div class="checkbox-group">
-					<input type="checkbox" id="discard_audio" name="discardAudio" />
-					<label for="discard_audio">Discard audio track</label>
-					<input type="checkbox" id="mono_audio" name="mono" />
-					<label for="mono_audio">Merge audio channels</label>
-				</div>
-			</div>
-
-			<!-- Auto-download -->
-			<div class="form-group">
-				<div class="checkbox-group">
-					<input type="checkbox" id="auto_dl" name="autoDownload" />
-					<label for="auto_dl">Auto-download after processing</label>
 				</div>
 			</div>
 		</div>
