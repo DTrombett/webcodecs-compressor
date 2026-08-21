@@ -66,6 +66,11 @@
 				margin: 0 auto;
 			}
 
+			#settings {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+			}
 			.card {
 				background: #1a1a1a;
 				border: 1px solid #333;
@@ -76,6 +81,17 @@
 				display: flex;
 				flex-direction: column;
 				gap: 1rem;
+				width: stretch;
+			}
+			@media (width >= 48rem) {
+				#settings {
+					flex-direction: row;
+					gap: 1rem;
+					margin-bottom: 1rem;
+				}
+				#settings .card {
+					margin: 0;
+				}
 			}
 			.card h2 {
 				font-size: 1.25rem;
@@ -210,7 +226,7 @@
 				height: 1.25rem;
 				accent-color: #81c784;
 				cursor: pointer;
-				margin: 0.25rem;
+				margin: 0 0.25rem;
 			}
 
 			.checkbox-group label {
@@ -710,95 +726,143 @@
 		</div>
 
 		<!-- Settings -->
-		<div class="card">
-			<h2>Video options</h2>
-			<!-- Codec selector with unsupported detection -->
-			<div class="form-group">
-				<h4>Codec</h4>
-				<div class="codec-wrap">
-					<select name="videoCodec" id="settingsVideoCodec">
-						<option></option>
-					</select>
-				</div>
-			</div>
-
-			<!-- Resolution -->
-			<div class="form-group">
-				<h4>Resolution</h4>
-				<div class="pill-row" id="presets"></div>
-				<div class="form-row customResolution" style="margin-top: 0.5rem">
-					<input
-						type="number"
-						name="width"
-						placeholder="Width (px)"
-						min="64"
-						max="3840" />
-					<input
-						type="number"
-						name="height"
-						placeholder="Height (px)"
-						min="64"
-						max="2160" />
-				</div>
-			</div>
-
-			<div class="form-group">
-				<h4>Frame rate <span style="color: #666">(fps)</span></h4>
-				<input
-					type="number"
-					name="frameRate"
-					min="1"
-					max="10000"
-					step="1"
-					placeholder="Original" />
-			</div>
-			<div class="form-group">
-				<h4>Keyframe interval <span style="color: #666">(seconds)</span></h4>
-				<input
-					type="number"
-					name="keyFrameInterval"
-					min="1"
-					max="10000"
-					step="1"
-					placeholder="5 seconds" />
-			</div>
-
-			<div class="form-group">
-				<h4>Crop</h4>
-				<div class="form-column">
-					<div class="form-row">
-						<input
-							type="number"
-							name="cropLeft"
-							placeholder="Left (px)"
-							min="0" />
-						<input
-							type="number"
-							name="cropTop"
-							placeholder="Top (px)"
-							min="0" />
+		<div id="settings">
+			<div class="card" id="videoOptions">
+				<h2>Video options</h2>
+				<!-- Codec selector with unsupported detection -->
+				<div class="form-group">
+					<h4>Codec</h4>
+					<div class="codec-wrap">
+						<select name="videoCodec" id="settingsVideoCodec">
+							<option></option>
+						</select>
 					</div>
-					<div class="form-row">
+				</div>
+
+				<!-- Resolution -->
+				<div class="form-group">
+					<h4>Resolution</h4>
+					<div class="pill-row" id="presets"></div>
+					<div class="form-row customResolution" style="margin-top: 0.5rem">
 						<input
 							type="number"
-							name="cropWidth"
+							name="width"
 							placeholder="Width (px)"
-							min="2"
-							step="2" />
+							min="64"
+							max="3840" />
 						<input
 							type="number"
-							name="cropHeight"
+							name="height"
 							placeholder="Height (px)"
-							min="2"
-							step="2" />
+							min="64"
+							max="2160" />
 					</div>
 				</div>
+
+				<div class="form-group">
+					<h4>Frame rate <span style="color: #666">(fps)</span></h4>
+					<input
+						type="number"
+						name="frameRate"
+						min="1"
+						max="10000"
+						step="1"
+						placeholder="Original" />
+				</div>
+				<div class="form-group">
+					<h4>Keyframe interval <span style="color: #666">(seconds)</span></h4>
+					<input
+						type="number"
+						name="keyFrameInterval"
+						min="1"
+						max="10000"
+						step="1"
+						placeholder="5 seconds" />
+				</div>
+
+				<div class="form-group">
+					<h4>Crop</h4>
+					<div class="form-column">
+						<div class="form-row">
+							<input
+								type="number"
+								name="cropLeft"
+								placeholder="Left (px)"
+								min="0" />
+							<input
+								type="number"
+								name="cropTop"
+								placeholder="Top (px)"
+								min="0" />
+						</div>
+						<div class="form-row">
+							<input
+								type="number"
+								name="cropWidth"
+								placeholder="Width (px)"
+								min="2"
+								step="2" />
+							<input
+								type="number"
+								name="cropHeight"
+								placeholder="Height (px)"
+								min="2"
+								step="2" />
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="checkbox-group" for="discard_video">
+						<input type="checkbox" id="discard_video" name="discardVideo" />
+						Discard video
+					</label>
+				</div>
 			</div>
-			<div class="form-group">
-				<label class="checkbox-group" for="discard_video">
-					<input type="checkbox" id="discard_video" name="discardVideo" />
-					Discard video
-				</label>
+			<div class="card" id="audioOptions">
+				<h2>Audio options</h2>
+				<!-- Codec selector with unsupported detection -->
+				<div class="form-group">
+					<h4>Codec</h4>
+					<div class="codec-wrap">
+						<select name="audioCodec" id="settingsAudioCodec">
+							<option></option>
+						</select>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<h4>Bitrate <span style="color: #666">(kbps)</span></h4>
+					<input
+						type="number"
+						name="audioBitrate"
+						min="1"
+						max="10000"
+						step="1"
+						placeholder="Auto" />
+				</div>
+				<div class="form-group">
+					<h4>Sample rate <span style="color: #666">(hz)</span></h4>
+					<input
+						type="number"
+						name="sampleRate"
+						min="1"
+						max="10000"
+						step="1"
+						placeholder="Auto" />
+				</div>
+
+				<div class="form-group">
+					<label class="checkbox-group" for="audioMono">
+						<input type="checkbox" id="audioMono" name="audioMono" />
+						Audio mono
+					</label>
+				</div>
+				<div class="form-group">
+					<label class="checkbox-group" for="discard_audio">
+						<input type="checkbox" id="discard_audio" name="discardAudio" />
+						Discard audio
+					</label>
+				</div>
 			</div>
 		</div>
 
