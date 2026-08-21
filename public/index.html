@@ -202,20 +202,19 @@
 				display: flex;
 				align-items: center;
 				gap: 0.5rem;
+				cursor: pointer;
 			}
 
 			.checkbox-group input[type="checkbox"] {
-				width: 18px;
-				height: 18px;
+				width: 1.25rem;
+				height: 1.25rem;
 				accent-color: #81c784;
 				cursor: pointer;
+				margin: 0.25rem;
 			}
 
 			.checkbox-group label {
 				cursor: pointer;
-				font-size: 0.875rem;
-				color: #bbb;
-				margin-bottom: 0;
 			}
 
 			/* pill buttons for presets */
@@ -796,10 +795,10 @@
 				</div>
 			</div>
 			<div class="form-group">
-				<div class="checkbox-group">
+				<label class="checkbox-group" for="discard_video">
 					<input type="checkbox" id="discard_video" name="discardVideo" />
-					<label for="discard_video">Discard video</label>
-				</div>
+					Discard video
+				</label>
 			</div>
 		</div>
 
