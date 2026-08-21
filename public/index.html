@@ -233,17 +233,26 @@
 				transition: all 0.2s;
 				user-select: none;
 				width: auto;
+				display: grid;
+				text-align: center;
+			}
+			.pill > span {
+				grid-area: 1 / 1;
+			}
+			.pill > span + span {
+				visibility: hidden;
 			}
 
 			.pill:hover {
 				border-color: #81c784;
 			}
 
-			.pill:has(input:checked) {
+			.pill:has(input:checked),
+			.pill > span + span {
 				background: #81c784;
 				color: #0f0f0f;
 				border-color: #81c784;
-				font-weight: 500;
+				font-weight: bold;
 			}
 
 			.pill.disabled {

@@ -156,19 +156,32 @@ const checkCodecs = async () => {
 };
 
 for (const resolution of Object.values(RESOLUTION_PRESETS)) {
-	const input = document.createElement("input");
-	const label = document.createElement("label");
+	const input = document.createElement("input"),
+		label = document.createElement("label"),
+		span1 = document.createElement("span"),
+		span2 = document.createElement("span");
 
-	input.id = input.value = resolution.id;
+	input.id = input.value = label.htmlFor = resolution.id;
 	input.style.display = "none";
 	input.name = "resolution";
 	input.type = "radio";
-	label.textContent = resolution.label;
+	span1.textContent = resolution.label;
+	span2.textContent = resolution.label;
 	label.appendChild(input);
+	label.appendChild(span1);
+	label.appendChild(span2);
 	label.className = "pill";
-	label.htmlFor = input.id;
 	elements.presets.appendChild(label);
 }
+for (const child of elements.presets.children)
+	if (child instanceof HTMLLabelElement) {
+		const input = document.getElementById(child.htmlFor);
+
+		if (input instanceof HTMLInputElement) {
+			input.checked = true;
+			break;
+		}
+	}
 checkCodecs();
 window.addEventListener("dragover", (ev) => {
 	if (
