@@ -1,19 +1,19 @@
-/**
- * core/video.js - Resolution presets, dimension calculation, aspect-ratio helpers,
- * and shared codec definitions.
- */
-
-/**
- * Shared codec definitions — single source of truth.
- * Used by main.js (detection) and core/pipeline.js (processing).
- * @type {CodecDefinition[]}
- */
-export const CODEC_DEFINITIONS = [
+/** @type {CodecDefinition<VideoCodec>[]} */
+export const VIDEO_CODEC_DEFINITIONS = [
 	{ id: "vp9", label: "VP9" },
 	{ id: "av1", label: "AV1" },
 	{ id: "vp8", label: "VP8" },
 	{ id: "hevc", label: "H.265 / HEVC" },
 	{ id: "avc", label: "H.264 / AVC" },
+];
+
+/** @type {CodecDefinition<AudioCodec>[]} */
+export const AUDIO_CODEC_DEFINITIONS = [
+	{ id: "opus", label: "Opus" },
+	{ id: "vorbis", label: "Vorbis" },
+	{ id: "mp3", label: "MP3" },
+	{ id: "flac", label: "Flac" },
+	{ id: "aac", label: "AAC / M4A" },
 ];
 
 /** @satisfies {Record<string, ResolutionPreset>} */

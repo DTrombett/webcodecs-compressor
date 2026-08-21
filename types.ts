@@ -4,6 +4,7 @@ import type {
 	CropRectangle as CRectangle,
 	Input,
 	Source as MBSource,
+	MediaCodec as MCodec,
 	OutputFormat,
 	VideoCodec as VCodec,
 } from "mediabunny";
@@ -39,11 +40,15 @@ declare global {
 	type OutputFormatConstructor = new () => OutputFormat;
 	type VideoCodec = VCodec;
 	type AudioCodec = ACodec;
+	type MediaCodec = MCodec;
 	type Source = MBSource;
 	type CropRectangle = CRectangle;
 
 	type ResolutionPreset = { label: string; height?: number; id: string };
-	type CodecDefinition = { id: VCodec; label: string };
+	type CodecDefinition<C extends MediaCodec = MediaCodec> = {
+		id: C;
+		label: string;
+	};
 	type Codec = {
 		id: VCodec;
 		label: string;

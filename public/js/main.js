@@ -1,6 +1,16 @@
-import { ALL_FORMATS, BlobSource, canEncodeVideo, Input } from "mediabunny";
+import {
+	ALL_FORMATS,
+	BlobSource,
+	canEncodeAudio,
+	canEncodeVideo,
+	Input,
+} from "mediabunny";
 import { channelLabel, formatDuration, formatSize } from "./utils.js";
-import { CODEC_DEFINITIONS, RESOLUTION_PRESETS } from "./video.js";
+import {
+	AUDIO_CODEC_DEFINITIONS,
+	RESOLUTION_PRESETS,
+	VIDEO_CODEC_DEFINITIONS,
+} from "./video.js";
 
 const elements = {
 	fileInput: /** @type {HTMLInputElement} */ (
@@ -58,6 +68,9 @@ const elements = {
 	),
 	settingsVideoCodec: /** @type {HTMLSelectElement} */ (
 		document.getElementById("settingsVideoCodec")
+	),
+	settingsAudioCodec: /** @type {HTMLSelectElement} */ (
+		document.getElementById("settingsAudioCodec")
 	),
 	presets: /** @type {HTMLDivElement} */ (document.getElementById("presets")),
 	fileSelection: /** @type {HTMLDivElement} */ (
@@ -137,11 +150,11 @@ const state = new Proxy(
 );
 
 /**
- * Check which codecs are supported for encoding.
+ * Check which codecs are supported for video encoding.
  */
-const checkCodecs = async () => {
+const checkVideoCodecs = async () => {
 	await Promise.allSettled(
-		CODEC_DEFINITIONS.map(async (def, i) => {
+		VIDEO_CODEC_DEFINITIONS.map(async (def, i) => {
 			if (await canEncodeVideo(def.id)) {
 				const option = document.createElement("option");
 
@@ -153,6 +166,24 @@ const checkCodecs = async () => {
 	);
 	elements.settingsVideoCodec.options.remove(0);
 	elements.settingsVideoCodec.selectedIndex = 0;
+};
+/**
+ * Check which codecs are supported for audio encoding.
+ */
+const checkAudioCodecs = async () => {
+	await Promise.allSettled(
+		AUDIO_CODEC_DEFINITIONS.map(async (def, i) => {
+			if (await canEncodeAudio(def.id)) {
+				const option = document.createElement("option");
+
+				option.text = def.label;
+				option.value = def.id;
+				elements.settingsAudioCodec.options.add(option, i + 1);
+			}
+		}),
+	);
+	elements.settingsAudioCodec.options.remove(0);
+	elements.settingsAudioCodec.selectedIndex = 0;
 };
 
 for (const resolution of Object.values(RESOLUTION_PRESETS)) {
@@ -182,7 +213,8 @@ for (const child of elements.presets.children)
 			break;
 		}
 	}
-checkCodecs();
+checkVideoCodecs();
+checkAudioCodecs();
 window.addEventListener("dragover", (ev) => {
 	if (
 		ev.dataTransfer &&
