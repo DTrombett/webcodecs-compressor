@@ -61,6 +61,7 @@ const audioOnlyFormats = {
 	"pcm-s16be": MovOutputFormat,
 	"pcm-s24be": MovOutputFormat,
 	"pcm-s32be": MovOutputFormat,
+	dts: Mkv,
 };
 /** @type {Partial<Record<VideoCodec, Partial<Record<AudioCodec, new (...args: any[]) => OutputFormat>>>>} */
 const videoAudioFormats = {

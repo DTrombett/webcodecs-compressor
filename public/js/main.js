@@ -6,11 +6,7 @@ import {
 	Input,
 } from "mediabunny";
 import { channelLabel, formatDuration, formatSize } from "./utils.js";
-import {
-	AUDIO_CODEC_DEFINITIONS,
-	RESOLUTION_PRESETS,
-	VIDEO_CODEC_DEFINITIONS,
-} from "./video.js";
+import { AUDIO_CODEC_DEFINITIONS, VIDEO_CODEC_DEFINITIONS } from "./video.js";
 
 const elements = {
 	fileInput: /** @type {HTMLInputElement} */ (
@@ -72,7 +68,9 @@ const elements = {
 	settingsAudioCodec: /** @type {HTMLSelectElement} */ (
 		document.getElementById("settingsAudioCodec")
 	),
-	presets: /** @type {HTMLDivElement} */ (document.getElementById("presets")),
+	presets: /** @type {HTMLSelectElement} */ (
+		document.getElementById("presets")
+	),
 	fileSelection: /** @type {HTMLDivElement} */ (
 		document.getElementById("fileSelection")
 	),
@@ -185,34 +183,6 @@ const checkAudioCodecs = async () => {
 	elements.settingsAudioCodec.options.remove(0);
 	elements.settingsAudioCodec.selectedIndex = 0;
 };
-
-for (const resolution of Object.values(RESOLUTION_PRESETS)) {
-	const input = document.createElement("input"),
-		label = document.createElement("label"),
-		span1 = document.createElement("span"),
-		span2 = document.createElement("span");
-
-	input.id = input.value = label.htmlFor = resolution.id;
-	input.style.display = "none";
-	input.name = "resolution";
-	input.type = "radio";
-	span1.textContent = resolution.label;
-	span2.textContent = resolution.label;
-	label.appendChild(input);
-	label.appendChild(span1);
-	label.appendChild(span2);
-	label.className = "pill";
-	elements.presets.appendChild(label);
-}
-for (const child of elements.presets.children)
-	if (child instanceof HTMLLabelElement) {
-		const input = document.getElementById(child.htmlFor);
-
-		if (input instanceof HTMLInputElement) {
-			input.checked = true;
-			break;
-		}
-	}
 checkVideoCodecs();
 checkAudioCodecs();
 window.addEventListener("dragover", (ev) => {

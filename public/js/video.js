@@ -18,11 +18,6 @@ export const AUDIO_CODEC_DEFINITIONS = [
 
 /** @satisfies {Record<string, ResolutionPreset>} */
 export const RESOLUTION_PRESETS = {
-	original: {
-		label: "Original (unchanged)",
-		height: undefined,
-		id: "original",
-	},
 	"2160p": { label: "4K UHD (2160p)", height: 2160, id: "2160p" },
 	"1620p": { label: "3K (1620p)", height: 1620, id: "1620p" },
 	"1440p": { label: "QHD (1440p)", height: 1440, id: "1440p" },

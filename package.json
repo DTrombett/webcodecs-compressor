@@ -1,12 +1,15 @@
 {
-  "dependencies": {
-    "mediabunny": "^1.54.0"
-  },
-  "devDependencies": {
-    "wrangler": "^4.124.0"
-  },
-  "allowScripts": {
-    "esbuild@0.28.1": true,
-    "workerd@1.20260815.1": true
-  }
+	"scripts": {
+		"dev": "wrangler dev"
+	},
+	"dependencies": {
+		"mediabunny": "^1.55.1"
+	},
+	"devDependencies": {
+		"wrangler": "^4.125.0"
+	},
+	"allowScripts": {
+		"esbuild@0.28.1": true,
+		"workerd@1.20260820.1": true
+	}
 }
