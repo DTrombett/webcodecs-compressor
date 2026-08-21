@@ -168,10 +168,12 @@
 
 			.form-group input,
 			.form-group select,
+			.form-group textarea,
+			.form-group fieldset,
 			.pill {
 				width: stretch;
 				padding: 0.5rem 0.75rem;
-				background: #252525;
+				background-color: #252525;
 				border: 1px solid #444;
 				border-radius: 6px;
 				color: #e0e0e0;
@@ -287,11 +289,16 @@
 				background: #1a1a1a;
 			}
 
-			.hiddenInput {
-				display: none;
-			}
-			select:has(option[value="custom"]:checked) + .hiddenInput {
-				display: flex;
+			input:disabled,
+			select:disabled,
+			fieldset:disabled,
+			textarea:disabled {
+				cursor: not-allowed;
+				box-shadow: none;
+				border-color: transparent;
+				background-color: #444;
+				opacity: 0.75;
+				color: revert;
 			}
 
 			/* codec wrapper + tooltip */
@@ -753,7 +760,8 @@
 							min="1"
 							max="10000"
 							step="1"
-							placeholder="Bitrate (kbps)" />
+							placeholder="Bitrate (kbps)"
+							disabled />
 					</div>
 				</div>
 				<div class="form-group">
@@ -776,14 +784,16 @@
 							name="width"
 							placeholder="Width (px)"
 							min="64"
-							max="3840" />
+							max="3840"
+							disabled />
 						<input
 							type="number"
 							name="height"
 							placeholder="Height (px)"
 							min="64"
-							max="2160" />
-						<select name="fit">
+							max="2160"
+							disabled />
+						<select name="fit" disabled>
 							<option value="fill">Fill</option>
 							<option value="contain">Contain</option>
 							<option value="cover">Cover</option>
@@ -879,7 +889,8 @@
 							min="1"
 							max="10000"
 							step="1"
-							placeholder="Bitrate (kbps)" />
+							placeholder="Bitrate (kbps)"
+							disabled />
 					</div>
 				</div>
 				<div class="form-column">
