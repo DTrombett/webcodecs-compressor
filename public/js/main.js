@@ -361,6 +361,21 @@ elements.removeFile.addEventListener("click", (ev) => {
 		new Event("change", { bubbles: true, cancelable: false, composed: false }),
 	);
 });
+document.body.querySelectorAll("select:has(~ .hiddenInput)").forEach((el) =>
+	el.addEventListener("change", () => {
+		console.log("change", el);
+		const disabled = !(
+			/** @type {HTMLSelectElement} */ (el).value === "custom"
+		);
+
+		for (const element of el.parentElement?.querySelectorAll(
+			".hiddenInput select, .hiddenInput input, .hiddenInput textarea, .hiddenInput fieldset",
+		) ?? [])
+			/** @type {HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement | HTMLFieldSetElement} */ (
+				element
+			).disabled = disabled;
+	}),
+);
 
 /** @returns {AppState} */
 // export default () => ({
