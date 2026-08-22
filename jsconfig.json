@@ -1,4 +1,10 @@
 {
-	"compilerOptions": { "strict": true, "allowJs": true, "checkJs": true },
+	"compilerOptions": {
+		"strict": true,
+		"allowJs": true,
+		"checkJs": true,
+		"noEmit": true,
+		"erasableSyntaxOnly": true
+	},
 	"include": ["public/js", "types.ts"]
 }

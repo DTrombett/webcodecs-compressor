@@ -1,4 +1,11 @@
-import { Input, InputAudioTrack, InputVideoTrack } from "mediabunny";
+import {
+	canEncodeAudio,
+	canEncodeVideo,
+	Input,
+	InputAudioTrack,
+	InputVideoTrack,
+} from "mediabunny";
+import { AUDIO_CODEC_DEFINITIONS, VIDEO_CODEC_DEFINITIONS } from "./video.js";
 
 export const elements = {
 	fileInput: /** @type {HTMLInputElement} */ (
@@ -25,6 +32,9 @@ export const elements = {
 		document.getElementById("removeFile")
 	),
 	settings: /** @type {HTMLDivElement} */ (document.getElementById("settings")),
+	frameRate: /** @type {HTMLInputElement} */ (
+		document.getElementById("frameRate")
+	),
 };
 
 /**
@@ -116,8 +126,10 @@ export const getFormat = async (input) => {
  */
 export const getFps = async (track) => {
 	const frm = await track.computeFrameRateMetrics();
+	const textContent = `${frm.bestGuessFrameRate.toLocaleString()} fps`;
 
-	fill("inputVideoFps", `${frm.bestGuessFrameRate.toLocaleString()} fps`);
+	fill("inputVideoFps", textContent);
+	elements.frameRate.placeholder = `Original (${textContent})`;
 	return frm;
 };
 
@@ -239,6 +251,7 @@ export const getVideo = async (input) => {
 		]);
 	} else {
 		elements.metadataVideo.style.display = "none";
+		elements.frameRate.placeholder = "Original";
 		fill("inputVideoCodec", null);
 		fill("inputDisplaySize", null);
 		fill("inputVideoFps", null);
@@ -272,4 +285,42 @@ export const getAudio = async (input) => {
 		fill("inputAudioBitrate", null);
 	}
 	return track;
+};
+
+/**
+ * Check which codecs are supported for video encoding.
+ */
+export const checkVideoCodecs = async () => {
+	await Promise.allSettled(
+		VIDEO_CODEC_DEFINITIONS.map(async (def, i) => {
+			if (await canEncodeVideo(def.id)) {
+				const option = document.createElement("option");
+
+				option.text = def.label;
+				option.value = def.id;
+				elements.settingsVideoCodec.options.add(option, i + 1);
+			}
+		}),
+	);
+	elements.settingsVideoCodec.options.remove(0);
+	elements.settingsVideoCodec.selectedIndex = 0;
+};
+
+/**
+ * Check which codecs are supported for audio encoding.
+ */
+export const checkAudioCodecs = async () => {
+	await Promise.allSettled(
+		AUDIO_CODEC_DEFINITIONS.map(async (def, i) => {
+			if (await canEncodeAudio(def.id)) {
+				const option = document.createElement("option");
+
+				option.text = def.label;
+				option.value = def.id;
+				elements.settingsAudioCodec.options.add(option, i + 1);
+			}
+		}),
+	);
+	elements.settingsAudioCodec.options.remove(0);
+	elements.settingsAudioCodec.selectedIndex = 0;
 };

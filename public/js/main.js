@@ -1,11 +1,7 @@
+import { ALL_FORMATS, BlobSource, Input } from "mediabunny";
 import {
-	ALL_FORMATS,
-	BlobSource,
-	canEncodeAudio,
-	canEncodeVideo,
-	Input,
-} from "mediabunny";
-import {
+	checkAudioCodecs,
+	checkVideoCodecs,
 	elements,
 	fill,
 	formatSize,
@@ -14,7 +10,6 @@ import {
 	getFormat,
 	getVideo,
 } from "./utils.js";
-import { AUDIO_CODEC_DEFINITIONS, VIDEO_CODEC_DEFINITIONS } from "./video.js";
 
 /** @type {AppState} */
 const state = {
@@ -29,43 +24,6 @@ const state = {
 	codecs: [],
 	currentConversion: null,
 	isHdrSource: false,
-};
-
-/**
- * Check which codecs are supported for video encoding.
- */
-const checkVideoCodecs = async () => {
-	await Promise.allSettled(
-		VIDEO_CODEC_DEFINITIONS.map(async (def, i) => {
-			if (await canEncodeVideo(def.id)) {
-				const option = document.createElement("option");
-
-				option.text = def.label;
-				option.value = def.id;
-				elements.settingsVideoCodec.options.add(option, i + 1);
-			}
-		}),
-	);
-	elements.settingsVideoCodec.options.remove(0);
-	elements.settingsVideoCodec.selectedIndex = 0;
-};
-/**
- * Check which codecs are supported for audio encoding.
- */
-const checkAudioCodecs = async () => {
-	await Promise.allSettled(
-		AUDIO_CODEC_DEFINITIONS.map(async (def, i) => {
-			if (await canEncodeAudio(def.id)) {
-				const option = document.createElement("option");
-
-				option.text = def.label;
-				option.value = def.id;
-				elements.settingsAudioCodec.options.add(option, i + 1);
-			}
-		}),
-	);
-	elements.settingsAudioCodec.options.remove(0);
-	elements.settingsAudioCodec.selectedIndex = 0;
 };
 
 checkVideoCodecs();
@@ -142,14 +100,15 @@ elements.fileInput.addEventListener("change", async () => {
 				getAudio(input),
 			]);
 			elements.fileSelection.style.display = "none";
-			elements.settings.style.display = "";
 			elements.metadata.style.display = "";
+			elements.settings.style.display = "";
 			return;
 		} else alert("The selected video or audio is not supported!");
 	elements.settings.style.display = "none";
 	elements.metadata.style.display = "none";
 	elements.fileSelection.style.display = "";
 	elements.fileInput.value = "";
+	elements.frameRate.placeholder = "Original";
 	state.input?.dispose();
 	state.input = null;
 	state.metadata = null;
