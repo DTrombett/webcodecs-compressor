@@ -66,7 +66,7 @@
 				margin: 0 auto;
 			}
 
-			#settings {
+			#settings > div {
 				display: flex;
 				flex-direction: column;
 				justify-content: center;
@@ -85,7 +85,7 @@
 				container-type: inline-size;
 			}
 			@media (width >= 48rem) {
-				#settings {
+				#settings > div {
 					flex-direction: row;
 					gap: 1rem;
 					margin-bottom: 1rem;
@@ -192,8 +192,11 @@
 				display: flex;
 				gap: 0.75rem;
 			}
-			.form-row > * {
+			.form-row.two > * {
 				width: 50% !important;
+			}
+			.form-row.three {
+				flex-direction: column;
 			}
 
 			.form-column {
@@ -204,7 +207,14 @@
 			.form-column > * {
 				flex: 1;
 			}
-			@container (min-width: 25rem) {
+
+			@container (min-width: 24rem) {
+				.form-row.three {
+					flex-direction: row;
+				}
+				.form-row.three > * {
+					width: calc(100% / 3) !important;
+				}
 				.form-column {
 					flex-direction: row;
 					gap: 0.5rem;
@@ -737,207 +747,262 @@
 				</table>
 			</details>
 		</div>
-
-		<!-- Settings -->
 		<div id="settings">
-			<div class="card" id="videoOptions">
-				<h2>Video options</h2>
-				<div class="form-group">
-					<h4>Quality</h4>
-					<select name="videoQuality">
-						<option value="auto">Automatic</option>
-						<option value="very-high">Very high</option>
-						<option value="high">High</option>
-						<option value="medium">Medium</option>
-						<option value="low">Low</option>
-						<option value="very-low">Very low</option>
-						<option value="custom">Custom…</option>
-					</select>
-					<div class="hiddenInput" style="margin-top: 0.5rem">
-						<input
-							type="number"
-							name="videoBitrate"
-							min="1"
-							max="10000"
-							step="1"
-							placeholder="Bitrate (kbps)"
-							disabled />
-					</div>
-				</div>
-				<div class="form-group">
-					<h4>Resolution</h4>
-					<select name="resolution" id="presets">
-						<option value="original">
-							Original (<span data-prop="resolution">unchanged</span>)
-						</option>
-						<option value="2160">4K UHD (2160p)</option>
-						<option value="1620">3K (1620p)</option>
-						<option value="1440">QHD (1440p)</option>
-						<option value="1080">FHD (1080p)</option>
-						<option value="720">HD (720p)</option>
-						<option value="480">SD (480p)</option>
-						<option value="custom">Custom…</option>
-					</select>
-					<div class="form-row hiddenInput" style="margin-top: 0.5rem">
-						<input
-							type="number"
-							name="width"
-							placeholder="Width (px)"
-							min="64"
-							max="3840"
-							disabled />
-						<input
-							type="number"
-							name="height"
-							placeholder="Height (px)"
-							min="64"
-							max="2160"
-							disabled />
-						<select name="fit" disabled>
-							<option value="fill">Fill</option>
-							<option value="contain">Contain</option>
-							<option value="cover">Cover</option>
+			<div>
+				<div class="card" id="videoOptions">
+					<h2>Video options</h2>
+					<div class="form-group">
+						<h4>Quality</h4>
+						<select name="videoQuality">
+							<option value="auto">Automatic</option>
+							<option value="very-high">Very high</option>
+							<option value="high">High</option>
+							<option value="medium">Medium</option>
+							<option value="low">Low</option>
+							<option value="very-low">Very low</option>
+							<option value="custom">Custom…</option>
 						</select>
-					</div>
-				</div>
-				<div class="form-group">
-					<h4>Crop</h4>
-					<div class="form-column" style="gap: 0.5rem">
-						<div class="form-row">
-							<input type="number" name="cropLeft" placeholder="Left" min="0" />
-							<input type="number" name="cropTop" placeholder="Top" min="0" />
-						</div>
-						<div class="form-row">
+						<div class="hiddenInput" style="margin-top: 0.5rem">
 							<input
 								type="number"
-								name="cropWidth"
-								placeholder="Width"
-								min="2"
-								step="2" />
-							<input
-								type="number"
-								name="cropHeight"
-								placeholder="Height"
-								min="2"
-								step="2" />
+								name="videoBitrate"
+								min="1"
+								max="10000"
+								step="1"
+								placeholder="Bitrate (kbps)"
+								disabled />
 						</div>
 					</div>
-				</div>
-				<div class="form-column">
+					<div class="form-column">
+						<div class="form-group">
+							<h4>Codec</h4>
+							<select name="videoCodec" id="settingsVideoCodec">
+								<option></option>
+							</select>
+						</div>
+						<div class="form-group">
+							<h4>Rotate</h4>
+							<select name="rotate">
+								<option value="0">0°</option>
+								<option value="90">90°</option>
+								<option value="180">180°</option>
+								<option value="270">270°</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-column">
+						<div class="form-group">
+							<h4>Frame rate <span style="color: #666">(fps)</span></h4>
+							<input
+								type="number"
+								name="frameRate"
+								min="1"
+								max="10000"
+								step="1"
+								placeholder="Original" />
+						</div>
+						<div class="form-group">
+							<h4>Keyframe interval</h4>
+							<input
+								type="number"
+								name="keyFrameInterval"
+								min="1"
+								max="10000"
+								step="1"
+								placeholder="5 seconds" />
+						</div>
+					</div>
 					<div class="form-group">
-						<h4>Codec</h4>
-						<select name="videoCodec" id="settingsVideoCodec">
-							<option></option>
+						<label class="checkbox-group" for="discard_video">
+							<input type="checkbox" id="discard_video" name="discardVideo" />
+							Discard video
+						</label>
+					</div>
+				</div>
+				<div class="card" id="audioOptions">
+					<h2>Audio options</h2>
+					<div class="form-group">
+						<h4>Quality</h4>
+						<select name="audioQuality">
+							<option value="auto">Automatic</option>
+							<option value="very-high">Very high</option>
+							<option value="high">High</option>
+							<option value="medium">Medium</option>
+							<option value="low">Low</option>
+							<option value="very-low">Very low</option>
+							<option value="custom">Custom…</option>
 						</select>
+						<div class="hiddenInput" style="margin-top: 0.5rem">
+							<input
+								type="number"
+								name="audioBitrate"
+								min="1"
+								max="10000"
+								step="1"
+								placeholder="Bitrate (kbps)"
+								disabled />
+						</div>
 					</div>
+					<div class="form-column">
+						<div class="form-group">
+							<h4>Codec</h4>
+							<select name="audioCodec" id="settingsAudioCodec">
+								<option></option>
+							</select>
+						</div>
+						<div class="form-group">
+							<h4>Sample format</h4>
+							<select name="sampleFormat">
+								<option value="original">Original</option>
+								<option value="u8">Unsigned 8-bit</option>
+								<option value="s16">Signed 16-bit</option>
+								<option value="s32">Signed 32-bit</option>
+								<option value="f32">Floating point 32-bit</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-column">
+						<div class="form-group">
+							<h4>Sample rate <span style="color: #666">(hz)</span></h4>
+							<input
+								type="number"
+								name="sampleRate"
+								min="1"
+								max="10000"
+								step="1"
+								placeholder="Original" />
+						</div>
+						<div class="form-group">
+							<h4>Number of channels</h4>
+							<input
+								type="number"
+								name="channels"
+								min="1"
+								max="10000"
+								step="1"
+								placeholder="Original" />
+						</div>
+					</div>
+
 					<div class="form-group">
-						<h4>Rotate</h4>
-						<select name="rotate">
-							<option value="0">0°</option>
-							<option value="90">90°</option>
-							<option value="180">180°</option>
-							<option value="270">270°</option>
-						</select>
+						<label class="checkbox-group" for="discard_audio">
+							<input type="checkbox" id="discard_audio" name="discardAudio" />
+							Discard audio
+						</label>
 					</div>
-				</div>
-				<div class="form-column">
-					<div class="form-group">
-						<h4>Frame rate <span style="color: #666">(fps)</span></h4>
-						<input
-							type="number"
-							name="frameRate"
-							min="1"
-							max="10000"
-							step="1"
-							placeholder="Original" />
-					</div>
-					<div class="form-group">
-						<h4>Keyframe interval</h4>
-						<input
-							type="number"
-							name="keyFrameInterval"
-							min="1"
-							max="10000"
-							step="1"
-							placeholder="5 seconds" />
-					</div>
-				</div>
-				<div class="form-group">
-					<label class="checkbox-group" for="discard_video">
-						<input type="checkbox" id="discard_video" name="discardVideo" />
-						Discard video
-					</label>
 				</div>
 			</div>
-			<div class="card" id="audioOptions">
-				<h2>Audio options</h2>
-				<div class="form-group">
-					<h4>Quality</h4>
-					<select name="audioQuality">
-						<option value="auto">Automatic</option>
-						<option value="very-high">Very high</option>
-						<option value="high">High</option>
-						<option value="medium">Medium</option>
-						<option value="low">Low</option>
-						<option value="very-low">Very low</option>
-						<option value="custom">Custom…</option>
-					</select>
-					<div class="hiddenInput" style="margin-top: 0.5rem">
-						<input
-							type="number"
-							name="audioBitrate"
-							min="1"
-							max="10000"
-							step="1"
-							placeholder="Bitrate (kbps)"
-							disabled />
+			<div>
+				<div class="card" id="sizeOptions">
+					<h2>Crop & resize options</h2>
+					<div class="form-group">
+						<h4>Resolution</h4>
+						<select name="resolution" id="presets">
+							<option value="original">
+								Original (<span data-prop="resolution">unchanged</span>)
+							</option>
+							<option value="2160">4K UHD (2160p)</option>
+							<option value="1620">3K (1620p)</option>
+							<option value="1440">QHD (1440p)</option>
+							<option value="1080">FHD (1080p)</option>
+							<option value="720">HD (720p)</option>
+							<option value="480">SD (480p)</option>
+							<option value="custom">Custom…</option>
+						</select>
+						<div class="form-row three hiddenInput" style="margin-top: 0.5rem">
+							<input
+								type="number"
+								name="width"
+								placeholder="Width (px)"
+								min="64"
+								max="3840"
+								disabled />
+							<input
+								type="number"
+								name="height"
+								placeholder="Height (px)"
+								min="64"
+								max="2160"
+								disabled />
+							<select name="fit" disabled>
+								<option value="fill">Fill</option>
+								<option value="contain">Contain</option>
+								<option value="cover">Cover</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<h4>Crop</h4>
+						<div class="form-column" style="gap: 0.5rem">
+							<div class="form-row two">
+								<input
+									type="number"
+									name="cropLeft"
+									placeholder="Left"
+									min="0" />
+								<input type="number" name="cropTop" placeholder="Top" min="0" />
+							</div>
+							<div class="form-row two">
+								<input
+									type="number"
+									name="cropWidth"
+									placeholder="Width"
+									min="2"
+									step="2" />
+								<input
+									type="number"
+									name="cropHeight"
+									placeholder="Height"
+									min="2"
+									step="2" />
+							</div>
+						</div>
 					</div>
 				</div>
-				<div class="form-column">
+				<div class="card">
+					<h2>Output options</h2>
 					<div class="form-group">
-						<h4>Sample rate <span style="color: #666">(hz)</span></h4>
-						<input
-							type="number"
-							name="sampleRate"
-							min="1"
-							max="10000"
-							step="1"
-							placeholder="Original" />
+						<h4>Max size <span style="color: #666">(MB)</span></h4>
+						<select name="maxSizePreset">
+							<option value="none">No limit</option>
+							<option value="10">Discord (10 MB)</option>
+							<option value="20">Discord (20 MB)</option>
+							<option value="50">Discord Nitro Basic (50 MB)</option>
+							<option value="100">Discord Boost Level 3 (100 MB)</option>
+							<option value="100">Bluesky (100 MB)</option>
+							<option value="100">Microsoft Teams (100 MB)</option>
+							<option value="500">Discord Nitro (500 MB)</option>
+							<option value="512">Twitter (512 MB)</option>
+							<option value="custom">Custom…</option>
+						</select>
+						<div class="hiddenInput" style="margin-top: 0.5rem">
+							<input
+								type="number"
+								name="maxSize"
+								min="1"
+								max="10000"
+								step="1"
+								placeholder="Size (MB)"
+								disabled />
+						</div>
 					</div>
 					<div class="form-group">
-						<h4>Number of channels</h4>
-						<input
-							type="number"
-							name="channels"
-							min="1"
-							max="10000"
-							step="1"
-							placeholder="Original" />
-					</div>
-				</div>
-				<div class="form-column">
-					<div class="form-group">
-						<h4>Codec</h4>
-						<select name="audioCodec" id="settingsAudioCodec">
-							<option></option>
+						<h4>Format</h4>
+						<select name="format">
+							<option value="auto">Automatic</option>
+							<option value="mp4">MP4</option>
+							<option value="cmaf">CMAF</option>
+							<option value="mov">MOV</option>
+							<option value="mkv">MKV</option>
+							<option value="webm">WebM</option>
+							<option value="mp3">MP3</option>
+							<option value="wav">WAV</option>
+							<option value="ogg">Ogg</option>
+							<option value="adts">ADTS</option>
+							<option value="flac">FLAC</option>
+							<option value="mpegts">MPEG-TS</option>
 						</select>
 					</div>
-					<div class="form-group">
-						<h4>Sample format</h4>
-						<select name="sampleFormat">
-							<option value="original">Original</option>
-							<option value="u8">Unsigned 8-bit</option>
-							<option value="s16">Signed 16-bit</option>
-							<option value="s32">Signed 32-bit</option>
-							<option value="f32">Floating point 32-bit</option>
-						</select>
-					</div>
-				</div>
-				<div class="form-group">
-					<label class="checkbox-group" for="discard_audio">
-						<input type="checkbox" id="discard_audio" name="discardAudio" />
-						Discard audio
-					</label>
 				</div>
 			</div>
 		</div>
