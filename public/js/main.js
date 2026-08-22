@@ -5,7 +5,7 @@ import {
 	canEncodeVideo,
 	Input,
 } from "mediabunny";
-import { channelLabel, formatDuration, formatSize } from "./utils.js";
+import { channelLabel, fill, formatDuration, formatSize } from "./utils.js";
 import { AUDIO_CODEC_DEFINITIONS, VIDEO_CODEC_DEFINITIONS } from "./video.js";
 
 const elements = {
@@ -14,53 +14,8 @@ const elements = {
 	),
 	dropZone: /** @type {HTMLDivElement} */ (document.getElementById("dropZone")),
 	metadata: /** @type {HTMLDivElement} */ (document.getElementById("metadata")),
-	metadataFileName: /** @type {HTMLTableCellElement} */ (
-		document.getElementById("metadataFileName")
-	),
-	metadataFileSizeStr: /** @type {HTMLTableCellElement} */ (
-		document.getElementById("metadataFileSizeStr")
-	),
-	metadataContainer: /** @type {HTMLTableCellElement} */ (
-		document.getElementById("metadataContainer")
-	),
-	metadataDurationStr: /** @type {HTMLTableCellElement} */ (
-		document.getElementById("metadataDurationStr")
-	),
-	metadataTotalBitrateStr: /** @type {HTMLTableCellElement} */ (
-		document.getElementById("metadataTotalBitrateStr")
-	),
 	metadataVideo: /** @type {HTMLDetailsElement} */ (
 		document.getElementById("metadataVideo")
-	),
-	metadataVideoCodec: /** @type {HTMLTableCellElement} */ (
-		document.getElementById("metadataVideoCodec")
-	),
-	metadataVideoDisplaySize: /** @type {HTMLTableCellElement} */ (
-		document.getElementById("metadataVideoDisplaySize")
-	),
-	metadataVideoFps: /** @type {HTMLTableCellElement} */ (
-		document.getElementById("metadataVideoFps")
-	),
-	metadataVideoBitrate: /** @type {HTMLTableCellElement} */ (
-		document.getElementById("metadataVideoBitrate")
-	),
-	metadataVideoColorSpace: /** @type {HTMLTableCellElement} */ (
-		document.getElementById("metadataVideoColorSpace")
-	),
-	metadataAudio: /** @type {HTMLDetailsElement} */ (
-		document.getElementById("metadataAudio")
-	),
-	metadataAudioCodec: /** @type {HTMLTableCellElement} */ (
-		document.getElementById("metadataAudioCodec")
-	),
-	metadataAudioChannelLabel: /** @type {HTMLTableCellElement} */ (
-		document.getElementById("metadataAudioChannelLabel")
-	),
-	metadataAudioSampleRate: /** @type {HTMLTableCellElement} */ (
-		document.getElementById("metadataAudioSampleRate")
-	),
-	metadataAudioBitrate: /** @type {HTMLTableCellElement} */ (
-		document.getElementById("metadataAudioBitrate")
 	),
 	settingsVideoCodec: /** @type {HTMLSelectElement} */ (
 		document.getElementById("settingsVideoCodec")
@@ -68,84 +23,32 @@ const elements = {
 	settingsAudioCodec: /** @type {HTMLSelectElement} */ (
 		document.getElementById("settingsAudioCodec")
 	),
-	presets: /** @type {HTMLSelectElement} */ (
-		document.getElementById("presets")
+	metadataAudio: /** @type {HTMLDetailsElement} */ (
+		document.getElementById("metadataAudio")
 	),
 	fileSelection: /** @type {HTMLDivElement} */ (
 		document.getElementById("fileSelection")
 	),
-	fileName: /** @type {HTMLSpanElement} */ (
-		document.getElementById("fileName")
-	),
 	removeFile: /** @type {HTMLButtonElement} */ (
 		document.getElementById("removeFile")
 	),
-};
-
-/** @type {{ [P in keyof AppState]?: (value: AppState[P]) => void; } & { [K: string | symbol]: (value: any) => void; }} */
-const setHandlers = {
-	metadata: (metadata) => {
-		elements.metadataFileName.textContent = metadata?.fileName ?? null;
-		elements.metadataFileSizeStr.textContent = metadata?.fileSizeStr ?? null;
-		elements.metadataContainer.textContent = metadata?.container ?? null;
-		elements.metadataDurationStr.textContent = metadata?.durationStr ?? null;
-		elements.metadataTotalBitrateStr.textContent =
-			metadata?.totalBitrateStr ?? null;
-		elements.metadataVideoCodec.textContent = metadata?.video?.codec ?? null;
-		elements.metadataVideoDisplaySize.textContent =
-			metadata?.video ?
-				metadata.video.displayW + "\u00d7" + metadata.video.displayH
-			:	null;
-		elements.metadataVideoFps.textContent =
-			metadata?.video ? `${metadata.video.fps} fps` : null;
-		elements.metadataVideoBitrate.textContent =
-			metadata?.video ?
-				metadata.video.bitrate ?
-					`${(metadata.video.bitrate / 1000).toFixed(0)} kbps`
-				:	"unknown"
-			:	null;
-		elements.metadataVideoColorSpace.textContent =
-			metadata?.video?.colorSpace ?? null;
-		elements.metadataVideo.style.display = metadata?.video ? "" : "none";
-		elements.metadataAudioCodec.textContent = metadata?.audio?.codec ?? null;
-		elements.metadataAudioChannelLabel.textContent =
-			metadata?.audio?.channelLabel ?? null;
-		elements.metadataAudioSampleRate.textContent =
-			metadata?.audio ? `${metadata.audio.sampleRate} Hz` : null;
-		elements.metadataAudioBitrate.textContent =
-			metadata?.audio ?
-				metadata.audio.bitrate ?
-					`${(metadata.audio.bitrate / 1000).toFixed(0)} kbps`
-				:	"unknown"
-			:	null;
-		elements.metadataAudio.style.display = metadata?.audio ? "" : "none";
-		elements.metadata.style.display = metadata ? "" : "none";
-	},
+	settings: /** @type {HTMLDivElement} */ (document.getElementById("settings")),
 };
 
 /** @type {AppState} */
-const state = new Proxy(
-	{
-		input: null,
-		processing: false,
-		progress: 0,
-		error: null,
-		statusMessage: "",
-		downloadUrl: null,
-		outputFileName: "",
-		metadata: null,
-		codecs: [],
-		currentConversion: null,
-		isHdrSource: false,
-	},
-	{
-		set: (target, p, value, receiver) => {
-			Reflect.set(target, p, value, receiver);
-			setHandlers[p]?.(value);
-			return true;
-		},
-	},
-);
+const state = {
+	input: null,
+	processing: false,
+	progress: 0,
+	error: null,
+	statusMessage: "",
+	downloadUrl: null,
+	outputFileName: "",
+	metadata: null,
+	codecs: [],
+	currentConversion: null,
+	isHdrSource: false,
+};
 
 /**
  * Check which codecs are supported for video encoding.
@@ -183,6 +86,7 @@ const checkAudioCodecs = async () => {
 	elements.settingsAudioCodec.options.remove(0);
 	elements.settingsAudioCodec.selectedIndex = 0;
 };
+
 checkVideoCodecs();
 checkAudioCodecs();
 window.addEventListener("dragover", (ev) => {
@@ -238,9 +142,10 @@ elements.dropZone.addEventListener("drop", (ev) => {
 elements.fileInput.addEventListener("change", async () => {
 	const file = elements.fileInput.files?.[0];
 
+	fill("fileName", file?.name ?? null);
+	fill("fileSize", file ? formatSize(file.size) : null);
 	if (file)
 		if (file.type.startsWith("video/") || file.type.startsWith("audio/")) {
-			elements.fileName.textContent = file.name;
 			state.error = null;
 			state.downloadUrl = null;
 			state.metadata = null;
@@ -249,110 +154,148 @@ elements.fileInput.addEventListener("change", async () => {
 					source: new BlobSource(file),
 					formats: ALL_FORMATS,
 				}));
-				const [size, duration, format, videoTrack, audioTrack] =
+				const [duration, format, videoTrack, audioTrack] = await Promise.all([
+					input
+						.getDurationFromMetadata()
+						.then((d) => d ?? input.computeDuration()),
+					input.getFormat(),
+					input.getPrimaryVideoTrack(),
+					input.getPrimaryAudioTrack(),
+				]);
+
+				elements.metadataVideo.style.display = videoTrack ? "" : "none";
+				elements.metadataAudio.style.display = audioTrack ? "" : "none";
+				fill("inputFormat", format.name);
+				fill("inputDuration", formatDuration(duration));
+				fill(
+					"inputBitrate",
+					`${Math.round((file.size * 8) / duration / 1000).toLocaleString()} kbps`,
+				);
+				const [
+					videoFrameRateMetrics,
+					videoColorSpace,
+					videoCodec,
+					videoDisplayW,
+					videoDisplayH,
+					videoBitrate,
+				] = await Promise.all([
+					videoTrack?.computeFrameRateMetrics(),
+					videoTrack?.getColorSpace(),
+					videoTrack?.getCodec(),
+					videoTrack?.getDisplayWidth(),
+					videoTrack?.getDisplayHeight(),
+					videoTrack
+						?.getAverageBitrate()
+						.then((bitrate) => bitrate ?? videoTrack.getBitrate()),
+				]);
+				fill("inputVideoCodec", videoTrack ? (videoCodec ?? "unknown") : null);
+				fill(
+					"inputDisplaySize",
+					videoTrack ? `${videoDisplayW}×${videoDisplayH}` : null,
+				);
+				fill(
+					"inputVideoFps",
+					videoFrameRateMetrics ?
+						`${videoFrameRateMetrics.bestGuessFrameRate.toLocaleString()} fps`
+					:	null,
+				);
+				fill(
+					"inputVideoBitrate",
+					videoTrack ?
+						videoBitrate ? `${(videoBitrate / 1000).toLocaleString()} kbps`
+						:	"unknown"
+					:	null,
+				);
+				fill(
+					"inputVideoColorSpace",
+					videoTrack ? (videoColorSpace?.matrix ?? "unknown") : null,
+				);
+				const resolution = Math.min(videoDisplayH ?? 0, videoDisplayW ?? 0);
+				fill("inputResolution", resolution ? `${resolution}p` : null);
+				const [audioChannels, audioCodec, audioSampleRate, audioBitrate] =
 					await Promise.all([
-						input.source.getSize(),
-						input
-							.getDurationFromMetadata()
-							.then((d) => d ?? input.computeDuration()),
-						input.getFormat(),
-						input.getPrimaryVideoTrack(),
-						input.getPrimaryAudioTrack(),
-					]);
-
-				/** @type {VideoInfo?} */
-				let videoInfo = null;
-				if (videoTrack) {
-					const [
-						frameRateMetrics,
-						par,
-						colorSpace,
-						codec,
-						codedW,
-						codedH,
-						displayW,
-						displayH,
-						rotation,
-						bitrate,
-						hdr,
-					] = await Promise.all([
-						videoTrack.computeFrameRateMetrics(),
-						videoTrack.getPixelAspectRatio(),
-						videoTrack.getColorSpace(),
-						videoTrack.getCodec(),
-						videoTrack.getCodedWidth(),
-						videoTrack.getCodedHeight(),
-						videoTrack.getDisplayWidth(),
-						videoTrack.getDisplayHeight(),
-						videoTrack.getRotation(),
-						videoTrack
-							.getAverageBitrate()
-							.then((bitrate) => bitrate ?? videoTrack.getBitrate()),
-						videoTrack.hasHighDynamicRange(),
-					]);
-
-					videoInfo = {
-						codec,
-						codedW,
-						codedH,
-						displayW,
-						displayH,
-						fps: frameRateMetrics.bestGuessFrameRate,
-						rotation,
-						bitrate,
-						aspectRatio: `${par.num}:${par.den}`,
-						colorSpace: colorSpace.matrix ?? "unknown",
-						hdr,
-					};
-				}
-
-				/** @type {AudioInfo?} */
-				let audioInfo = null;
-				if (audioTrack) {
-					const [channels, codec, sampleRate, bitrate] = await Promise.all([
-						audioTrack.getNumberOfChannels(),
-						audioTrack.getCodec(),
-						audioTrack.getSampleRate(),
+						audioTrack?.getNumberOfChannels(),
+						audioTrack?.getCodec(),
+						audioTrack?.getSampleRate(),
 						audioTrack
-							.getAverageBitrate()
+							?.getAverageBitrate()
 							.then((bitrate) => bitrate ?? audioTrack.getBitrate()),
 					]);
-
-					audioInfo = {
-						codec,
-						channels: channels,
-						channelLabel: channelLabel(channels),
-						sampleRate,
-						bitrate,
-					};
-				}
-				const totalBitrate = (size * 8) / duration;
+				fill("inputAudioCodec", audioTrack ? (audioCodec ?? "unknown") : null);
+				fill(
+					"inputAudioChannels",
+					audioChannels ? channelLabel(audioChannels) : null,
+				);
+				fill(
+					"inputAudioSampleRate",
+					audioSampleRate ? `${audioSampleRate.toLocaleString()} Hz` : null,
+				);
+				fill(
+					"inputAudioBitrate",
+					audioTrack ?
+						audioBitrate ? `${(audioBitrate / 1000).toLocaleString()} kbps`
+						:	"unknown"
+					:	null,
+				);
 				elements.fileSelection.style.display = "none";
-				state.metadata = {
-					fileName: file.name,
-					fileSize: size,
-					fileSizeStr: formatSize(size),
-					container: format.name,
-					duration,
-					durationStr: formatDuration(duration),
-					totalBitrate,
-					totalBitrateStr: `${Math.round(totalBitrate / 1000)} kbps`,
-					video: videoInfo,
-					audio: audioInfo,
-				};
-				state.isHdrSource = videoInfo?.hdr ?? false;
+				// const totalBitrate = (size * 8) / duration;
+				// state.metadata = {
+				// 	fileName: file.name,
+				// 	fileSize: size,
+				// 	fileSizeStr: formatSize(size),
+				// 	container: format.name,
+				// 	duration,
+				// 	durationStr: formatDuration(duration),
+				// 	totalBitrate,
+				// 	totalBitrateStr: `${Math.round(totalBitrate / 1000)} kbps`,
+				// 	video: videoInfo,
+				// 	audio: audioInfo,
+				// };
+				// state.isHdrSource = videoInfo?.hdr ?? false;
+				elements.settings.style.display = "";
+				elements.metadata.style.display = "";
 			} catch (e) {
-				console.warn("[app] metadata read failed", e);
+				console.error("[app] metadata read failed", e);
+				fill("inputFormat", null);
+				fill("inputDuration", null);
+				fill("inputBitrate", null);
+				fill("inputVideoCodec", null);
+				fill("inputDisplaySize", null);
+				fill("inputVideoFps", null);
+				fill("inputVideoBitrate", null);
+				fill("inputVideoColorSpace", null);
+				fill("inputAudioCodec", null);
+				fill("inputAudioChannels", null);
+				fill("inputAudioSampleRate", null);
+				fill("inputAudioBitrate", null);
+				fill("inputResolution", "unchanged");
+				elements.settings.style.display = "none";
+				elements.metadata.style.display = "none";
 			}
 			return;
 		} else alert("The selected video or audio is not supported!");
+	elements.settings.style.display = "none";
+	elements.metadata.style.display = "none";
+	elements.fileSelection.style.display = "";
+	elements.fileInput.value = "";
 	state.input?.dispose();
 	state.input = null;
 	state.metadata = null;
 	state.error = null;
 	state.downloadUrl = null;
-	elements.fileInput.value = "";
-	elements.fileSelection.style.display = "";
+	fill("inputFormat", null);
+	fill("inputDuration", null);
+	fill("inputBitrate", null);
+	fill("inputVideoCodec", null);
+	fill("inputDisplaySize", null);
+	fill("inputVideoFps", null);
+	fill("inputVideoBitrate", null);
+	fill("inputVideoColorSpace", null);
+	fill("inputAudioCodec", null);
+	fill("inputAudioChannels", null);
+	fill("inputAudioSampleRate", null);
+	fill("inputAudioBitrate", null);
+	fill("inputResolution", "unchanged");
 });
 elements.removeFile.addEventListener("click", (ev) => {
 	ev.preventDefault();

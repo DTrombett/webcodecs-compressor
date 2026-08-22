@@ -664,90 +664,84 @@
 				</small>
 			</label>
 		</div>
-		<!-- Metadata -->
 		<div class="card" id="metadata" style="display: none">
 			<h2 style="display: flex; align-items: center">
-				<span id="fileName"></span>
+				<span data-prop="fileName"></span>
 				<button class="remove" id="removeFile">&times;</button>
 			</h2>
-			<!-- Basic info: open by default -->
-			<details class="meta-section" open>
+			<details class="meta-section">
 				<summary>File info</summary>
 				<table class="meta-table">
 					<tr>
 						<th>File</th>
-						<td id="metadataFileName"></td>
+						<td data-prop="fileName"></td>
 					</tr>
 					<tr>
 						<th>Size</th>
-						<td id="metadataFileSizeStr"></td>
+						<td data-prop="fileSize"></td>
 					</tr>
 					<tr>
 						<th>Format</th>
-						<td id="metadataContainer"></td>
+						<td data-prop="inputFormat"></td>
 					</tr>
 					<tr>
 						<th>Duration</th>
-						<td id="metadataDurationStr"></td>
+						<td data-prop="inputDuration"></td>
 					</tr>
 					<tr>
 						<th>Avg. bitrate</th>
-						<td id="metadataTotalBitrateStr"></td>
+						<td data-prop="inputBitrate"></td>
 					</tr>
 				</table>
 			</details>
-
-			<!-- Video: collapsed by default -->
-			<details class="meta-section" id="metadataVideo" style="display: none">
+			<details class="meta-section" id="metadataVideo">
 				<summary>Video</summary>
 				<table class="meta-table">
 					<tr>
 						<th>Codec</th>
-						<td id="metadataVideoCodec"></td>
+						<td data-prop="inputVideoCodec"></td>
 					</tr>
 					<tr>
 						<th>Display size</th>
-						<td id="metadataVideoDisplaySize"></td>
+						<td data-prop="inputDisplaySize"></td>
 					</tr>
 					<tr>
 						<th>Frame rate</th>
-						<td id="metadataVideoFps"></td>
+						<td data-prop="inputVideoFps"></td>
 					</tr>
 					<tr>
 						<th>Bitrate</th>
-						<td id="metadataVideoBitrate"></td>
+						<td data-prop="inputVideoBitrate"></td>
 					</tr>
 					<tr>
 						<th>Color space</th>
-						<td id="metadataVideoColorSpace"></td>
+						<td data-prop="inputVideoColorSpace"></td>
 					</tr>
 				</table>
 			</details>
-
-			<!-- Audio: collapsed by default -->
 			<details class="meta-section" id="metadataAudio">
 				<summary>Audio</summary>
 				<table class="meta-table">
 					<tr>
 						<th>Codec</th>
-						<td id="metadataAudioCodec"></td>
+						<td data-prop="inputAudioCodec"></td>
 					</tr>
 					<tr>
 						<th>Channels</th>
-						<td id="metadataAudioChannelLabel"></td>
+						<td data-prop="inputAudioChannels"></td>
 					</tr>
 					<tr>
 						<th>Sample rate</th>
-						<td id="metadataAudioSampleRate"></td>
+						<td data-prop="inputAudioSampleRate"></td>
 					</tr>
 					<tr>
 						<th>Bitrate</th>
-						<td id="metadataAudioBitrate"></td>
+						<td data-prop="inputAudioBitrate"></td>
 					</tr>
 				</table>
 			</details>
 		</div>
-		<div id="settings">
+		<div id="settings" style="display: none">
 			<div>
 				<div class="card" id="videoOptions">
 					<h2>Video options</h2>
@@ -899,7 +893,7 @@
 						<h4>Resolution</h4>
 						<select name="resolution" id="presets">
 							<option value="original">
-								Original (<span data-prop="resolution">unchanged</span>)
+								Original (<span data-prop="inputResolution">unchanged</span>)
 							</option>
 							<option value="2160">4K UHD (2160p)</option>
 							<option value="1620">3K (1620p)</option>
@@ -1005,10 +999,16 @@
 					</div>
 				</div>
 			</div>
+			<input
+				type="submit"
+				class="btn btn-primary"
+				value="Start processing"
+				style="
+					max-width: var(--default-width);
+					margin: 0 auto;
+					display: block;
+				" />
 		</div>
-
-		<!-- Action -->
-		<input type="submit" class="btn btn-primary" value="Start processing" />
 
 		<!-- <template x-if="processing">
 				<button class="btn btn-cancel" @click="cancelProcessing">Cancel</button>

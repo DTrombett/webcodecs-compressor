@@ -41,3 +41,13 @@ export const formatDuration = (sec) => {
 		return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 	return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 };
+
+/**
+ * Fill all elements with a specific data-prop.
+ * @param {string} prop - The data-prop to search for
+ * @param {string?} textContent - The text content to fill
+ */
+export const fill = (prop, textContent) =>
+	document
+		.querySelectorAll(`[data-prop="${prop}"]`)
+		.forEach((value) => (value.textContent = textContent));
