@@ -5,35 +5,16 @@ import {
 	canEncodeVideo,
 	Input,
 } from "mediabunny";
-import { channelLabel, fill, formatDuration, formatSize } from "./utils.js";
+import {
+	elements,
+	fill,
+	formatSize,
+	getAudio,
+	getDuration,
+	getFormat,
+	getVideo,
+} from "./utils.js";
 import { AUDIO_CODEC_DEFINITIONS, VIDEO_CODEC_DEFINITIONS } from "./video.js";
-
-const elements = {
-	fileInput: /** @type {HTMLInputElement} */ (
-		document.getElementById("fileInput")
-	),
-	dropZone: /** @type {HTMLDivElement} */ (document.getElementById("dropZone")),
-	metadata: /** @type {HTMLDivElement} */ (document.getElementById("metadata")),
-	metadataVideo: /** @type {HTMLDetailsElement} */ (
-		document.getElementById("metadataVideo")
-	),
-	settingsVideoCodec: /** @type {HTMLSelectElement} */ (
-		document.getElementById("settingsVideoCodec")
-	),
-	settingsAudioCodec: /** @type {HTMLSelectElement} */ (
-		document.getElementById("settingsAudioCodec")
-	),
-	metadataAudio: /** @type {HTMLDetailsElement} */ (
-		document.getElementById("metadataAudio")
-	),
-	fileSelection: /** @type {HTMLDivElement} */ (
-		document.getElementById("fileSelection")
-	),
-	removeFile: /** @type {HTMLButtonElement} */ (
-		document.getElementById("removeFile")
-	),
-	settings: /** @type {HTMLDivElement} */ (document.getElementById("settings")),
-};
 
 /** @type {AppState} */
 const state = {
@@ -149,129 +130,20 @@ elements.fileInput.addEventListener("change", async () => {
 			state.error = null;
 			state.downloadUrl = null;
 			state.metadata = null;
-			try {
-				const input = (state.input = new Input({
-					source: new BlobSource(file),
-					formats: ALL_FORMATS,
-				}));
-				const [duration, format, videoTrack, audioTrack] = await Promise.all([
-					input
-						.getDurationFromMetadata()
-						.then((d) => d ?? input.computeDuration()),
-					input.getFormat(),
-					input.getPrimaryVideoTrack(),
-					input.getPrimaryAudioTrack(),
-				]);
+			const input = (state.input = new Input({
+				source: new BlobSource(file),
+				formats: ALL_FORMATS,
+			}));
 
-				elements.metadataVideo.style.display = videoTrack ? "" : "none";
-				elements.metadataAudio.style.display = audioTrack ? "" : "none";
-				fill("inputFormat", format.name);
-				fill("inputDuration", formatDuration(duration));
-				fill(
-					"inputBitrate",
-					`${Math.round((file.size * 8) / duration / 1000).toLocaleString()} kbps`,
-				);
-				const [
-					videoFrameRateMetrics,
-					videoColorSpace,
-					videoCodec,
-					videoDisplayW,
-					videoDisplayH,
-					videoBitrate,
-				] = await Promise.all([
-					videoTrack?.computeFrameRateMetrics(),
-					videoTrack?.getColorSpace(),
-					videoTrack?.getCodec(),
-					videoTrack?.getDisplayWidth(),
-					videoTrack?.getDisplayHeight(),
-					videoTrack
-						?.getAverageBitrate()
-						.then((bitrate) => bitrate ?? videoTrack.getBitrate()),
-				]);
-				fill("inputVideoCodec", videoTrack ? (videoCodec ?? "unknown") : null);
-				fill(
-					"inputDisplaySize",
-					videoTrack ? `${videoDisplayW}×${videoDisplayH}` : null,
-				);
-				fill(
-					"inputVideoFps",
-					videoFrameRateMetrics ?
-						`${videoFrameRateMetrics.bestGuessFrameRate.toLocaleString()} fps`
-					:	null,
-				);
-				fill(
-					"inputVideoBitrate",
-					videoTrack ?
-						videoBitrate ? `${(videoBitrate / 1000).toLocaleString()} kbps`
-						:	"unknown"
-					:	null,
-				);
-				fill(
-					"inputVideoColorSpace",
-					videoTrack ? (videoColorSpace?.matrix ?? "unknown") : null,
-				);
-				const resolution = Math.min(videoDisplayH ?? 0, videoDisplayW ?? 0);
-				fill("inputResolution", resolution ? `${resolution}p` : null);
-				const [audioChannels, audioCodec, audioSampleRate, audioBitrate] =
-					await Promise.all([
-						audioTrack?.getNumberOfChannels(),
-						audioTrack?.getCodec(),
-						audioTrack?.getSampleRate(),
-						audioTrack
-							?.getAverageBitrate()
-							.then((bitrate) => bitrate ?? audioTrack.getBitrate()),
-					]);
-				fill("inputAudioCodec", audioTrack ? (audioCodec ?? "unknown") : null);
-				fill(
-					"inputAudioChannels",
-					audioChannels ? channelLabel(audioChannels) : null,
-				);
-				fill(
-					"inputAudioSampleRate",
-					audioSampleRate ? `${audioSampleRate.toLocaleString()} Hz` : null,
-				);
-				fill(
-					"inputAudioBitrate",
-					audioTrack ?
-						audioBitrate ? `${(audioBitrate / 1000).toLocaleString()} kbps`
-						:	"unknown"
-					:	null,
-				);
-				elements.fileSelection.style.display = "none";
-				// const totalBitrate = (size * 8) / duration;
-				// state.metadata = {
-				// 	fileName: file.name,
-				// 	fileSize: size,
-				// 	fileSizeStr: formatSize(size),
-				// 	container: format.name,
-				// 	duration,
-				// 	durationStr: formatDuration(duration),
-				// 	totalBitrate,
-				// 	totalBitrateStr: `${Math.round(totalBitrate / 1000)} kbps`,
-				// 	video: videoInfo,
-				// 	audio: audioInfo,
-				// };
-				// state.isHdrSource = videoInfo?.hdr ?? false;
-				elements.settings.style.display = "";
-				elements.metadata.style.display = "";
-			} catch (e) {
-				console.error("[app] metadata read failed", e);
-				fill("inputFormat", null);
-				fill("inputDuration", null);
-				fill("inputBitrate", null);
-				fill("inputVideoCodec", null);
-				fill("inputDisplaySize", null);
-				fill("inputVideoFps", null);
-				fill("inputVideoBitrate", null);
-				fill("inputVideoColorSpace", null);
-				fill("inputAudioCodec", null);
-				fill("inputAudioChannels", null);
-				fill("inputAudioSampleRate", null);
-				fill("inputAudioBitrate", null);
-				fill("inputResolution", "unchanged");
-				elements.settings.style.display = "none";
-				elements.metadata.style.display = "none";
-			}
+			await Promise.allSettled([
+				getDuration(input, file.size),
+				getFormat(input),
+				getVideo(input),
+				getAudio(input),
+			]);
+			elements.fileSelection.style.display = "none";
+			elements.settings.style.display = "";
+			elements.metadata.style.display = "";
 			return;
 		} else alert("The selected video or audio is not supported!");
 	elements.settings.style.display = "none";

@@ -1,3 +1,32 @@
+import { Input, InputAudioTrack, InputVideoTrack } from "mediabunny";
+
+export const elements = {
+	fileInput: /** @type {HTMLInputElement} */ (
+		document.getElementById("fileInput")
+	),
+	dropZone: /** @type {HTMLDivElement} */ (document.getElementById("dropZone")),
+	metadata: /** @type {HTMLDivElement} */ (document.getElementById("metadata")),
+	metadataVideo: /** @type {HTMLDetailsElement} */ (
+		document.getElementById("metadataVideo")
+	),
+	settingsVideoCodec: /** @type {HTMLSelectElement} */ (
+		document.getElementById("settingsVideoCodec")
+	),
+	settingsAudioCodec: /** @type {HTMLSelectElement} */ (
+		document.getElementById("settingsAudioCodec")
+	),
+	metadataAudio: /** @type {HTMLDetailsElement} */ (
+		document.getElementById("metadataAudio")
+	),
+	fileSelection: /** @type {HTMLDivElement} */ (
+		document.getElementById("fileSelection")
+	),
+	removeFile: /** @type {HTMLButtonElement} */ (
+		document.getElementById("removeFile")
+	),
+	settings: /** @type {HTMLDivElement} */ (document.getElementById("settings")),
+};
+
 /**
  * Get a label describing the audio channels.
  * @param {number} n - Number of audio channels
@@ -51,3 +80,196 @@ export const fill = (prop, textContent) =>
 	document
 		.querySelectorAll(`[data-prop="${prop}"]`)
 		.forEach((value) => (value.textContent = textContent));
+
+/**
+ * Get the duration of a media input.
+ * @param {Input} input - The media input
+ * @param {number} size - The input size in bytes
+ */
+export const getDuration = async (input, size) => {
+	const duration = await input
+		.getDurationFromMetadata()
+		.then((d) => d ?? input.computeDuration());
+
+	fill("inputDuration", formatDuration(duration));
+	fill(
+		"inputBitrate",
+		`${Math.round((size * 8) / duration / 1000).toLocaleString()} kbps`,
+	);
+	return duration;
+};
+
+/**
+ * Get the container of a media input.
+ * @param {Input} input - The media input
+ */
+export const getFormat = async (input) => {
+	const format = await input.getFormat();
+
+	fill("inputFormat", format.name);
+	return format;
+};
+
+/**
+ * Get the frame rate of a video track.
+ * @param {InputVideoTrack} track - The video track
+ */
+export const getFps = async (track) => {
+	const frm = await track.computeFrameRateMetrics();
+
+	fill("inputVideoFps", `${frm.bestGuessFrameRate.toLocaleString()} fps`);
+	return frm;
+};
+
+/**
+ * Get the color space of a video track.
+ * @param {InputVideoTrack} track - The video track
+ */
+export const getColorSpace = async (track) => {
+	const vcsi = await track.getColorSpace();
+
+	fill("inputVideoColorSpace", vcsi.matrix ?? "unknown");
+	return vcsi;
+};
+
+/**
+ * Get the codec of a video track.
+ * @param {InputVideoTrack} track - The video track
+ */
+export const getVideoCodec = async (track) => {
+	const codec = await track.getCodec();
+
+	fill("inputVideoCodec", codec ?? "unknown");
+	return codec;
+};
+
+/**
+ * Get the resolution of a video track.
+ * @param {InputVideoTrack} track - The video track
+ */
+export const getResolution = async (track) => {
+	const [w, h] = await Promise.all([
+		track.getDisplayWidth(),
+		track.getDisplayHeight(),
+	]);
+
+	fill("inputDisplaySize", `${w}×${h}`);
+	fill("inputResolution", `${Math.min(w, h)}p`);
+	return { w, h };
+};
+
+/**
+ * Get the average bitrate of a video track.
+ * @param {InputVideoTrack} track - The video track
+ */
+export const getVideoBitrate = async (track) => {
+	const bitrate =
+		(await track.getAverageBitrate()) ?? (await track.getBitrate());
+
+	fill(
+		"inputVideoBitrate",
+		bitrate ? `${(bitrate / 1000).toLocaleString()} kbps` : "unknown",
+	);
+	return bitrate;
+};
+
+/**
+ * Get the average bitrate of an track.
+ * @param {InputAudioTrack} track - The audio track
+ */
+export const getAudioBitrate = async (track) => {
+	const bitrate =
+		(await track.getAverageBitrate()) ?? (await track.getBitrate());
+
+	fill(
+		"inputAudioBitrate",
+		bitrate ? `${(bitrate / 1000).toLocaleString()} kbps` : "unknown",
+	);
+	return bitrate;
+};
+
+/**
+ * Get the codec of an audio track.
+ * @param {InputAudioTrack} track - The audio track
+ */
+export const getAudioCodec = async (track) => {
+	const codec = await track.getCodec();
+
+	fill("inputAudioCodec", codec ?? "unknown");
+	return codec;
+};
+
+/**
+ * Get the channels of an audio track.
+ * @param {InputAudioTrack} track - The audio track
+ */
+export const getChannels = async (track) => {
+	const channels = await track.getNumberOfChannels();
+
+	fill("inputAudioChannels", channelLabel(channels));
+	return channels;
+};
+
+/**
+ * Get the sample rate of an audio track.
+ * @param {InputAudioTrack} track - The audio track
+ */
+export const getSampleRate = async (track) => {
+	const sampleRate = await track.getSampleRate();
+
+	fill("inputAudioSampleRate", `${sampleRate.toLocaleString()} Hz`);
+	return sampleRate;
+};
+
+/**
+ * Get the primary video track from a media input.
+ * @param {Input} input - The media input
+ */
+export const getVideo = async (input) => {
+	const track = await input.getPrimaryVideoTrack();
+
+	if (track) {
+		elements.metadataVideo.style.display = "";
+		await Promise.allSettled([
+			getFps(track),
+			getColorSpace(track),
+			getVideoCodec(track),
+			getResolution(track),
+			getVideoBitrate(track),
+		]);
+	} else {
+		elements.metadataVideo.style.display = "none";
+		fill("inputVideoCodec", null);
+		fill("inputDisplaySize", null);
+		fill("inputVideoFps", null);
+		fill("inputVideoBitrate", null);
+		fill("inputVideoColorSpace", null);
+		fill("inputResolution", null);
+	}
+	return track;
+};
+
+/**
+ * Get the primary audio track from a media input.
+ * @param {Input} input - The media input
+ */
+export const getAudio = async (input) => {
+	const track = await input.getPrimaryAudioTrack();
+
+	if (track) {
+		elements.metadataAudio.style.display = "";
+		await Promise.allSettled([
+			getAudioBitrate(track),
+			getAudioCodec(track),
+			getChannels(track),
+			getSampleRate(track),
+		]);
+	} else {
+		elements.metadataAudio.style.display = "none";
+		fill("inputAudioCodec", null);
+		fill("inputAudioChannels", null);
+		fill("inputAudioSampleRate", null);
+		fill("inputAudioBitrate", null);
+	}
+	return track;
+};
