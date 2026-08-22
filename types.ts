@@ -2,7 +2,9 @@ import type {
 	AudioCodec as ACodec,
 	Conversion,
 	CropRectangle as CRectangle,
+	Input,
 	Source as MBSource,
+	MediaCodec as MCodec,
 	OutputFormat,
 	VideoCodec as VCodec,
 } from "mediabunny";
@@ -38,11 +40,15 @@ declare global {
 	type OutputFormatConstructor = new () => OutputFormat;
 	type VideoCodec = VCodec;
 	type AudioCodec = ACodec;
+	type MediaCodec = MCodec;
 	type Source = MBSource;
 	type CropRectangle = CRectangle;
 
 	type ResolutionPreset = { label: string; height?: number; id: string };
-	type CodecDefinition = { id: VCodec; label: string };
+	type CodecDefinition<C extends MediaCodec = MediaCodec> = {
+		id: C;
+		label: string;
+	};
 	type Codec = {
 		id: VCodec;
 		label: string;
@@ -83,69 +89,34 @@ declare global {
 		audio: AudioInfo | null;
 	};
 
+	type Settings = {
+		autoDownload: boolean;
+		crop: Partial<CropRectangle>;
+		discardAudio: boolean;
+		discardVideo: boolean;
+		mono: boolean;
+		resolution: keyof typeof RESOLUTION_PRESETS;
+		size: number;
+		audioCodec?: ACodec;
+		customHeight?: number;
+		customWidth?: number;
+		frameRate?: number;
+		keyFrameInterval?: number;
+		sampleRate?: number;
+		videoCodec?: VCodec;
+	};
+
 	type AppState = {
-		file: File | null;
-		dragging: boolean;
+		input: Input | null;
 		processing: boolean;
 		progress: number;
 		error: string | null;
 		statusMessage: string;
 		downloadUrl: string | null;
 		outputFileName: string;
-		metadata: Metadata | null;
+		metadata: Readonly<Metadata> | null;
 		codecs: Codec[];
 		currentConversion: Conversion | null;
-		settings: {
-			autoDownload: boolean;
-			crop: Partial<CropRectangle>;
-			discardAudio: boolean;
-			discardVideo: boolean;
-			mono: boolean;
-			resolution: keyof typeof RESOLUTION_PRESETS;
-			size: number;
-			audioCodec?: ACodec;
-			customHeight?: number;
-			customWidth?: number;
-			frameRate?: number;
-			keyFrameInterval?: number;
-			sampleRate?: number;
-			videoCodec?: VCodec;
-		};
 		isHdrSource: boolean;
-		presets: Record<string, ResolutionPreset>;
-		get canStart(): boolean;
-		get disabledCodecs(): Codec[];
-		get selectedCodec(): Codec | undefined;
-		get selectedUnsupported(): boolean | undefined;
-		get unsupportedTooltip(): string;
-		get decodeStatus(): { supported: boolean; label: string } | null;
-		get decodeTooltip(): string;
-		resolutionTooltip(preset: ResolutionPreset): string;
-		resolutionDisabled(preset: ResolutionPreset): boolean;
-		init(): Promise<void>;
-		handleFileSelect(
-			event: Event & {
-				currentTarget: HTMLInputElement;
-				target: HTMLInputElement;
-			},
-		): void;
-		handleDrop(
-			event: DragEvent & {
-				currentTarget: HTMLInputElement;
-				target: HTMLInputElement;
-			},
-		): void;
-		setFile(file: File): Promise<void>;
-		clearFile(): void;
-		warning: string | null;
-		setResolution(preset: ResolutionPreset): void;
-		validateCustomResolution(): void;
-		startProcessing(): Promise<void>;
-		cancelProcessing(): Promise<void>;
-		_channelLabel(n: number): string;
-		formatSize(bytes: number): string;
-		formatDuration(sec: number): string;
-		_triggerDownload(url: string, filename: string): void;
-		$refs?: { fileInput: HTMLInputElement };
 	};
 }

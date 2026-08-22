@@ -61,6 +61,7 @@ const audioOnlyFormats = {
 	"pcm-s16be": MovOutputFormat,
 	"pcm-s24be": MovOutputFormat,
 	"pcm-s32be": MovOutputFormat,
+	dts: Mkv,
 };
 /** @type {Partial<Record<VideoCodec, Partial<Record<AudioCodec, new (...args: any[]) => OutputFormat>>>>} */
 const videoAudioFormats = {
@@ -200,7 +201,7 @@ export const processVideo = async (
 	conversion.onProgress = onProgress;
 	onConversionReady?.(conversion);
 	await conversion.execute();
-	if (!output.target.buffer) throw new Error("Conversion not completed!");
+	if (!output.target.buffer) throw new Error("Output is not finalized!");
 	return {
 		buffer: output.target.buffer,
 		fileName: metadata.fileName.replace(

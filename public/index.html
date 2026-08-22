@@ -48,20 +48,17 @@
 		</script>
 
 		<style>
-			* {
-				margin: 0;
-				padding: 0;
-				box-sizing: border-box;
-				-webkit-tap-highlight-color: transparent;
+			@font-face {
+				font-family: "Open Sans";
+				font-style: normal;
+				font-weight: 300 800;
+				src: url("/fonts/OpenSans.ttf");
 			}
-
-			body {
-				font-family:
-					-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-				background: #0f0f0f;
-				color: #e0e0e0;
-				min-height: 100vh;
-				padding: 2rem 1rem;
+			@font-face {
+				font-family: "Open Sans";
+				font-style: italic;
+				font-weight: 300 800;
+				src: url("/fonts/OpenSans-Italic.ttf");
 			}
 
 			.container {
@@ -69,46 +66,57 @@
 				margin: 0 auto;
 			}
 
-			h1 {
-				font-size: 1.75rem;
-				margin-bottom: 0.25rem;
-				color: #81c784;
+			#settings > div {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
 			}
-
-			.subtitle {
-				color: #888;
-				font-size: 0.875rem;
-				margin-bottom: 1.5rem;
-			}
-
 			.card {
 				background: #1a1a1a;
 				border: 1px solid #333;
 				border-radius: 12px;
-				padding: 1.5rem;
-				margin-bottom: 1rem;
+				padding: 0 1.5rem 1.5rem;
+				margin: 0 auto 1rem;
+				max-width: var(--default-width);
+				display: flex;
+				flex-direction: column;
+				gap: 1rem;
+				width: stretch;
+				container-type: inline-size;
+			}
+			@media (width >= 48rem) {
+				#settings > div {
+					flex-direction: row;
+					gap: 1rem;
+					margin-bottom: 1rem;
+				}
+				#settings .card {
+					margin: 0;
+				}
+			}
+			.card h2 {
+				font-size: 1.25rem;
+				line-height: 1.4;
+			}
+			.card h3 {
+				line-height: 1.75rem;
+			}
+			.card h2,
+			.card h3 {
+				margin-block-end: 0;
 			}
 
 			/* drop zone */
-			.drop-zone {
-				border: 2px dashed #555;
-				border-radius: 8px;
-				padding: 2rem;
-				text-align: center;
-				cursor: pointer;
-				transition: all 0.2s;
-			}
-
 			.drop-zone:hover,
 			.drop-zone.drag-over {
-				border-color: #81c784;
-				background: rgba(129, 199, 132, 0.05);
+				background: #81c7840d;
 			}
-
-			.drop-zone p {
-				margin-top: 0.5rem;
-				color: #888;
-				font-size: 0.875rem;
+			.drop-zone.drag-over {
+				border-color: #81c784 !important;
+			}
+			.drop-zone.drag-invalid {
+				border-color: #c78184 !important;
+				background: #c781840d;
 			}
 
 			/* file info */
@@ -140,49 +148,77 @@
 				white-space: nowrap;
 			}
 
-			.file-info .remove {
+			.remove {
 				background: none;
 				border: none;
 				color: #ef5350;
 				cursor: pointer;
-				font-size: 1.25rem;
-				padding: 0.25rem;
+				font-size: 1.75rem;
+				line-height: 1.75rem;
+				padding-block: 0;
+				padding-inline: 0.5rem;
 			}
 
 			/* form */
-			.form-group {
-				margin-bottom: 1rem;
-			}
-
-			.form-group label {
-				display: block;
-				font-size: 0.875rem;
-				font-weight: 500;
-				margin-bottom: 0.375rem;
+			.form-group h4 {
+				margin-block: 0 0.5rem;
 				color: #bbb;
-			}
-
-			.form-row {
-				display: grid;
-				grid-template-columns: 1fr 1fr 1fr 1fr;
-				gap: 0.75rem;
+				line-height: normal;
 			}
 
 			.form-group input,
-			.form-group select {
-				width: 100%;
-				padding: 0.625rem 0.75rem;
-				background: #252525;
+			.form-group select,
+			.form-group textarea,
+			.form-group fieldset,
+			.pill {
+				width: stretch;
+				padding: 0.5rem 0.75rem;
+				background-color: #252525;
 				border: 1px solid #444;
 				border-radius: 6px;
 				color: #e0e0e0;
-				font-size: 0.875rem;
+				font-size: 1rem;
+				font-family: "Open Sans";
+				line-height: 1.5;
 			}
 
 			.form-group input:focus,
 			.form-group select:focus {
 				outline: none;
 				border-color: #81c784;
+			}
+
+			.form-row {
+				display: flex;
+				gap: 0.75rem;
+			}
+			.form-row.two > * {
+				width: 50% !important;
+			}
+			.form-row.three {
+				flex-direction: column;
+			}
+
+			.form-column {
+				display: flex;
+				flex-direction: column;
+				gap: 1rem;
+			}
+			.form-column > * {
+				flex: 1;
+			}
+
+			@container (min-width: 24rem) {
+				.form-row.three {
+					flex-direction: row;
+				}
+				.form-row.three > * {
+					width: calc(100% / 3) !important;
+				}
+				.form-column {
+					flex-direction: row;
+					gap: 0.5rem;
+				}
 			}
 
 			select {
@@ -205,20 +241,19 @@
 				display: flex;
 				align-items: center;
 				gap: 0.5rem;
+				cursor: pointer;
 			}
 
 			.checkbox-group input[type="checkbox"] {
-				width: 18px;
-				height: 18px;
+				width: 1.25rem;
+				height: 1.25rem;
 				accent-color: #81c784;
 				cursor: pointer;
+				margin: 0 0.25rem;
 			}
 
 			.checkbox-group label {
 				cursor: pointer;
-				font-size: 0.875rem;
-				color: #bbb;
-				margin-bottom: 0;
 			}
 
 			/* pill buttons for presets */
@@ -229,28 +264,33 @@
 			}
 
 			.pill {
-				display: inline-flex;
-				align-items: center;
-				padding: 0.35rem 0.7rem;
-				border-radius: 20px;
-				background: #252525;
-				border: 1px solid #444;
-				font-size: 0.75rem;
 				cursor: pointer;
-				color: #ccc;
-				transition: all 0.15s;
+				font-size: 0.875rem;
+				line-height: 1.25rem;
+				padding: 0.5rem;
+				transition: all 0.2s;
 				user-select: none;
+				width: auto;
+				display: grid;
+				text-align: center;
+			}
+			.pill > span {
+				grid-area: 1 / 1;
+			}
+			.pill > span + span {
+				visibility: hidden;
 			}
 
 			.pill:hover {
 				border-color: #81c784;
 			}
 
-			.pill.active {
+			.pill:has(input:checked),
+			.pill > span + span {
 				background: #81c784;
 				color: #0f0f0f;
 				border-color: #81c784;
-				font-weight: 600;
+				font-weight: bold;
 			}
 
 			.pill.disabled {
@@ -259,11 +299,19 @@
 				background: #1a1a1a;
 			}
 
-			/* codec wrapper + tooltip */
-			.codec-wrap {
-				position: relative;
+			input:disabled,
+			select:disabled,
+			fieldset:disabled,
+			textarea:disabled {
+				cursor: not-allowed;
+				box-shadow: none;
+				border-color: transparent;
+				background-color: #444;
+				opacity: 0.75;
+				color: revert;
 			}
 
+			/* codec wrapper + tooltip */
 			.codec-tooltip {
 				display: none;
 				position: absolute;
@@ -290,10 +338,6 @@
 				transform: translateX(-50%);
 				border: 5px solid transparent;
 				border-top-color: #ef5350;
-			}
-
-			.codec-wrap.show-tooltip .codec-tooltip {
-				display: block;
 			}
 
 			/* unsupported codec badges */
@@ -363,16 +407,10 @@
 			}
 
 			/* metadata */
-			.meta-section {
-				margin-top: 0.5rem;
-			}
-
 			.meta-section summary {
 				cursor: pointer;
-				font-size: 0.875rem;
 				color: #81c784;
 				user-select: none;
-				list-style: none;
 			}
 
 			.meta-section summary::-webkit-details-marker {
@@ -385,31 +423,30 @@
 
 			.meta-table {
 				width: 100%;
-				margin-top: 0.5rem;
-				font-size: 0.8rem;
+				margin-top: 0.25rem;
+				font-size: 0.75rem;
 				border-collapse: collapse;
-				table-layout: auto; /* 改为 auto，避免列宽错乱 */
+				table-layout: auto;
+				line-height: 1rem;
 			}
 
 			.meta-table th,
 			.meta-table td {
 				text-align: left;
-				padding: 0.4rem 0.5rem;
+				padding: 0.5rem;
 				border-bottom: 1px solid #2a2a2a;
-				vertical-align: middle; /* 统一垂直对齐 */
+				vertical-align: middle;
 			}
 
 			.meta-table th {
 				color: #888;
-				width: 42%; /* 稍微收紧，避免挤压 */
-				font-weight: 400;
-				white-space: nowrap; /* 防止 key 换行 */
+				white-space: nowrap;
 			}
 
 			.meta-table td {
 				color: #ddd;
-				text-align: right; /* 数值统一右对齐 */
-				font-variant-numeric: tabular-nums; /* 等宽数字，更整齐 */
+				text-align: right;
+				font-variant-numeric: tabular-nums;
 			}
 
 			.meta-section-header {
@@ -569,409 +606,414 @@
 				width: 16px;
 				height: 16px;
 			}
-
-			/* mobile */
-			@media (max-width: 480px) {
-				body {
-					padding: 1rem 0.75rem;
-				}
-
-				.card {
-					padding: 1rem;
-				}
-
-				h1 {
-					font-size: 1.4rem;
-				}
-
-				.subtitle {
-					font-size: 0.8rem;
-				}
-
-				.form-row {
-					grid-template-columns: 1fr;
-				}
-
-				.drop-zone {
-					padding: 1.25rem;
-				}
-
-				.drop-zone svg {
-					width: 32px;
-					height: 32px;
-				}
-
-				.pill {
-					font-size: 0.65rem;
-					padding: 0.3rem 0.5rem;
-				}
-
-				.btn {
-					padding: 0.75rem;
-					font-size: 0.95rem;
-				}
-
-				.meta-table th,
-				.meta-table td {
-					padding: 0.25rem 0.375rem;
-					font-size: 0.75rem;
-				}
-			}
 		</style>
 	</head>
 
-	<body>
-		<div class="container" x-data="videoCompressor" x-init="init()">
-			<h1>Video Compressor</h1>
-			<p class="subtitle">
-				Local video processing &mdash; MediaBunny &amp; WebCodecs
-			</p>
-
-			<!-- File upload -->
-			<div class="card">
-				<div
-					class="drop-zone"
-					:class="{ 'drag-over': dragging }"
-					@dragover.prevent="dragging = true"
-					@dragleave="dragging = false"
-					@drop.prevent="handleDrop($event)"
-					@click="$refs.fileInput.click()">
-					<input
-						type="file"
-						x-ref="fileInput"
-						accept="video/*,.mkv,.webm,.mp4"
-						@change="handleFileSelect($event)"
-						@click="$event.target.value = null"
-						style="display: none" />
-					<svg
-						width="40"
-						height="40"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="#81c784"
-						stroke-width="1.5">
-						<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-						<polyline points="17 8 12 3 7 8" />
-						<line x1="12" y1="3" x2="12" y2="15" />
-					</svg>
-					<p>Click or drag video file here</p>
-				</div>
-
-				<template x-if="file">
-					<div class="file-info">
-						<span class="icon">&#x1f3ac;</span>
-						<span class="name" x-text="file.name"></span>
-						<span class="size" x-text="formatSize(file.size)"></span>
-						<button class="remove" @click.stop="clearFile()">&times;</button>
-					</div>
-				</template>
-			</div>
-
-			<!-- Metadata -->
-			<template x-if="metadata">
-				<div class="card">
-					<!-- Basic info: open by default -->
-					<details class="meta-section" open>
-						<summary>Source file info</summary>
-						<table class="meta-table">
-							<tr>
-								<th colspan="2" class="meta-section-header">General</th>
-							</tr>
-							<tr>
-								<th>File</th>
-								<td x-text="metadata.fileName"></td>
-							</tr>
-							<tr>
-								<th>Size</th>
-								<td x-text="metadata.fileSizeStr"></td>
-							</tr>
-							<tr>
-								<th>Container</th>
-								<td x-text="metadata.container"></td>
-							</tr>
-							<tr>
-								<th>Duration</th>
-								<td x-text="metadata.durationStr"></td>
-							</tr>
-							<tr>
-								<th>Avg. bitrate</th>
-								<td x-text="metadata.totalBitrateStr"></td>
-							</tr>
-						</table>
-					</details>
-
-					<!-- Video: collapsed by default -->
-					<template x-if="metadata.video">
-						<details class="meta-section">
-							<summary>Video</summary>
-							<table class="meta-table">
-								<tr>
-									<th>Codec</th>
-									<td x-text="metadata.video.codec"></td>
-								</tr>
-								<tr>
-									<th>Coded size</th>
-									<td
-										x-text="metadata.video.codedW + '\u00d7' + metadata.video.codedH"></td>
-								</tr>
-								<tr>
-									<th>Display size</th>
-									<td
-										x-text="metadata.video.displayW + '\u00d7' + metadata.video.displayH"></td>
-								</tr>
-								<tr>
-									<th>Frame rate</th>
-									<td x-text="metadata.video.fps + ' fps'"></td>
-								</tr>
-								<tr>
-									<th>Rotation</th>
-									<td x-text="(metadata.video.rotation || 0) + '\u00b0'"></td>
-								</tr>
-								<tr>
-									<th>Bitrate</th>
-									<td
-										x-text="metadata.video.bitrate ? (metadata.video.bitrate / 1000).toFixed(0) + ' kbps' : 'unknown'"></td>
-								</tr>
-								<tr>
-									<th>Pixel aspect</th>
-									<td x-text="metadata.video.aspectRatio"></td>
-								</tr>
-								<tr>
-									<th>Color space</th>
-									<td x-text="metadata.video.colorSpace"></td>
-								</tr>
-							</table>
-						</details>
-					</template>
-
-					<!-- Audio: collapsed by default -->
-					<template x-if="metadata.audio">
-						<details class="meta-section">
-							<summary>Audio</summary>
-							<table class="meta-table">
-								<tr>
-									<th>Codec</th>
-									<td x-text="metadata.audio.codec"></td>
-								</tr>
-								<tr>
-									<th>Channels</th>
-									<td x-text="metadata.audio.channelLabel"></td>
-								</tr>
-								<tr>
-									<th>Sample rate</th>
-									<td x-text="metadata.audio.sampleRate + ' Hz'"></td>
-								</tr>
-								<tr>
-									<th>Bitrate</th>
-									<td
-										x-text="metadata.audio.bitrate ? (metadata.audio.bitrate / 1000).toFixed(0) + ' kbps' : 'unknown'"></td>
-								</tr>
-							</table>
-						</details>
-					</template>
-
-					<template x-if="!metadata.audio">
-						<details class="meta-section">
-							<summary>Audio</summary>
-							<table class="meta-table">
-								<tr>
-									<td colspan="2" style="color: #888; padding-top: 0.25rem">
-										No audio track
-									</td>
-								</tr>
-							</table>
-						</details>
-					</template>
-				</div>
-			</template>
-
-			<!-- Settings -->
-			<div class="card">
-				<!-- Codec selector with unsupported detection -->
-				<div class="form-group">
-					<label>Video codec</label>
-					<div
-						class="codec-wrap"
-						:class="{ 'show-tooltip': selectedUnsupported }">
-						<select x-model="settings.videoCodec">
-							<template x-for="c in codecs" :key="c.id">
-								<option
-									:value="c.id"
-									:disabled="!c.supported"
-									x-text="c.label + (c.supported ? '' : '  \u2717')"></option>
-							</template>
+	<body
+		style="
+			font-family: &quot;Open Sans&quot;;
+			background: #0f0f0f;
+			color: #e0e0e0;
+			min-height: 100vh;
+			padding: 0 1rem 0.75rem;
+			line-height: 1.5;
+			--default-width: 425px;
+		">
+		<header style="max-width: var(--default-width); margin: 0 auto 1.75rem">
+			<h1 style="color: #81c784; margin-block-end: 0.5rem">Video Processing</h1>
+			<small style="color: #888">
+				Convert, compress, resize, recode and crop videos entirely on your
+				device with MediaBunny &amp; WebCodecs without needing to upload
+			</small>
+		</header>
+		<div class="card" id="fileSelection">
+			<h2>Select a file to get started</h2>
+			<label
+				class="drop-zone"
+				id="dropZone"
+				style="
+					border: 2px dashed #8888;
+					border-radius: 8px;
+					text-align: center;
+					cursor: pointer;
+					transition: all 0.2s;
+					aspect-ratio: 2 / 1;
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					align-items: center;
+				">
+				<input
+					type="file"
+					id="fileInput"
+					accept="video/*,audio/*"
+					style="display: none" />
+				<svg
+					width="40"
+					height="40"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="#81c784"
+					stroke-width="1.5">
+					<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+					<polyline points="17 8 12 3 7 8" />
+					<line x1="12" y1="3" x2="12" y2="15" />
+				</svg>
+				<small style="margin-top: 0.5rem; color: #888">
+					Click or drag video file here
+				</small>
+			</label>
+		</div>
+		<div class="card" id="metadata" style="display: none">
+			<h2 style="display: flex; align-items: center">
+				<span data-prop="fileName"></span>
+				<button class="remove" id="removeFile">&times;</button>
+			</h2>
+			<details class="meta-section">
+				<summary>File info</summary>
+				<table class="meta-table">
+					<tr>
+						<th>File</th>
+						<td data-prop="fileName"></td>
+					</tr>
+					<tr>
+						<th>Size</th>
+						<td data-prop="fileSize"></td>
+					</tr>
+					<tr>
+						<th>Format</th>
+						<td data-prop="inputFormat"></td>
+					</tr>
+					<tr>
+						<th>Duration</th>
+						<td data-prop="inputDuration"></td>
+					</tr>
+					<tr>
+						<th>Avg. bitrate</th>
+						<td data-prop="inputBitrate"></td>
+					</tr>
+				</table>
+			</details>
+			<details class="meta-section" id="metadataVideo">
+				<summary>Video</summary>
+				<table class="meta-table">
+					<tr>
+						<th>Codec</th>
+						<td data-prop="inputVideoCodec"></td>
+					</tr>
+					<tr>
+						<th>Display size</th>
+						<td data-prop="inputDisplaySize"></td>
+					</tr>
+					<tr>
+						<th>Frame rate</th>
+						<td data-prop="inputVideoFps"></td>
+					</tr>
+					<tr>
+						<th>Bitrate</th>
+						<td data-prop="inputVideoBitrate"></td>
+					</tr>
+					<tr>
+						<th>Color space</th>
+						<td data-prop="inputVideoColorSpace"></td>
+					</tr>
+				</table>
+			</details>
+			<details class="meta-section" id="metadataAudio">
+				<summary>Audio</summary>
+				<table class="meta-table">
+					<tr>
+						<th>Codec</th>
+						<td data-prop="inputAudioCodec"></td>
+					</tr>
+					<tr>
+						<th>Channels</th>
+						<td data-prop="inputAudioChannels"></td>
+					</tr>
+					<tr>
+						<th>Sample rate</th>
+						<td data-prop="inputAudioSampleRate"></td>
+					</tr>
+					<tr>
+						<th>Bitrate</th>
+						<td data-prop="inputAudioBitrate"></td>
+					</tr>
+				</table>
+			</details>
+		</div>
+		<div id="settings" style="display: none">
+			<div>
+				<div class="card" id="videoOptions">
+					<h2>Video options</h2>
+					<div class="form-group">
+						<h4>Quality</h4>
+						<select name="videoQuality">
+							<option value="auto">Automatic</option>
+							<option value="very-high">Very high</option>
+							<option value="high">High</option>
+							<option value="medium">Medium</option>
+							<option value="low">Low</option>
+							<option value="very-low">Very low</option>
+							<option value="custom">Custom…</option>
 						</select>
-						<span
-							class="codec-tooltip"
-							x-text="selectedUnsupported ? unsupportedTooltip : ''"></span>
-					</div>
-
-					<template x-if="disabledCodecs.length">
-						<div class="badges">
-							<template x-for="c in disabledCodecs" :key="c.id">
-								<span
-									class="badge-disabled"
-									:title="c.tooltip || 'Not supported'"
-									x-text="c.label + ' \u2717'"></span>
-							</template>
+						<div class="hiddenInput" style="margin-top: 0.5rem">
+							<input
+								type="number"
+								name="videoBitrate"
+								min="1"
+								max="10000"
+								step="1"
+								placeholder="Bitrate (kbps)"
+								disabled />
 						</div>
-					</template>
-				</div>
-
-				<!-- Resolution -->
-				<div class="form-group">
-					<label>Resolution</label>
-					<div class="pill-row">
-						<template x-for="p in presets" :key="p.id">
-							<span
-								class="pill"
-								:class="{
-              						'active': settings.resolution === p.id,
-              						'disabled': resolutionDisabled(p)
-              					}"
-								@click="!resolutionDisabled(p) && setResolution(p)"
-								:title="resolutionTooltip(p)"
-								x-text="p.label"></span>
-						</template>
 					</div>
-
-					<div
-						class="form-row"
-						style="margin-top: 0.5rem"
-						x-show="settings.resolution === 'custom'">
-						<input
-							type="number"
-							x-model.number="settings.customWidth"
-							placeholder="Width"
-							min="64"
-							max="3840" />
-						<input
-							type="number"
-							x-model.number="settings.customHeight"
-							placeholder="Height"
-							min="64"
-							max="2160" />
+					<div class="form-column">
+						<div class="form-group">
+							<h4>Codec</h4>
+							<select name="videoCodec" id="settingsVideoCodec">
+								<option></option>
+							</select>
+						</div>
+						<div class="form-group">
+							<h4>Rotate</h4>
+							<select name="rotate">
+								<option value="0">0°</option>
+								<option value="90">90°</option>
+								<option value="180">180°</option>
+								<option value="270">270°</option>
+							</select>
+						</div>
 					</div>
-				</div>
-
-				<div class="form-group">
-					<label>Target size <span style="color: #666">(MB)</span></label>
-					<input
-						type="number"
-						x-model.number="settings.size"
-						min="1"
-						max="10000"
-						step="1"
-						placeholder="20" />
-				</div>
-
-				<div class="form-group">
-					<label>Frame rate <span style="color: #666">(fps)</span></label>
-					<input
-						type="number"
-						x-model.number="settings.frameRate"
-						min="1"
-						max="10000"
-						step="1"
-						placeholder="Original" />
-				</div>
-				<div class="form-group">
-					<label
-						>Keyframe interval <span style="color: #666">(seconds)</span></label
-					>
-					<input
-						type="number"
-						x-model.number="settings.keyFrameInterval"
-						min="1"
-						max="10000"
-						step="1"
-						placeholder="5 seconds" />
-				</div>
-
-				<div class="form-group">
-					<label
-						>Crop
-						<span style="color: #666">(leave blank for no crop)</span></label
-					>
-					<div class="form-row" style="margin-top: 0.5rem">
-						<input
-							type="number"
-							x-model.number="settings.crop.left"
-							placeholder="Left"
-							min="0" />
-						<input
-							type="number"
-							x-model.number="settings.crop.top"
-							placeholder="Top"
-							min="0" />
-						<input
-							type="number"
-							x-model.number="settings.crop.width"
-							placeholder="Width"
-							min="2"
-							step="2" />
-						<input
-							type="number"
-							x-model.number="settings.crop.height"
-							placeholder="Height"
-							min="2"
-							step="2" />
+					<div class="form-column">
+						<div class="form-group">
+							<h4>Frame rate <span style="color: #666">(fps)</span></h4>
+							<input
+								type="number"
+								name="frameRate"
+								min="1"
+								max="10000"
+								step="1"
+								placeholder="Original" />
+						</div>
+						<div class="form-group">
+							<h4>Keyframe interval</h4>
+							<input
+								type="number"
+								name="keyFrameInterval"
+								min="1"
+								max="10000"
+								step="1"
+								placeholder="5 seconds" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="checkbox-group" for="discard_video">
+							<input type="checkbox" id="discard_video" name="discardVideo" />
+							Discard video
+						</label>
 					</div>
 				</div>
-				<div class="form-group">
-					<div class="checkbox-group">
-						<input
-							type="checkbox"
-							id="discard_video"
-							x-model="settings.discardVideo" />
-						<label for="discard_video">Discard video</label>
+				<div class="card" id="audioOptions">
+					<h2>Audio options</h2>
+					<div class="form-group">
+						<h4>Quality</h4>
+						<select name="audioQuality">
+							<option value="auto">Automatic</option>
+							<option value="very-high">Very high</option>
+							<option value="high">High</option>
+							<option value="medium">Medium</option>
+							<option value="low">Low</option>
+							<option value="very-low">Very low</option>
+							<option value="custom">Custom…</option>
+						</select>
+						<div class="hiddenInput" style="margin-top: 0.5rem">
+							<input
+								type="number"
+								name="audioBitrate"
+								min="1"
+								max="10000"
+								step="1"
+								placeholder="Bitrate (kbps)"
+								disabled />
+						</div>
 					</div>
-				</div>
-				<!-- Audio toggle -->
-				<div class="form-group" x-show="!metadata || metadata.audio">
-					<div class="checkbox-group">
-						<input
-							type="checkbox"
-							id="discard_audio"
-							x-model="settings.discardAudio" />
-						<label for="discard_audio">Discard audio track</label>
-						<input type="checkbox" id="mono_audio" x-model="settings.mono" />
-						<label for="mono_audio">Merge audio channels</label>
+					<div class="form-column">
+						<div class="form-group">
+							<h4>Codec</h4>
+							<select name="audioCodec" id="settingsAudioCodec">
+								<option></option>
+							</select>
+						</div>
+						<div class="form-group">
+							<h4>Sample format</h4>
+							<select name="sampleFormat">
+								<option value="original">Original</option>
+								<option value="u8">Unsigned 8-bit</option>
+								<option value="s16">Signed 16-bit</option>
+								<option value="s32">Signed 32-bit</option>
+								<option value="f32">Floating point 32-bit</option>
+							</select>
+						</div>
 					</div>
-				</div>
+					<div class="form-column">
+						<div class="form-group">
+							<h4>Sample rate <span style="color: #666">(hz)</span></h4>
+							<input
+								type="number"
+								name="sampleRate"
+								min="1"
+								max="10000"
+								step="1"
+								placeholder="Original" />
+						</div>
+						<div class="form-group">
+							<h4>Number of channels</h4>
+							<input
+								type="number"
+								name="channels"
+								min="1"
+								max="10000"
+								step="1"
+								placeholder="Original" />
+						</div>
+					</div>
 
-				<!-- Auto-download -->
-				<div class="form-group">
-					<div class="checkbox-group">
-						<input
-							type="checkbox"
-							id="auto_dl"
-							x-model="settings.autoDownload" />
-						<label for="auto_dl">Auto-download after processing</label>
+					<div class="form-group">
+						<label class="checkbox-group" for="discard_audio">
+							<input type="checkbox" id="discard_audio" name="discardAudio" />
+							Discard audio
+						</label>
 					</div>
 				</div>
 			</div>
-
-			<!-- Resolution warning toast -->
-			<template x-if="warning">
-				<div class="toast-warning">
-					<span class="warn-icon">⚠️</span>
-					<span x-text="warning"></span>
+			<div>
+				<div class="card" id="sizeOptions">
+					<h2>Crop & resize options</h2>
+					<div class="form-group">
+						<h4>Resolution</h4>
+						<select name="resolution" id="presets">
+							<option value="original">
+								Original (<span data-prop="inputResolution">unchanged</span>)
+							</option>
+							<option value="2160">4K UHD (2160p)</option>
+							<option value="1620">3K (1620p)</option>
+							<option value="1440">QHD (1440p)</option>
+							<option value="1080">FHD (1080p)</option>
+							<option value="720">HD (720p)</option>
+							<option value="480">SD (480p)</option>
+							<option value="custom">Custom…</option>
+						</select>
+						<div class="form-row three hiddenInput" style="margin-top: 0.5rem">
+							<input
+								type="number"
+								name="width"
+								placeholder="Width (px)"
+								min="64"
+								max="3840"
+								disabled />
+							<input
+								type="number"
+								name="height"
+								placeholder="Height (px)"
+								min="64"
+								max="2160"
+								disabled />
+							<select name="fit" disabled>
+								<option value="fill">Fill</option>
+								<option value="contain">Contain</option>
+								<option value="cover">Cover</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<h4>Crop</h4>
+						<div class="form-column" style="gap: 0.5rem">
+							<div class="form-row two">
+								<input
+									type="number"
+									name="cropLeft"
+									placeholder="Left"
+									min="0" />
+								<input type="number" name="cropTop" placeholder="Top" min="0" />
+							</div>
+							<div class="form-row two">
+								<input
+									type="number"
+									name="cropWidth"
+									placeholder="Width"
+									min="2"
+									step="2" />
+								<input
+									type="number"
+									name="cropHeight"
+									placeholder="Height"
+									min="2"
+									step="2" />
+							</div>
+						</div>
+					</div>
 				</div>
-			</template>
-
-			<!-- Action -->
-			<button
+				<div class="card">
+					<h2>Output options</h2>
+					<div class="form-group">
+						<h4>Max size <span style="color: #666">(MB)</span></h4>
+						<select name="maxSizePreset">
+							<option value="none">No limit</option>
+							<option value="10">Discord (10 MB)</option>
+							<option value="20">Discord (20 MB)</option>
+							<option value="50">Discord Nitro Basic (50 MB)</option>
+							<option value="100">Discord Boost Level 3 (100 MB)</option>
+							<option value="100">Bluesky (100 MB)</option>
+							<option value="100">Microsoft Teams (100 MB)</option>
+							<option value="500">Discord Nitro (500 MB)</option>
+							<option value="512">Twitter (512 MB)</option>
+							<option value="custom">Custom…</option>
+						</select>
+						<div class="hiddenInput" style="margin-top: 0.5rem">
+							<input
+								type="number"
+								name="maxSize"
+								min="1"
+								max="10000"
+								step="1"
+								placeholder="Size (MB)"
+								disabled />
+						</div>
+					</div>
+					<div class="form-group">
+						<h4>Format</h4>
+						<select name="format">
+							<option value="auto">Automatic</option>
+							<option value="mp4">MP4</option>
+							<option value="cmaf">CMAF</option>
+							<option value="mov">MOV</option>
+							<option value="mkv">MKV</option>
+							<option value="webm">WebM</option>
+							<option value="mp3">MP3</option>
+							<option value="wav">WAV</option>
+							<option value="ogg">Ogg</option>
+							<option value="adts">ADTS</option>
+							<option value="flac">FLAC</option>
+							<option value="mpegts">MPEG-TS</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<input
+				type="submit"
 				class="btn btn-primary"
-				:disabled="!canStart"
-				@click="startProcessing"
-				x-text="processing ? 'Processing …' : 'Start processing'"></button>
+				value="Start processing"
+				style="
+					max-width: var(--default-width);
+					margin: 0 auto;
+					display: block;
+				" />
+		</div>
 
-			<template x-if="processing">
+		<!-- <template x-if="processing">
 				<button class="btn btn-cancel" @click="cancelProcessing">Cancel</button>
 			</template>
 
-			<!-- Progress -->
 			<template x-if="processing || progress > 0">
 				<div style="margin-top: 1rem">
 					<progress :value="progress" max="1"></progress>
@@ -979,12 +1021,10 @@
 				</div>
 			</template>
 
-			<!-- Error -->
 			<template x-if="error">
 				<p class="status error" x-text="error"></p>
 			</template>
 
-			<!-- Success -->
 			<template x-if="downloadUrl">
 				<div class="status success">
 					<p>Processing complete!</p>
@@ -1000,23 +1040,9 @@
 						Download <span x-text="outputFileName"></span>
 					</a>
 				</div>
-			</template>
-		</div>
+			</template> -->
 
-		<script type="module">
-			import registerApp from "./js/main.js";
-
-			if (window.Alpine) {
-				window.Alpine.data("videoCompressor", registerApp);
-			} else {
-				document.addEventListener("alpine:init", () => {
-					window.Alpine.data("videoCompressor", registerApp);
-				});
-			}
-		</script>
-		<script
-			defer
-			src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
+		<script type="module" src="./js/main.js"></script>
 
 		<!-- PWA Service Worker Registration -->
 		<script>
