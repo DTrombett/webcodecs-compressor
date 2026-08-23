@@ -75,7 +75,7 @@ elements.fileInput.addEventListener("change", async () => {
 	const file = elements.fileInput.files?.[0];
 
 	elements.processing.style.display = "none";
-	elements.processed.style.display = "none";
+	elements.downloadUrl.style.display = "none";
 	elements.downloadUrl.href = "";
 	state.fileName = file?.name ?? null;
 	fill("outputFileName", null);
@@ -240,7 +240,8 @@ elements.settings.addEventListener("submit", async (ev) => {
 		);
 		fill("outputFileName", (elements.downloadUrl.download = result.fileName));
 		elements.statusMessage.textContent = `Done! ${formatSize(result.outputSize)} (${((result.outputSize / result.inputSize) * 100).toFixed(1)}% of source)`;
-		elements.processed.style.display = "";
+		elements.cancelProcessing.style.display = "none";
+		elements.downloadUrl.style.display = "";
 	} catch (err) {
 		console.error("[app] processing error", err);
 		if (err instanceof ConversionCanceledError)

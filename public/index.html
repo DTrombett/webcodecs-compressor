@@ -528,10 +528,12 @@
 				background: rgba(129, 199, 132, 0.15);
 				border-radius: 8px;
 				color: #81c784;
-				margin: 0.75rem auto auto;
+				display: block;
+				margin-top: 0.5rem;
 				padding: 0.75rem;
 				text-align: center;
-				width: var(--default-width);
+				text-decoration: underline;
+				width: stretch;
 			}
 
 			.status.error {
@@ -1023,16 +1025,8 @@
 				<progress id="progress" max="1"></progress>
 				<p class="status processing" id="statusMessage">Processing...</p>
 			</div>
-			<button class="btn btn-cancel" id="cancelProcessing">Cancel</button>
-		</div>
-		<div class="status success" id="processed" style="display: none">
-			<a
-				id="downloadUrl"
-				style="
-					display: inline-block;
-					color: inherit;
-					text-decoration: underline;
-				">
+			<button class="btn btn-cancel" id="cancelProcessing">Cancel</button
+			><a id="downloadUrl" class="status success">
 				Save <span data-prop="outputFileName"></span>
 			</a>
 		</div>

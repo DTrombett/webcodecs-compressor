@@ -28,9 +28,6 @@ export const elements = {
 		document.getElementById("fileSelection")
 	),
 	metadata: /** @type {HTMLDivElement} */ (document.getElementById("metadata")),
-	processed: /** @type {HTMLDivElement} */ (
-		document.getElementById("processed")
-	),
 	processing: /** @type {HTMLDivElement} */ (
 		document.getElementById("processing")
 	),
