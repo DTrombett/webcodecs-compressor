@@ -1,4 +1,11 @@
-import { ALL_FORMATS, BlobSource, Input } from "mediabunny";
+import {
+	ALL_FORMATS,
+	BlobSource,
+	ConversionCanceledError,
+	Input,
+	Quality,
+} from "mediabunny";
+import { processVideo } from "./pipeline.js";
 import {
 	checkAudioCodecs,
 	checkVideoCodecs,
@@ -9,22 +16,8 @@ import {
 	getDuration,
 	getFormat,
 	getVideo,
+	state,
 } from "./utils.js";
-
-/** @type {AppState} */
-const state = {
-	input: null,
-	processing: false,
-	progress: 0,
-	error: null,
-	statusMessage: "",
-	downloadUrl: null,
-	outputFileName: "",
-	metadata: null,
-	codecs: [],
-	currentConversion: null,
-	isHdrSource: false,
-};
 
 checkVideoCodecs();
 checkAudioCodecs();
@@ -81,6 +74,11 @@ elements.dropZone.addEventListener("drop", (ev) => {
 elements.fileInput.addEventListener("change", async () => {
 	const file = elements.fileInput.files?.[0];
 
+	elements.processing.style.display = "none";
+	elements.processed.style.display = "none";
+	elements.downloadUrl.href = "";
+	state.fileName = file?.name ?? null;
+	fill("outputFileName", null);
 	fill("fileName", file?.name ?? null);
 	fill("fileSize", file ? formatSize(file.size) : null);
 	if (file)
@@ -116,6 +114,7 @@ elements.fileInput.addEventListener("change", async () => {
 	state.metadata = null;
 	state.error = null;
 	state.downloadUrl = null;
+	state.resolutionWidth = null;
 	fill("inputFormat", null);
 	fill("inputDuration", null);
 	fill("inputBitrate", null);
@@ -154,23 +153,111 @@ document.body.querySelectorAll("select:has(~ .hiddenInput)").forEach((el) =>
 			).disabled = disabled;
 	}),
 );
+elements.settings.addEventListener("submit", async (ev) => {
+	const form = /** @type {Settings} */ (
+		Object.fromEntries(new FormData(elements.settings).entries())
+	);
+	let listener;
+
+	ev.preventDefault();
+	if (!state.input || !state.fileName) return;
+	try {
+		elements.progress.value = 0;
+		elements.statusMessage.textContent = "Processing...";
+		elements.processing.style.display = "";
+		const result = await processVideo(
+			state.input,
+			{
+				quality:
+					form.videoQuality ?
+						new Quality(
+							form.videoQuality === "custom" ?
+								{ bitrate: Number(form.videoBitrate) * 1000 }
+							:	{ quality: form.videoQuality },
+						)
+					:	undefined,
+				codec: form.videoCodec,
+				rotate: form.rotate ? Number(form.rotate) : undefined,
+				frameRate: form.frameRate ? Number(form.frameRate) : undefined,
+				keyFrameInterval:
+					form.keyFrameInterval ? Number(form.keyFrameInterval) : undefined,
+				discard: form.discardVideo === "on",
+				height:
+					form.resolution ?
+						form.resolution === "custom" ? Number(form.height)
+						: state.resolutionWidth ? undefined
+						: Number(form.resolution)
+					:	undefined,
+				width:
+					form.resolution ?
+						form.resolution === "custom" ? Number(form.width)
+						: state.resolutionWidth ? Number(form.resolution)
+						: undefined
+					:	undefined,
+				fit: form.resolution === "custom" ? form.fit : undefined,
+				crop:
+					form.cropHeight || form.cropLeft || form.cropTop || form.cropWidth ?
+						{
+							height: form.cropHeight ? Number(form.cropHeight) : Infinity,
+							width: form.cropWidth ? Number(form.cropWidth) : Infinity,
+							left: form.cropLeft ? Number(form.cropLeft) : Infinity,
+							top: form.cropTop ? Number(form.cropTop) : Infinity,
+						}
+					:	undefined,
+			},
+			{
+				quality:
+					form.audioQuality ?
+						new Quality(
+							form.audioQuality === "custom" ?
+								{ bitrate: Number(form.audioBitrate) * 1000 }
+							:	{ quality: form.audioQuality },
+						)
+					:	undefined,
+				codec: form.audioCodec,
+				sampleFormat: form.sampleFormat,
+				sampleRate: form.sampleRate ? Number(form.sampleRate) : undefined,
+				channels: form.channels ? Number(form.channels) : undefined,
+				discard: form.discardAudio === "on",
+			},
+			{
+				fileName: state.fileName,
+				onProgress: (p) => {
+					elements.progress.value = p;
+					elements.statusMessage.textContent = `Processing... (${Math.floor(p * 100)}%)`;
+				},
+				onConversionReady: (conversion) => {
+					elements.cancelProcessing.addEventListener(
+						"click",
+						(listener = conversion.cancel.bind(conversion)),
+					);
+				},
+			},
+		);
+		elements.downloadUrl.href = URL.createObjectURL(
+			new Blob([result.buffer], { type: result.mimeType }),
+		);
+		fill("outputFileName", (elements.downloadUrl.download = result.fileName));
+		elements.statusMessage.textContent = `Done! ${formatSize(result.outputSize)} (${((result.outputSize / result.inputSize) * 100).toFixed(1)}% of source)`;
+		elements.processed.style.display = "";
+	} catch (err) {
+		console.error("[app] processing error", err);
+		if (err instanceof ConversionCanceledError)
+			elements.statusMessage.textContent = "Cancelled.";
+		else {
+			elements.statusMessage.textContent =
+				err instanceof Error ?
+					err.message
+				:	"Unexpected error during processing.";
+		}
+	} finally {
+		if (listener)
+			elements.cancelProcessing.removeEventListener("click", listener);
+	}
+});
 
 /** @returns {AppState} */
 // export default () => ({
-// 	get disabledCodecs() {
-// 		return this.codecs.filter((c) => !c.supported);
-// 	},
-// 	get selectedCodec() {
-// 		return this.codecs.find((c) => c.id === this.settings.videoCodec);
-// 	},
-// 	get selectedUnsupported() {
-// 		const obj = this.selectedCodec;
-
-// 		return obj && !obj.supported;
-// 	},
-// 	get unsupportedTooltip() {
-// 		return this.selectedCodec?.tooltip || "Not supported";
-// 	},
 // 	get decodeStatus() {
 // 		const codec = this.selectedCodec;
 
@@ -179,214 +266,6 @@ document.body.querySelectorAll("select:has(~ .hiddenInput)").forEach((el) =>
 // 			supported: codec.decodeSupported,
 // 			label: codec.decodeSupported ? "Supported" : "Not supported",
 // 		};
-// 	},
-// 	get decodeTooltip() {
-// 		const codec = this.selectedCodec;
-
-// 		if (!codec) return "";
-// 		if (!codec.decodeSupported)
-// 			return "Browser does not support decoding this codec";
-// 		return "Decoding supported";
-// 	},
-// 	resolutionDisabled(preset) {
-// 		return (
-// 			this.metadata?.video?.displayH != null &&
-// 			preset.height != null &&
-// 			preset.height > this.metadata.video.displayH
-// 		);
-// 	},
-// 	resolutionTooltip(preset) {
-// 		return this.metadata?.video && this.resolutionDisabled(preset) ?
-// 				`Higher than source (${this.metadata.video.displayH}p)`
-// 			:	"";
-// 	},
-// 	/* ── init: detect codecs ────────────────────────────────────── */
-// 	async init() {
-// 		try {
-// 			this.codecs = await Promise.all(
-// 				CODEC_DEFINITIONS.map(async (def) => {
-// 					const [encodeOk, decodeOk] = await Promise.all([
-// 						canEncodeVideo(def.id).catch(() => false),
-// 						canDecodeVideo(def.id).catch(() => false),
-// 					]);
-// 					const tooltipParts = [];
-
-// 					if (!encodeOk) tooltipParts.push("Encode not supported.");
-// 					if (!decodeOk) tooltipParts.push("Decode not supported.");
-// 					return {
-// 						id: def.id,
-// 						label: def.label,
-// 						supported: encodeOk,
-// 						decodeSupported: decodeOk,
-// 						tooltip: tooltipParts.join(" ") || "Supported",
-// 					};
-// 				}),
-// 			);
-// 			const first = this.codecs.find((c) => c.supported);
-// 			if (first) this.settings.videoCodec = first.id;
-// 		} catch (e) {
-// 			console.warn("[codecs] detection failed", e);
-// 			this.codecs = [];
-// 		}
-// 	},
-// 	/* ── file handling ──────────────────────────────────────────── */
-// 	handleFileSelect(event) {
-// 		if (event.target.files?.length) this.setFile(event.target.files[0]);
-// 	},
-// 	handleDrop(event) {
-// 		this.dragging = false;
-// 		const f = event.dataTransfer?.files?.[0];
-// 		if (f) this.setFile(f);
-// 	},
-// 	async setFile(file) {
-// 		this.file = file;
-// 		this.error = null;
-// 		this.downloadUrl = null;
-// 		this.metadata = null;
-// 		try {
-// 			const input = new Input({
-// 				source: new BlobSource(file),
-// 				formats: ALL_FORMATS,
-// 			});
-// 			const [size, duration, format, videoTrack, audioTrack] =
-// 				await Promise.all([
-// 					input.source.getSize(),
-// 					input
-// 						.getDurationFromMetadata()
-// 						.then((d) => d ?? input.computeDuration()),
-// 					input.getFormat(),
-// 					input.getPrimaryVideoTrack(),
-// 					input.getPrimaryAudioTrack(),
-// 				]);
-
-// 			/** @type {VideoInfo?} */
-// 			let videoInfo = null;
-// 			if (videoTrack) {
-// 				const [
-// 					frameRateMetrics,
-// 					par,
-// 					colorSpace,
-// 					codec,
-// 					codedW,
-// 					codedH,
-// 					displayW,
-// 					displayH,
-// 					rotation,
-// 					bitrate,
-// 					hdr,
-// 				] = await Promise.all([
-// 					videoTrack.computeFrameRateMetrics(),
-// 					videoTrack.getPixelAspectRatio(),
-// 					videoTrack.getColorSpace(),
-// 					videoTrack.getCodec(),
-// 					videoTrack.getCodedWidth(),
-// 					videoTrack.getCodedHeight(),
-// 					videoTrack.getDisplayWidth(),
-// 					videoTrack.getDisplayHeight(),
-// 					videoTrack.getRotation(),
-// 					videoTrack
-// 						.getAverageBitrate()
-// 						.then((bitrate) => bitrate ?? videoTrack.getBitrate()),
-// 					videoTrack.hasHighDynamicRange(),
-// 				]);
-
-// 				videoInfo = {
-// 					codec,
-// 					codedW,
-// 					codedH,
-// 					displayW,
-// 					displayH,
-// 					fps: frameRateMetrics.bestGuessFrameRate,
-// 					rotation,
-// 					bitrate,
-// 					aspectRatio: `${par.num}:${par.den}`,
-// 					colorSpace: colorSpace.matrix ?? "unknown",
-// 					hdr,
-// 				};
-// 			}
-
-// 			/** @type {AudioInfo?} */
-// 			let audioInfo = null;
-// 			if (audioTrack) {
-// 				const [channels, codec, sampleRate, bitrate] = await Promise.all([
-// 					audioTrack.getNumberOfChannels(),
-// 					audioTrack.getCodec(),
-// 					audioTrack.getSampleRate(),
-// 					audioTrack
-// 						.getAverageBitrate()
-// 						.then((bitrate) => bitrate ?? audioTrack.getBitrate()),
-// 				]);
-
-// 				audioInfo = {
-// 					codec,
-// 					channels: channels,
-// 					channelLabel: this._channelLabel(channels),
-// 					sampleRate,
-// 					bitrate,
-// 				};
-// 			}
-// 			const totalBitrate = (size * 8) / duration;
-// 			this.metadata = {
-// 				fileName: file.name,
-// 				fileSize: size,
-// 				fileSizeStr: this.formatSize(size),
-// 				container: format.name,
-// 				duration,
-// 				durationStr: this.formatDuration(duration),
-// 				totalBitrate,
-// 				totalBitrateStr: `${Math.round(totalBitrate / 1000)} kbps`,
-// 				video: videoInfo,
-// 				audio: audioInfo,
-// 			};
-// 			this.isHdrSource = videoInfo?.hdr ?? false;
-// 		} catch (e) {
-// 			console.warn("[app] metadata read failed", e);
-// 		}
-// 	},
-// 	warning: null,
-// 	setResolution(preset) {
-// 		const srcH = this.metadata?.video?.displayH;
-// 		if (!srcH || !preset.height) {
-// 			this.settings.resolution =
-// 				/** @type {keyof typeof RESOLUTION_PRESETS} */ (preset.id);
-// 			return;
-// 		}
-// 		if (preset.height > srcH) {
-// 			this.settings.resolution = "original";
-// 			this.warning = `Selected resolution would exceed source (${srcH}p). Capped to original.`;
-// 			setTimeout(() => {
-// 				this.warning = null;
-// 			}, 5000);
-// 			return;
-// 		}
-// 		this.settings.resolution = /** @type {keyof typeof RESOLUTION_PRESETS} */ (
-// 			preset.id
-// 		);
-// 		this.warning = null;
-// 	},
-// 	/** Validate that custom dimensions don't exceed source */
-// 	validateCustomResolution() {
-// 		const srcW = this.metadata?.video?.displayW;
-// 		const srcH = this.metadata?.video?.displayH;
-// 		if (!srcW || !srcH) return;
-// 		const cW = this.settings.customWidth;
-// 		const cH = this.settings.customHeight;
-
-// 		if (cW && cW > srcW) {
-// 			this.settings.customWidth = srcW;
-// 			this.warning = `Width capped to source (${srcW}px).`;
-// 			setTimeout(() => {
-// 				this.warning = null;
-// 			}, 5000);
-// 		}
-// 		if (cH && cH > srcH) {
-// 			this.settings.customHeight = srcH;
-// 			this.warning = `Height capped to source (${srcH}px).`;
-// 			setTimeout(() => {
-// 				this.warning = null;
-// 			}, 5000);
-// 		}
-// 		return;
 // 	},
 // 	/* ── processing ─────────────────────────────────────────────── */
 // 	async startProcessing() {

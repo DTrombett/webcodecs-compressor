@@ -1,14 +1,17 @@
 import type {
 	AudioCodec as ACodec,
+	ConversionAudioOptions as CAOptions,
 	Conversion,
 	CropRectangle as CRectangle,
+	ConversionVideoOptions as CVOptions,
 	Input,
+	Rotation as MBRotation,
 	Source as MBSource,
 	MediaCodec as MCodec,
 	OutputFormat,
+	QualityLevel,
 	VideoCodec as VCodec,
 } from "mediabunny";
-import type { RESOLUTION_PRESETS } from "./public/js/video";
 
 declare global {
 	interface ObjectConstructor {
@@ -36,6 +39,10 @@ declare global {
 			[Entry in T extends Iterable<infer A> ? A : never as Entry[0]]: Entry[1];
 		};
 	}
+	interface NumberConstructor {
+		new <T extends number>(value: `${T}`): T;
+		<T extends number>(value: `${T}`): T;
+	}
 
 	type OutputFormatConstructor = new () => OutputFormat;
 	type VideoCodec = VCodec;
@@ -43,6 +50,9 @@ declare global {
 	type MediaCodec = MCodec;
 	type Source = MBSource;
 	type CropRectangle = CRectangle;
+	type Rotation = MBRotation;
+	type ConversionVideoOptions = CVOptions;
+	type ConversionAudioOptions = CAOptions;
 
 	type ResolutionPreset = { label: string; height?: number; id: string };
 	type CodecDefinition<C extends MediaCodec = MediaCodec> = {
@@ -89,28 +99,56 @@ declare global {
 		audio: AudioInfo | null;
 	};
 
-	type Settings = {
-		autoDownload: boolean;
-		crop: Partial<CropRectangle>;
-		discardAudio: boolean;
-		discardVideo: boolean;
-		mono: boolean;
-		resolution: keyof typeof RESOLUTION_PRESETS;
-		size: number;
-		audioCodec?: ACodec;
-		customHeight?: number;
-		customWidth?: number;
-		frameRate?: number;
-		keyFrameInterval?: number;
-		sampleRate?: number;
-		videoCodec?: VCodec;
+	type NumberInput = `${number}` | "";
+
+	type Settings = Partial<{
+		audioBitrate: NumberInput;
+		audioCodec: AudioCodec;
+		audioQuality: "" | QualityLevel | "custom";
+		channels: NumberInput;
+		cropHeight: NumberInput;
+		cropLeft: NumberInput;
+		cropTop: NumberInput;
+		cropWidth: NumberInput;
+		discardAudio: "on";
+		discardVideo: "on";
+		fit: ConversionVideoOptions["fit"];
+		frameRate: NumberInput;
+		height: NumberInput;
+		keyFrameInterval: NumberInput;
+		maxSize: NumberInput;
+		resolution: NumberInput | "custom";
+		rotate: `${Rotation}`;
+		sampleFormat: ConversionAudioOptions["sampleFormat"];
+		sampleRate: NumberInput;
+		videoBitrate: NumberInput;
+		videoCodec: VideoCodec;
+		videoQuality: "" | QualityLevel | "custom";
+		width: NumberInput;
+	}> & {
+		maxSizePreset: NumberInput | "custom";
+		format:
+			| ""
+			| "mp4"
+			| "cmaf"
+			| "mov"
+			| "mkv"
+			| "webm"
+			| "mp3"
+			| "wav"
+			| "ogg"
+			| "adts"
+			| "flac"
+			| "mpegts";
 	};
 
 	type AppState = {
 		input: Input | null;
+		resolutionWidth: boolean | null;
 		processing: boolean;
 		progress: number;
 		error: string | null;
+		fileName: string | null;
 		statusMessage: string;
 		downloadUrl: string | null;
 		outputFileName: string;

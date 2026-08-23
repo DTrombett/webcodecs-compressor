@@ -8,42 +8,80 @@ import {
 import { AUDIO_CODEC_DEFINITIONS, VIDEO_CODEC_DEFINITIONS } from "./video.js";
 
 export const elements = {
-	fileInput: /** @type {HTMLInputElement} */ (
-		document.getElementById("fileInput")
+	downloadUrl: /** @type {HTMLAnchorElement} */ (
+		document.getElementById("downloadUrl")
 	),
-	dropZone: /** @type {HTMLDivElement} */ (document.getElementById("dropZone")),
-	metadata: /** @type {HTMLDivElement} */ (document.getElementById("metadata")),
-	metadataVideo: /** @type {HTMLDetailsElement} */ (
-		document.getElementById("metadataVideo")
-	),
-	settingsVideoCodec: /** @type {HTMLSelectElement} */ (
-		document.getElementById("settingsVideoCodec")
-	),
-	settingsAudioCodec: /** @type {HTMLSelectElement} */ (
-		document.getElementById("settingsAudioCodec")
-	),
-	metadataAudio: /** @type {HTMLDetailsElement} */ (
-		document.getElementById("metadataAudio")
-	),
-	fileSelection: /** @type {HTMLDivElement} */ (
-		document.getElementById("fileSelection")
+	cancelProcessing: /** @type {HTMLButtonElement} */ (
+		document.getElementById("cancelProcessing")
 	),
 	removeFile: /** @type {HTMLButtonElement} */ (
 		document.getElementById("removeFile")
 	),
-	settings: /** @type {HTMLDivElement} */ (document.getElementById("settings")),
+	metadataAudio: /** @type {HTMLDetailsElement} */ (
+		document.getElementById("metadataAudio")
+	),
+	metadataVideo: /** @type {HTMLDetailsElement} */ (
+		document.getElementById("metadataVideo")
+	),
+	dropZone: /** @type {HTMLDivElement} */ (document.getElementById("dropZone")),
+	fileSelection: /** @type {HTMLDivElement} */ (
+		document.getElementById("fileSelection")
+	),
+	metadata: /** @type {HTMLDivElement} */ (document.getElementById("metadata")),
+	processed: /** @type {HTMLDivElement} */ (
+		document.getElementById("processed")
+	),
+	processing: /** @type {HTMLDivElement} */ (
+		document.getElementById("processing")
+	),
+	settings: /** @type {HTMLFormElement} */ (
+		document.getElementById("settings")
+	),
+	channels: /** @type {HTMLInputElement} */ (
+		document.getElementById("channels")
+	),
+	fileInput: /** @type {HTMLInputElement} */ (
+		document.getElementById("fileInput")
+	),
 	frameRate: /** @type {HTMLInputElement} */ (
 		document.getElementById("frameRate")
 	),
 	sampleRate: /** @type {HTMLInputElement} */ (
 		document.getElementById("sampleRate")
 	),
-	channels: /** @type {HTMLInputElement} */ (
-		document.getElementById("channels")
+	error: /** @type {HTMLParagraphElement} */ (document.getElementById("error")),
+	statusMessage: /** @type {HTMLParagraphElement} */ (
+		document.getElementById("statusMessage")
+	),
+	progress: /** @type {HTMLProgressElement} */ (
+		document.getElementById("progress")
 	),
 	resolution: /** @type {HTMLSelectElement} */ (
 		document.getElementById("resolution")
 	),
+	settingsAudioCodec: /** @type {HTMLSelectElement} */ (
+		document.getElementById("settingsAudioCodec")
+	),
+	settingsVideoCodec: /** @type {HTMLSelectElement} */ (
+		document.getElementById("settingsVideoCodec")
+	),
+};
+
+/** @type {AppState} */
+export const state = {
+	input: null,
+	resolutionWidth: null,
+	fileName: null,
+	processing: false,
+	progress: 0,
+	error: null,
+	statusMessage: "",
+	downloadUrl: null,
+	outputFileName: "",
+	metadata: null,
+	codecs: [],
+	currentConversion: null,
+	isHdrSource: false,
 };
 
 /**
@@ -177,6 +215,7 @@ export const getResolution = async (track) => {
 
 	fill("inputDisplaySize", `${w}×${h}`);
 	fill("inputResolution", `(${res}p)`);
+	state.resolutionWidth = w < h;
 	for (const element of elements.resolution.children)
 		if (element instanceof HTMLOptionElement)
 			element.disabled = +element.value >= res;
@@ -268,6 +307,7 @@ export const getVideo = async (input) => {
 	} else {
 		elements.metadataVideo.style.display = "none";
 		elements.frameRate.placeholder = "Original";
+		state.resolutionWidth = null;
 		fill("inputVideoCodec", null);
 		fill("inputDisplaySize", null);
 		fill("inputVideoFps", null);

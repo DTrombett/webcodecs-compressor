@@ -524,17 +524,14 @@
 			}
 
 			/* status */
-			.status {
-				text-align: center;
-				padding: 0.75rem;
-				border-radius: 8px;
-				font-size: 0.875rem;
-				margin-top: 0.75rem;
-			}
-
 			.status.success {
 				background: rgba(129, 199, 132, 0.15);
+				border-radius: 8px;
 				color: #81c784;
+				margin: 0.75rem auto auto;
+				padding: 0.75rem;
+				text-align: center;
+				width: var(--default-width);
 			}
 
 			.status.error {
@@ -544,7 +541,11 @@
 
 			.status.processing {
 				background: rgba(255, 183, 77, 0.15);
+				border-radius: 8px;
 				color: #ffb74d;
+				margin: 0.75rem auto auto;
+				padding: 0.75rem;
+				text-align: center;
 			}
 
 			/* warning toast */
@@ -744,14 +745,14 @@
 				</table>
 			</details>
 		</div>
-		<div id="settings" style="display: none">
+		<form id="settings" style="display: none">
 			<div>
 				<div class="card" id="videoOptions">
 					<h2>Video options</h2>
 					<div class="form-group">
 						<h4>Quality</h4>
 						<select name="videoQuality">
-							<option value="auto">Automatic</option>
+							<option value="">Automatic</option>
 							<option value="very-high">Very high</option>
 							<option value="high">High</option>
 							<option value="medium">Medium</option>
@@ -822,7 +823,7 @@
 					<div class="form-group">
 						<h4>Quality</h4>
 						<select name="audioQuality">
-							<option value="auto">Automatic</option>
+							<option value="">Automatic</option>
 							<option value="very-high">Very high</option>
 							<option value="high">High</option>
 							<option value="medium">Medium</option>
@@ -851,7 +852,7 @@
 						<div class="form-group">
 							<h4>Sample format</h4>
 							<select name="sampleFormat">
-								<option value="original">Original</option>
+								<option value="">Original</option>
 								<option value="u8">Unsigned 8-bit</option>
 								<option value="s16">Signed 16-bit</option>
 								<option value="s32">Signed 32-bit</option>
@@ -898,7 +899,7 @@
 					<div class="form-group">
 						<h4>Resolution</h4>
 						<select name="resolution" id="resolution">
-							<option value="original">
+							<option value="">
 								Original <span data-prop="inputResolution"></span>
 							</option>
 							<option value="2160">4K UHD (2160p)</option>
@@ -964,7 +965,7 @@
 					<div class="form-group">
 						<h4>Max size <span style="color: #666">(MB)</span></h4>
 						<select name="maxSizePreset">
-							<option value="none">No limit</option>
+							<option value="">No limit</option>
 							<option value="10">Discord (10 MB)</option>
 							<option value="20">Discord (20 MB)</option>
 							<option value="50">Discord Nitro Basic (50 MB)</option>
@@ -989,7 +990,7 @@
 					<div class="form-group">
 						<h4>Format</h4>
 						<select name="format">
-							<option value="auto">Automatic</option>
+							<option value="">Automatic</option>
 							<option value="mp4">MP4</option>
 							<option value="cmaf">CMAF</option>
 							<option value="mov">MOV</option>
@@ -1014,42 +1015,28 @@
 					margin: 0 auto;
 					display: block;
 				" />
+		</form>
+		<div
+			id="processing"
+			style="display: none; width: var(--default-width); margin: 0 auto">
+			<div style="margin-top: 1rem">
+				<progress id="progress" max="1"></progress>
+				<p class="status processing" id="statusMessage">Processing...</p>
+			</div>
+			<button class="btn btn-cancel" id="cancelProcessing">Cancel</button>
 		</div>
-
-		<!-- <template x-if="processing">
-				<button class="btn btn-cancel" @click="cancelProcessing">Cancel</button>
-			</template>
-
-			<template x-if="processing || progress > 0">
-				<div style="margin-top: 1rem">
-					<progress :value="progress" max="1"></progress>
-					<p class="status processing" x-text="statusMessage"></p>
-				</div>
-			</template>
-
-			<template x-if="error">
-				<p class="status error" x-text="error"></p>
-			</template>
-
-			<template x-if="downloadUrl">
-				<div class="status success">
-					<p>Processing complete!</p>
-					<a
-						:href="downloadUrl"
-						:download="outputFileName"
-						style="
-							display: inline-block;
-							margin-top: 0.5rem;
-							color: inherit;
-							text-decoration: underline;
-						">
-						Download <span x-text="outputFileName"></span>
-					</a>
-				</div>
-			</template> -->
-
+		<div class="status success" id="processed" style="display: none">
+			<a
+				id="downloadUrl"
+				style="
+					display: inline-block;
+					color: inherit;
+					text-decoration: underline;
+				">
+				Download <span data-prop="outputFileName"></span>
+			</a>
+		</div>
 		<script type="module" src="./js/main.js"></script>
-
 		<!-- PWA Service Worker Registration -->
 		<script>
 			if ("serviceWorker" in navigator) {
