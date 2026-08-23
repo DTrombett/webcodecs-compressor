@@ -109,6 +109,8 @@ elements.fileInput.addEventListener("change", async () => {
 	elements.fileSelection.style.display = "";
 	elements.fileInput.value = "";
 	elements.frameRate.placeholder = "Original";
+	elements.sampleRate.placeholder = "Original";
+	elements.channels.placeholder = "Original";
 	state.input?.dispose();
 	state.input = null;
 	state.metadata = null;
@@ -126,7 +128,9 @@ elements.fileInput.addEventListener("change", async () => {
 	fill("inputAudioChannels", null);
 	fill("inputAudioSampleRate", null);
 	fill("inputAudioBitrate", null);
-	fill("inputResolution", "unchanged");
+	fill("inputResolution", null);
+	for (const element of elements.resolution.children)
+		if (element instanceof HTMLOptionElement) element.disabled = false;
 });
 elements.removeFile.addEventListener("click", (ev) => {
 	ev.preventDefault();

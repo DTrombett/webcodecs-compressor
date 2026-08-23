@@ -35,6 +35,15 @@ export const elements = {
 	frameRate: /** @type {HTMLInputElement} */ (
 		document.getElementById("frameRate")
 	),
+	sampleRate: /** @type {HTMLInputElement} */ (
+		document.getElementById("sampleRate")
+	),
+	channels: /** @type {HTMLInputElement} */ (
+		document.getElementById("channels")
+	),
+	resolution: /** @type {HTMLSelectElement} */ (
+		document.getElementById("resolution")
+	),
 };
 
 /**
@@ -164,9 +173,13 @@ export const getResolution = async (track) => {
 		track.getDisplayWidth(),
 		track.getDisplayHeight(),
 	]);
+	const res = Math.min(w, h);
 
 	fill("inputDisplaySize", `${w}×${h}`);
-	fill("inputResolution", `${Math.min(w, h)}p`);
+	fill("inputResolution", `(${res}p)`);
+	for (const element of elements.resolution.children)
+		if (element instanceof HTMLOptionElement)
+			element.disabled = +element.value >= res;
 	return { w, h };
 };
 
@@ -219,6 +232,8 @@ export const getChannels = async (track) => {
 	const channels = await track.getNumberOfChannels();
 
 	fill("inputAudioChannels", channelLabel(channels));
+	elements.channels.placeholder = `Original (${channels} ch)`;
+	elements.channels.max = channels.toString();
 	return channels;
 };
 
@@ -230,6 +245,7 @@ export const getSampleRate = async (track) => {
 	const sampleRate = await track.getSampleRate();
 
 	fill("inputAudioSampleRate", `${sampleRate.toLocaleString()} Hz`);
+	elements.sampleRate.placeholder = `Original (${sampleRate} Hz)`;
 	return sampleRate;
 };
 
@@ -258,6 +274,8 @@ export const getVideo = async (input) => {
 		fill("inputVideoBitrate", null);
 		fill("inputVideoColorSpace", null);
 		fill("inputResolution", null);
+		for (const element of elements.resolution.children)
+			if (element instanceof HTMLOptionElement) element.disabled = false;
 	}
 	return track;
 };
@@ -279,6 +297,8 @@ export const getAudio = async (input) => {
 		]);
 	} else {
 		elements.metadataAudio.style.display = "none";
+		elements.sampleRate.placeholder = "Original";
+		elements.channels.placeholder = "Original";
 		fill("inputAudioCodec", null);
 		fill("inputAudioChannels", null);
 		fill("inputAudioSampleRate", null);
