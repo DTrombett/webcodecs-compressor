@@ -1,5 +1,7 @@
 import {
+	AdtsOutputFormat,
 	BufferTarget,
+	CmafOutputFormat,
 	Conversion,
 	FlacOutputFormat,
 	Input,
@@ -122,6 +124,21 @@ const computeOutputFormat = (audioCodec, videoCodec) => {
 	return videoAudioFormats[videoCodec]?.[audioCodec] ?? Mkv;
 };
 
+/** @type {Record<Format, OutputFormatConstructor>} */
+const formats = {
+	adts: AdtsOutputFormat,
+	cmaf: CmafOutputFormat,
+	flac: FlacOutputFormat,
+	mkv: Mkv,
+	mov: MovOutputFormat,
+	mp3: Mp3OutputFormat,
+	mp4: Mp4OutputFormat,
+	mpegts: MpegTsOutputFormat,
+	ogg: OggOutputFormat,
+	wav: WavOutputFormat,
+	webm: WebM,
+};
+
 /**
  * Full processing pipeline.
  * @param {Input<Source>} input - The input file
@@ -145,6 +162,7 @@ const computeOutputFormat = (audioCodec, videoCodec) => {
  * @param {ConversionAudioOptions["sampleFormat"]} [audio.sampleFormat] - The audio sample format
  * @param {object} opts - Global options
  * @param {string} opts.fileName - The original file name
+ * @param {OutputFormatConstructor | Format} [opts.format] - The output format to use
  * @param {(conversion: Conversion) => void} [opts.onConversionReady]
  * @param {(progress: number) => void} [opts.onProgress]
  */
@@ -152,7 +170,7 @@ export const processVideo = async (
 	input,
 	video,
 	audio,
-	{ onConversionReady, onProgress, fileName },
+	{ onConversionReady, onProgress, fileName, format },
 ) => {
 	const [inputVideoTrack, inputAudioTrack] = await Promise.all([
 		input.getPrimaryVideoTrack(),
@@ -163,14 +181,17 @@ export const processVideo = async (
 	if (!inputVideoTrack) video = { discard: true };
 	if (!inputAudioTrack) audio = { discard: true };
 	const output = new Output({
-		format: new (computeOutputFormat(
-			audio.discard ? undefined : (
-				(audio.codec ?? (await inputAudioTrack?.getCodec()))
-			),
-			video.discard ? undefined : (
-				(video.codec ?? (await inputVideoTrack?.getCodec()))
-			),
-		))(),
+		format: new (typeof format === "string" ?
+			formats[format]
+		:	(format ??
+				computeOutputFormat(
+					audio.discard ? undefined : (
+						(audio.codec ?? (await inputAudioTrack?.getCodec()))
+					),
+					video.discard ? undefined : (
+						(video.codec ?? (await inputVideoTrack?.getCodec()))
+					),
+				)))(),
 		target: new BufferTarget(),
 	});
 	const conversion = await Conversion.init({

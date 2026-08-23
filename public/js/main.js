@@ -222,6 +222,7 @@ elements.settings.addEventListener("submit", async (ev) => {
 			},
 			{
 				fileName: state.fileName,
+				format: form.format || undefined,
 				onProgress: (p) => {
 					elements.progress.value = p;
 					elements.statusMessage.textContent = `Processing... (${Math.floor(p * 100)}%)`;

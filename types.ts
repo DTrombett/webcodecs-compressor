@@ -100,6 +100,18 @@ declare global {
 	};
 
 	type NumberInput = `${number}` | "";
+	type Format =
+		| "mp4"
+		| "cmaf"
+		| "mov"
+		| "mkv"
+		| "webm"
+		| "mp3"
+		| "wav"
+		| "ogg"
+		| "adts"
+		| "flac"
+		| "mpegts";
 
 	type Settings = Partial<{
 		audioBitrate: NumberInput;
@@ -125,22 +137,7 @@ declare global {
 		videoCodec: VideoCodec;
 		videoQuality: "" | QualityLevel | "custom";
 		width: NumberInput;
-	}> & {
-		maxSizePreset: NumberInput | "custom";
-		format:
-			| ""
-			| "mp4"
-			| "cmaf"
-			| "mov"
-			| "mkv"
-			| "webm"
-			| "mp3"
-			| "wav"
-			| "ogg"
-			| "adts"
-			| "flac"
-			| "mpegts";
-	};
+	}> & { maxSizePreset: NumberInput | "custom"; format: "" | Format };
 
 	type AppState = {
 		input: Input | null;
