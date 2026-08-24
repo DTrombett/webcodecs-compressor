@@ -67,8 +67,9 @@ export const elements = {
 /** @type {AppState} */
 export const state = {
 	input: null,
+	file: null,
 	resolutionWidth: null,
-	fileName: null,
+	duration: null,
 	processing: false,
 	progress: 0,
 	error: null,
@@ -79,6 +80,32 @@ export const state = {
 	codecs: [],
 	currentConversion: null,
 	isHdrSource: false,
+};
+
+/**
+ * @license [Vanilagy/mediabunny](https://github.com/Vanilagy/mediabunny/blob/0f9dc1f91bcc24109ef1ed81bf5d790ba26e98cd/src/encode.ts#L920-L940)
+ * @param {VideoCodec} codec
+ * @param {number} width
+ * @param {number} height
+ */
+export const computeVideoBitrate = (codec, width, height) => {
+	const referenceBitrate = 3_000_000;
+
+	return (
+		Math.ceil(
+			(referenceBitrate *
+				Math.pow((width * height) / (1920 * 1080), 0.95) *
+				{
+					avc: 1.0, // H.264/AVC (baseline)
+					hevc: 0.6, // H.265/HEVC (~40% more efficient than AVC)
+					vp9: 0.6, // Similar to HEVC
+					av1: 0.4, // ~60% more efficient than AVC
+					vp8: 1.2, // Slightly less efficient than AVC
+					prores: 220_000_000 / referenceBitrate, // Apple ProRes white paper claims 220 Mbps for 1080p 422 HQ @30Hz
+				}[codec]) /
+				1000,
+		) * 1000
+	);
 };
 
 /**
@@ -145,6 +172,7 @@ export const getDuration = async (input, size) => {
 		.getDurationFromMetadata()
 		.then((d) => d ?? input.computeDuration());
 
+	state.duration = duration;
 	fill("inputDuration", formatDuration(duration));
 	fill(
 		"inputBitrate",
@@ -305,6 +333,7 @@ export const getVideo = async (input) => {
 		elements.metadataVideo.style.display = "none";
 		elements.frameRate.placeholder = "Original";
 		state.resolutionWidth = null;
+		state.duration = null;
 		fill("inputVideoCodec", null);
 		fill("inputDisplaySize", null);
 		fill("inputVideoFps", null);

@@ -9,12 +9,14 @@ import { processVideo } from "./pipeline.js";
 import {
 	checkAudioCodecs,
 	checkVideoCodecs,
+	computeVideoBitrate,
 	elements,
 	fill,
 	formatSize,
 	getAudio,
 	getDuration,
 	getFormat,
+	getResolution,
 	getVideo,
 	state,
 } from "./utils.js";
@@ -74,10 +76,10 @@ elements.dropZone.addEventListener("drop", (ev) => {
 elements.fileInput.addEventListener("change", async () => {
 	const file = elements.fileInput.files?.[0];
 
+	state.file = file ?? null;
 	elements.processing.style.display = "none";
 	elements.downloadUrl.style.display = "none";
 	elements.downloadUrl.href = "";
-	state.fileName = file?.name ?? null;
 	fill("outputFileName", null);
 	fill("fileName", file?.name ?? null);
 	fill("fileSize", file ? formatSize(file.size) : null);
@@ -140,7 +142,6 @@ elements.removeFile.addEventListener("click", (ev) => {
 });
 document.body.querySelectorAll("select:has(~ .hiddenInput)").forEach((el) =>
 	el.addEventListener("change", () => {
-		console.log("change", el);
 		const disabled = !(
 			/** @type {HTMLSelectElement} */ (el).value === "custom"
 		);
@@ -160,81 +161,148 @@ elements.settings.addEventListener("submit", async (ev) => {
 	let listener;
 
 	ev.preventDefault();
-	if (!state.input || !state.fileName) return;
+	if (!state.input || !state.file || !state.duration) return;
 	try {
 		elements.progress.value = 0;
 		elements.statusMessage.textContent = "Processing...";
 		elements.processing.style.display = "";
-		const result = await processVideo(
-			state.input,
-			{
-				quality:
-					form.videoQuality ?
-						new Quality(
-							form.videoQuality === "custom" ?
-								{ bitrate: Number(form.videoBitrate) * 1000 }
-							:	{ quality: form.videoQuality },
-						)
-					:	undefined,
-				codec: form.videoCodec,
-				rotate: form.rotate ? Number(form.rotate) : undefined,
-				frameRate: form.frameRate ? Number(form.frameRate) : undefined,
-				keyFrameInterval:
-					form.keyFrameInterval ? Number(form.keyFrameInterval) : undefined,
-				discard: form.discardVideo === "on",
-				height:
-					form.resolution ?
-						form.resolution === "custom" ? Number(form.height)
-						: state.resolutionWidth ? undefined
-						: Number(form.resolution)
-					:	undefined,
-				width:
-					form.resolution ?
-						form.resolution === "custom" ? Number(form.width)
-						: state.resolutionWidth ? Number(form.resolution)
-						: undefined
-					:	undefined,
-				fit: form.resolution === "custom" ? form.fit : undefined,
-				crop:
-					form.cropHeight || form.cropLeft || form.cropTop || form.cropWidth ?
-						{
-							height: form.cropHeight ? Number(form.cropHeight) : Infinity,
-							width: form.cropWidth ? Number(form.cropWidth) : Infinity,
-							left: form.cropLeft ? Number(form.cropLeft) : Infinity,
-							top: form.cropTop ? Number(form.cropTop) : Infinity,
-						}
-					:	undefined,
-			},
-			{
-				quality:
-					form.audioQuality ?
-						new Quality(
-							form.audioQuality === "custom" ?
-								{ bitrate: Number(form.audioBitrate) * 1000 }
-							:	{ quality: form.audioQuality },
-						)
-					:	undefined,
-				codec: form.audioCodec,
-				sampleFormat: form.sampleFormat,
-				sampleRate: form.sampleRate ? Number(form.sampleRate) : undefined,
-				channels: form.channels ? Number(form.channels) : undefined,
-				discard: form.discardAudio === "on",
-			},
-			{
-				fileName: state.fileName,
-				format: form.format || undefined,
-				onProgress: (p) => {
-					elements.progress.value = p;
-					elements.statusMessage.textContent = `Processing... (${Math.floor(p * 100)}%)`;
-				},
-				onConversionReady: (conversion) => {
-					elements.cancelProcessing.addEventListener(
-						"click",
-						(listener = conversion.cancel.bind(conversion)),
+		const [audioTrack, videoTrack] = await Promise.all([
+			state.input.getPrimaryAudioTrack(),
+			state.input.getPrimaryVideoTrack(),
+		]);
+		const video = {
+			quality:
+				form.videoQuality ?
+					new Quality(
+						form.videoQuality === "custom" ?
+							{ bitrate: Math.round(Number(form.videoBitrate) * 1000) }
+						:	form.videoQuality,
+					)
+				:	undefined,
+			codec: form.videoCodec,
+			rotate: form.rotate ? Number(form.rotate) : undefined,
+			frameRate: form.frameRate ? Number(form.frameRate) : undefined,
+			keyFrameInterval:
+				form.keyFrameInterval ? Number(form.keyFrameInterval) : undefined,
+			discard: form.discardVideo === "on",
+			height:
+				form.resolution ?
+					form.resolution === "custom" ? Number(form.height)
+					: state.resolutionWidth ? undefined
+					: Number(form.resolution)
+				:	undefined,
+			width:
+				form.resolution ?
+					form.resolution === "custom" ? Number(form.width)
+					: state.resolutionWidth ? Number(form.resolution)
+					: undefined
+				:	undefined,
+			fit: form.resolution === "custom" ? form.fit : undefined,
+			crop:
+				form.cropHeight || form.cropLeft || form.cropTop || form.cropWidth ?
+					{
+						height: form.cropHeight ? Number(form.cropHeight) : Infinity,
+						width: form.cropWidth ? Number(form.cropWidth) : Infinity,
+						left: form.cropLeft ? Number(form.cropLeft) : Infinity,
+						top: form.cropTop ? Number(form.cropTop) : Infinity,
+					}
+				:	undefined,
+		};
+		const audio = {
+			quality:
+				form.audioQuality ?
+					new Quality(
+						form.audioQuality === "custom" ?
+							{ bitrate: Math.round(Number(form.audioBitrate) * 1000) }
+						:	form.audioQuality,
+					)
+				:	undefined,
+			codec: form.audioCodec,
+			sampleFormat: form.sampleFormat || undefined,
+			sampleRate: form.sampleRate ? Number(form.sampleRate) : undefined,
+			channels: form.channels ? Number(form.channels) : undefined,
+			discard: form.discardAudio === "on",
+		};
+
+		if (form.maxSizePreset) {
+			const [duration, res] = await Promise.all([
+				getDuration(state.input, state.file.size),
+				videoTrack && getResolution(videoTrack),
+			]);
+			const targetBitrate =
+				(Number(
+					form.maxSizePreset === "custom" ? form.maxSize : form.maxSizePreset,
+				) *
+					8_000_000) /
+				duration;
+			if (
+				(video.codec && !form.videoBitrate) ||
+				(audio.codec && !form.audioBitrate) ||
+				Number(form.videoBitrate) * 1000 + Number(form.videoBitrate) * 1000 >
+					targetBitrate
+			) {
+				let audioBitrate = Number(form.audioBitrate) * 1000,
+					videoBitrate = Number(form.videoBitrate) * 1000;
+
+				if (audioBitrate > targetBitrate && !videoBitrate) audioBitrate = 0;
+				else if (videoBitrate > targetBitrate && !audioBitrate)
+					videoBitrate = 0;
+				if (
+					!audioBitrate &&
+					!videoBitrate &&
+					audio.codec &&
+					video.codec &&
+					res
+				) {
+					/**
+					 * @license [Vanilagy/mediabunny](https://github.com/Vanilagy/mediabunny/blob/0f9dc1f91bcc24109ef1ed81bf5d790ba26e98cd/src/encode.ts#L854-L862)
+					 * @type {Partial<Record<AudioCodec, number>>}
+					 */
+					const audioBaseRates = {
+						aac: 128000, // 128kbps base for AAC
+						opus: 64000, // 64kbps base for Opus
+						mp3: 160000, // 160kbps base for MP3
+						vorbis: 64000, // 64kbps base for Vorbis
+						ac3: 384000, // 384kbps base for AC-3
+						eac3: 192000, // 192kbps base for E-AC-3
+						dts: 768000, // 768kbps base for DTS
+					};
+
+					audioBitrate = audioBaseRates[audio.codec] ?? 0;
+					videoBitrate = computeVideoBitrate(
+						video.codec,
+						video.width ??
+							(video.height ? (video.height * res.w) / res.h : res.w),
+						video.height ??
+							(video.width ? (video.width * res.h) / res.w : res.h),
 					);
-				},
+				}
+				if (audioBitrate && videoBitrate) {
+					const sum = audioBitrate + videoBitrate;
+
+					audioBitrate = (targetBitrate * audioBitrate) / sum;
+					videoBitrate = (targetBitrate * videoBitrate) / sum;
+				} else if (audioBitrate) videoBitrate = targetBitrate - audioBitrate;
+				else if (videoBitrate) audioBitrate = targetBitrate - videoBitrate;
+				video.quality = new Quality({ bitrate: Math.ceil(videoBitrate) });
+				audio.quality = new Quality({ bitrate: Math.ceil(audioBitrate) });
+			}
+		}
+		const result = await processVideo(state.input, video, audio, {
+			fileName: state.file.name,
+			format: form.format || undefined,
+			onProgress: (p) => {
+				elements.progress.value = p;
+				elements.statusMessage.textContent = `Processing... (${Math.floor(p * 100)}%)`;
 			},
-		);
+			onConversionReady: (conversion) => {
+				elements.cancelProcessing.addEventListener(
+					"click",
+					(listener = conversion.cancel.bind(conversion)),
+				);
+			},
+		});
+
 		elements.downloadUrl.href = URL.createObjectURL(
 			new Blob([result.buffer], { type: result.mimeType }),
 		);

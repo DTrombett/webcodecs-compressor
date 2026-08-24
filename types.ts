@@ -2,6 +2,7 @@ import type {
 	AudioCodec as ACodec,
 	ConversionAudioOptions as CAOptions,
 	Conversion,
+	ConversionOptions as COptions,
 	CropRectangle as CRectangle,
 	ConversionVideoOptions as CVOptions,
 	Input,
@@ -53,6 +54,7 @@ declare global {
 	type Rotation = MBRotation;
 	type ConversionVideoOptions = CVOptions;
 	type ConversionAudioOptions = CAOptions;
+	type ConversionOptions = COptions;
 
 	type ResolutionPreset = { label: string; height?: number; id: string };
 	type CodecDefinition<C extends MediaCodec = MediaCodec> = {
@@ -131,7 +133,7 @@ declare global {
 		maxSize: NumberInput;
 		resolution: NumberInput | "custom";
 		rotate: `${Rotation}`;
-		sampleFormat: ConversionAudioOptions["sampleFormat"];
+		sampleFormat: ConversionAudioOptions["sampleFormat"] | "";
 		sampleRate: NumberInput;
 		videoBitrate: NumberInput;
 		videoCodec: VideoCodec;
@@ -141,11 +143,12 @@ declare global {
 
 	type AppState = {
 		input: Input | null;
+		file: File | null;
 		resolutionWidth: boolean | null;
+		duration: number | null;
 		processing: boolean;
 		progress: number;
 		error: string | null;
-		fileName: string | null;
 		statusMessage: string;
 		downloadUrl: string | null;
 		outputFileName: string;

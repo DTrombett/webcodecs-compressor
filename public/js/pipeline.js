@@ -194,7 +194,8 @@ export const processVideo = async (
 				)))(),
 		target: new BufferTarget(),
 	});
-	const conversion = await Conversion.init({
+	/** @type {ConversionOptions} */
+	const options = {
 		input,
 		output,
 		video:
@@ -203,7 +204,6 @@ export const processVideo = async (
 			:	{
 					codec: video.codec,
 					crop: video.crop,
-					discard: video.discard,
 					fit: video.fit,
 					frameRate: video.frameRate,
 					height: video.height,
@@ -214,20 +214,22 @@ export const processVideo = async (
 				},
 		audio:
 			audio.discard ?
-				{
+				{ discard: true }
+			:	{
 					codec: audio.codec,
 					numberOfChannels: audio.channels,
 					quality: audio.quality,
 					sampleRate: audio.sampleRate,
 					sampleFormat: audio.sampleFormat,
-				}
-			:	{},
-	});
+				},
+	};
+	const conversion = await Conversion.init(options);
 
 	if (!conversion.isValid)
 		throw new Error(
 			`Conversion invalid: ${conversion.discardedTracks.map((d) => d.reason).join("; ")}`,
 		);
+	console.log("Starting conversion with options", options);
 	conversion.onProgress = onProgress;
 	onConversionReady?.(conversion);
 	await conversion.execute();
