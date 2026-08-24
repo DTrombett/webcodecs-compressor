@@ -238,7 +238,7 @@ export const processVideo = async (
 		buffer: output.target.buffer,
 		fileName: fileName.replace(
 			/\.[^.]+$/,
-			`_compressed${output.format.fileExtension}`,
+			`_processed${output.format.fileExtension}`,
 		),
 		mimeType: output.format.mimeType,
 		inputSize: size,
