@@ -162,6 +162,8 @@ const formats = {
  * @param {ConversionAudioOptions["sampleFormat"]} [audio.sampleFormat] - The audio sample format
  * @param {object} opts - Global options
  * @param {string} opts.fileName - The original file name
+ * @param {number} [opts.trimStart] - The time in the input file in seconds at which the output file should start
+ * @param {number} [opts.trimEnd] - The time in the input file in seconds at which the output file should end
  * @param {OutputFormatConstructor | Format} [opts.format] - The output format to use
  * @param {(conversion: Conversion) => void} [opts.onConversionReady]
  * @param {(progress: number) => void} [opts.onProgress]
@@ -170,7 +172,7 @@ export const processVideo = async (
 	input,
 	video,
 	audio,
-	{ onConversionReady, onProgress, fileName, format },
+	{ onConversionReady, onProgress, fileName, format, trimStart, trimEnd },
 ) => {
 	const [inputVideoTrack, inputAudioTrack] = await Promise.all([
 		input.getPrimaryVideoTrack(),
@@ -222,6 +224,7 @@ export const processVideo = async (
 					sampleRate: audio.sampleRate,
 					sampleFormat: audio.sampleFormat,
 				},
+		trim: { end: trimEnd, start: trimStart },
 	};
 	const conversion = await Conversion.init(options);
 

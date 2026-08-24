@@ -156,9 +156,9 @@ elements.settings.addEventListener("submit", async (ev) => {
 	ev.preventDefault();
 	if (!state.input || !state.file) return;
 	try {
-		elements.progress.value = 0;
-		elements.statusMessage.textContent = "Processing...";
 		elements.processing.style.display = "";
+		elements.processing.scrollIntoView({ behavior: "smooth" });
+		if (state.currentConversion) await state.currentConversion.cancel();
 		const videoTrack = await state.input.getPrimaryVideoTrack();
 		const resolution = videoTrack && (await getResolution(videoTrack));
 		const video = {
@@ -282,15 +282,22 @@ elements.settings.addEventListener("submit", async (ev) => {
 		const result = await processVideo(state.input, video, audio, {
 			fileName: state.file.name,
 			format: form.format || undefined,
+			trimStart: form.trimStart ? Number(form.trimStart) : undefined,
+			trimEnd: form.trimEnd ? Number(form.trimEnd) : undefined,
 			onProgress: (p) => {
 				elements.progress.value = p;
 				elements.statusMessage.textContent = `Processing... (${Math.floor(p * 100)}%)`;
 			},
 			onConversionReady: (conversion) => {
+				state.currentConversion = conversion;
 				elements.cancelProcessing.addEventListener(
 					"click",
 					(listener = conversion.cancel.bind(conversion)),
 				);
+				elements.progress.value = 0;
+				elements.statusMessage.textContent = "Processing...";
+				elements.cancelProcessing.style.display = "";
+				elements.processing.scrollIntoView({ behavior: "smooth" });
 			},
 		});
 
@@ -299,25 +306,24 @@ elements.settings.addEventListener("submit", async (ev) => {
 		);
 		fill("outputFileName", (elements.downloadUrl.download = result.fileName));
 		elements.statusMessage.textContent = `Done! ${formatSize(result.outputSize)} (${((result.outputSize / result.inputSize) * 100).toFixed(1)}% of source)`;
-		elements.cancelProcessing.style.display = "none";
 		elements.downloadUrl.style.display = "";
 	} catch (err) {
-		console.error("[app] processing error", err);
+		console.error(err);
 		if (err instanceof ConversionCanceledError)
 			elements.statusMessage.textContent = "Cancelled.";
-		else {
+		else
 			elements.statusMessage.textContent =
 				err instanceof Error ?
 					err.message
 				:	"Unexpected error during processing.";
-		}
 	} finally {
+		state.currentConversion = null;
+		elements.cancelProcessing.style.display = "none";
 		if (listener)
 			elements.cancelProcessing.removeEventListener("click", listener);
 	}
 });
 
-/** @returns {AppState} */
 // export default () => ({
 // 	get decodeStatus() {
 // 		const codec = this.selectedCodec;

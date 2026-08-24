@@ -135,6 +135,8 @@ declare global {
 		rotate: `${Rotation}`;
 		sampleFormat: ConversionAudioOptions["sampleFormat"] | "";
 		sampleRate: NumberInput;
+		trimEnd: NumberInput;
+		trimStart: NumberInput;
 		videoBitrate: NumberInput;
 		videoCodec: VideoCodec;
 		videoQuality: "" | QualityLevel | "custom";

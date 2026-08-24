@@ -622,7 +622,7 @@
 			display: flex;
 			flex-direction: column;
 			box-sizing: border-box;
-			margin: 0 8px;
+			margin: 0 8px 8px;
 			--default-width: 425px;
 		">
 		<header style="max-width: var(--default-width); margin: 0 auto 1.75rem">
@@ -891,7 +891,7 @@
 			</div>
 			<div>
 				<div class="card" id="sizeOptions">
-					<h2>Crop & resize options</h2>
+					<h2>Transform options</h2>
 					<div class="form-group">
 						<h4>Resolution</h4>
 						<select name="resolution" id="resolution">
@@ -929,30 +929,14 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<h4>Crop</h4>
-						<div class="form-column" style="gap: 0.5rem">
-							<div class="form-row two">
-								<input
-									type="number"
-									name="cropLeft"
-									placeholder="Left"
-									min="0" />
-								<input type="number" name="cropTop" placeholder="Top" min="0" />
-							</div>
-							<div class="form-row two">
-								<input
-									type="number"
-									name="cropWidth"
-									placeholder="Width"
-									min="2"
-									step="2" />
-								<input
-									type="number"
-									name="cropHeight"
-									placeholder="Height"
-									min="2"
-									step="2" />
-							</div>
+						<h4>Trim <span style="color: #666">(seconds)</span></h4>
+						<div class="form-row two">
+							<input
+								type="number"
+								name="trimStart"
+								placeholder="Start"
+								min="0" />
+							<input type="number" name="trimEnd" placeholder="End" min="0" />
 						</div>
 					</div>
 				</div>
