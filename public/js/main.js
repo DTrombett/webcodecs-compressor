@@ -16,6 +16,7 @@ import {
 	getAudio,
 	getDuration,
 	getFormat,
+	getFps,
 	getResolution,
 	getVideo,
 	state,
@@ -161,19 +162,33 @@ elements.settings.addEventListener("submit", async (ev) => {
 		elements.processing.scrollIntoView({ behavior: "smooth" });
 		if (state.currentConversion) await state.currentConversion.cancel();
 		const videoTrack = await state.input.getPrimaryVideoTrack();
-		const resolution = videoTrack && (await getResolution(videoTrack));
+		const [resolution, fps] = await Promise.all([
+			videoTrack && getResolution(videoTrack),
+			videoTrack && getFps(videoTrack),
+		]);
+		let audioBitrate =
+				form.audioBitrate ?
+					Number(form.audioBitrate) * Number(form.audioBitrateUnit)
+				:	0,
+			videoBitrate =
+				form.videoBitrate ?
+					Number(form.videoBitrate) * Number(form.videoBitrateUnit)
+				:	0;
 		const video = {
 			quality:
 				form.videoQuality ?
 					new Quality(
 						form.videoQuality === "custom" ?
-							{ bitrate: Math.round(Number(form.videoBitrate) * 1000) }
+							{ bitrate: Math.round(videoBitrate) }
 						:	form.videoQuality,
 					)
 				:	undefined,
 			codec: form.videoCodec,
 			rotate: form.rotate ? Number(form.rotate) : undefined,
-			frameRate: form.frameRate ? Number(form.frameRate) : undefined,
+			frameRate:
+				form.frameRate ?
+					Number(form.frameRate)
+				:	(fps?.underlyingFrameRate ?? fps?.bestGuessFrameRate),
 			keyFrameInterval:
 				form.keyFrameInterval ? Number(form.keyFrameInterval) : undefined,
 			discard: form.discardVideo === "on",
@@ -205,7 +220,7 @@ elements.settings.addEventListener("submit", async (ev) => {
 				form.audioQuality ?
 					new Quality(
 						form.audioQuality === "custom" ?
-							{ bitrate: Math.round(Number(form.audioBitrate) * 1000) }
+							{ bitrate: Math.round(audioBitrate) }
 						:	form.audioQuality,
 					)
 				:	undefined,
@@ -228,14 +243,10 @@ elements.settings.addEventListener("submit", async (ev) => {
 					8_000_000) /
 				duration;
 			if (
-				(video.codec && !form.videoBitrate) ||
-				(audio.codec && !form.audioBitrate) ||
-				Number(form.videoBitrate) * 1000 + Number(form.videoBitrate) * 1000 >
-					targetBitrate
+				(video.codec && !videoBitrate) ||
+				(audio.codec && !audioBitrate) ||
+				videoBitrate + audioBitrate > targetBitrate
 			) {
-				let audioBitrate = Number(form.audioBitrate) * 1000,
-					videoBitrate = Number(form.videoBitrate) * 1000;
-
 				if (audioBitrate > targetBitrate && !videoBitrate) audioBitrate = 0;
 				else if (videoBitrate > targetBitrate && !audioBitrate)
 					videoBitrate = 0;
@@ -244,7 +255,8 @@ elements.settings.addEventListener("submit", async (ev) => {
 					!videoBitrate &&
 					audio.codec &&
 					video.codec &&
-					res
+					res &&
+					fps
 				) {
 					/**
 					 * @license [Vanilagy/mediabunny](https://github.com/Vanilagy/mediabunny/blob/0f9dc1f91bcc24109ef1ed81bf5d790ba26e98cd/src/encode.ts#L854-L862)
@@ -267,6 +279,7 @@ elements.settings.addEventListener("submit", async (ev) => {
 							(video.height ? (video.height * res.w) / res.h : res.w),
 						video.height ??
 							(video.width ? (video.width * res.h) / res.w : res.h),
+						video.frameRate ?? fps.averageFrameRate,
 					);
 				}
 				if (audioBitrate && videoBitrate) {

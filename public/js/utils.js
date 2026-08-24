@@ -73,14 +73,15 @@ export const state = { input: null, file: null, currentConversion: null };
  * @param {VideoCodec} codec
  * @param {number} width
  * @param {number} height
+ * @param {number} fps
  */
-export const computeVideoBitrate = (codec, width, height) => {
+export const computeVideoBitrate = (codec, width, height, fps) => {
 	const referenceBitrate = 3_000_000;
 
 	return (
 		Math.ceil(
 			(referenceBitrate *
-				Math.pow((width * height) / (1920 * 1080), 0.95) *
+				Math.pow(((width * height) / (1920 * 1080)) * (fps / 30), 0.9) *
 				{
 					avc: 1.0, // H.264/AVC (baseline)
 					hevc: 0.6, // H.265/HEVC (~40% more efficient than AVC)

@@ -117,6 +117,7 @@ declare global {
 
 	type Settings = Partial<{
 		audioBitrate: NumberInput;
+		audioBitrateUnit: NumberInput;
 		audioCodec: AudioCodec;
 		audioQuality: "" | QualityLevel | "custom";
 		channels: NumberInput;
@@ -138,6 +139,7 @@ declare global {
 		trimEnd: NumberInput;
 		trimStart: NumberInput;
 		videoBitrate: NumberInput;
+		videoBitrateUnit: NumberInput;
 		videoCodec: VideoCodec;
 		videoQuality: "" | QualityLevel | "custom";
 		width: NumberInput;

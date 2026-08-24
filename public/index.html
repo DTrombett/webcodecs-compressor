@@ -762,14 +762,25 @@
 							<option value="very-low">Very low</option>
 							<option value="custom">Custom…</option>
 						</select>
-						<div class="hiddenInput" style="margin-top: 0.5rem">
+						<div
+							class="hiddenInput form-row"
+							style="margin-top: 0.5rem; gap: 0.25rem">
 							<input
 								type="number"
 								name="videoBitrate"
 								min="1"
 								step="1"
-								placeholder="Bitrate (kbps)"
+								placeholder="Bitrate"
 								disabled />
+							<select
+								name="videoBitrateUnit"
+								style="width: auto; background-image: none"
+								disabled>
+								<option value="1">bps</option>
+								<option value="1000" selected>kbps</option>
+								<option value="1000000">Mbps</option>
+								<option value="1000000000">Gbps</option>
+							</select>
 						</div>
 					</div>
 					<div class="form-column">
@@ -830,14 +841,25 @@
 							<option value="very-low">Very low</option>
 							<option value="custom">Custom…</option>
 						</select>
-						<div class="hiddenInput" style="margin-top: 0.5rem">
+						<div
+							class="hiddenInput form-row"
+							style="margin-top: 0.5rem; gap: 0.25rem">
 							<input
 								type="number"
 								name="audioBitrate"
 								min="1"
 								step="1"
-								placeholder="Bitrate (kbps)"
+								placeholder="Bitrate"
 								disabled />
+							<select
+								name="audioBitrateUnit"
+								style="width: auto; background-image: none"
+								disabled>
+								<option value="1">bps</option>
+								<option value="1000" selected>kbps</option>
+								<option value="1000000">Mbps</option>
+								<option value="1000000000">Gbps</option>
+							</select>
 						</div>
 					</div>
 					<div class="form-column">
