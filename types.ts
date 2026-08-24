@@ -144,17 +144,6 @@ declare global {
 	type AppState = {
 		input: Input | null;
 		file: File | null;
-		resolutionWidth: boolean | null;
-		duration: number | null;
-		processing: boolean;
-		progress: number;
-		error: string | null;
-		statusMessage: string;
-		downloadUrl: string | null;
-		outputFileName: string;
-		metadata: Readonly<Metadata> | null;
-		codecs: Codec[];
 		currentConversion: Conversion | null;
-		isHdrSource: boolean;
 	};
 }

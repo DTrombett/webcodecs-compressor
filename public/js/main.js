@@ -85,9 +85,6 @@ elements.fileInput.addEventListener("change", async () => {
 	fill("fileSize", file ? formatSize(file.size) : null);
 	if (file)
 		if (file.type.startsWith("video/") || file.type.startsWith("audio/")) {
-			state.error = null;
-			state.downloadUrl = null;
-			state.metadata = null;
 			const input = (state.input = new Input({
 				source: new BlobSource(file),
 				formats: ALL_FORMATS,
@@ -113,10 +110,6 @@ elements.fileInput.addEventListener("change", async () => {
 	elements.channels.placeholder = "Original";
 	state.input?.dispose();
 	state.input = null;
-	state.metadata = null;
-	state.error = null;
-	state.downloadUrl = null;
-	state.resolutionWidth = null;
 	fill("inputFormat", null);
 	fill("inputDuration", null);
 	fill("inputBitrate", null);
@@ -161,15 +154,13 @@ elements.settings.addEventListener("submit", async (ev) => {
 	let listener;
 
 	ev.preventDefault();
-	if (!state.input || !state.file || !state.duration) return;
+	if (!state.input || !state.file) return;
 	try {
 		elements.progress.value = 0;
 		elements.statusMessage.textContent = "Processing...";
 		elements.processing.style.display = "";
-		const [audioTrack, videoTrack] = await Promise.all([
-			state.input.getPrimaryAudioTrack(),
-			state.input.getPrimaryVideoTrack(),
-		]);
+		const videoTrack = await state.input.getPrimaryVideoTrack();
+		const resolution = videoTrack && (await getResolution(videoTrack));
 		const video = {
 			quality:
 				form.videoQuality ?
@@ -188,13 +179,13 @@ elements.settings.addEventListener("submit", async (ev) => {
 			height:
 				form.resolution ?
 					form.resolution === "custom" ? Number(form.height)
-					: state.resolutionWidth ? undefined
-					: Number(form.resolution)
+					: resolution && resolution.h <= resolution.w ? Number(form.resolution)
+					: undefined
 				:	undefined,
 			width:
 				form.resolution ?
 					form.resolution === "custom" ? Number(form.width)
-					: state.resolutionWidth ? Number(form.resolution)
+					: resolution && resolution.w < resolution.h ? Number(form.resolution)
 					: undefined
 				:	undefined,
 			fit: form.resolution === "custom" ? form.fit : undefined,

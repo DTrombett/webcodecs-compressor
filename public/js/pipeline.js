@@ -19,14 +19,14 @@ import {
 } from "mediabunny";
 import { getDuration } from "./utils.js";
 
-/**
- * Make a number even by rounding to the nearest multiple of 2.
- * @param {number} number - The number to evenify
- */
-const evenify = (number) => {
-	number = Math.round(number);
-	return number % 2 ? number + 1 : number;
-};
+// /**
+//  * Make a number even by rounding to the nearest multiple of 2.
+//  * @param {number} number - The number to evenify
+//  */
+// const evenify = (number) => {
+// 	number = Math.round(number);
+// 	return number % 2 ? number + 1 : number;
+// };
 
 const WebM = WebMOutputFormat.bind(undefined, { minimumClusterDuration: 5 });
 const Mkv = MkvOutputFormat.bind(undefined, { minimumClusterDuration: 5 });

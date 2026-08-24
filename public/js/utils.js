@@ -65,22 +65,7 @@ export const elements = {
 };
 
 /** @type {AppState} */
-export const state = {
-	input: null,
-	file: null,
-	resolutionWidth: null,
-	duration: null,
-	processing: false,
-	progress: 0,
-	error: null,
-	statusMessage: "",
-	downloadUrl: null,
-	outputFileName: "",
-	metadata: null,
-	codecs: [],
-	currentConversion: null,
-	isHdrSource: false,
-};
+export const state = { input: null, file: null, currentConversion: null };
 
 /**
  * @license [Vanilagy/mediabunny](https://github.com/Vanilagy/mediabunny/blob/0f9dc1f91bcc24109ef1ed81bf5d790ba26e98cd/src/encode.ts#L920-L940)
@@ -172,7 +157,6 @@ export const getDuration = async (input, size) => {
 		.getDurationFromMetadata()
 		.then((d) => d ?? input.computeDuration());
 
-	state.duration = duration;
 	fill("inputDuration", formatDuration(duration));
 	fill(
 		"inputBitrate",
@@ -240,7 +224,6 @@ export const getResolution = async (track) => {
 
 	fill("inputDisplaySize", `${w}×${h}`);
 	fill("inputResolution", `(${res}p)`);
-	state.resolutionWidth = w < h;
 	for (const element of elements.resolution.children)
 		if (element instanceof HTMLOptionElement)
 			element.disabled = +element.value >= res;
@@ -332,8 +315,6 @@ export const getVideo = async (input) => {
 	} else {
 		elements.metadataVideo.style.display = "none";
 		elements.frameRate.placeholder = "Original";
-		state.resolutionWidth = null;
-		state.duration = null;
 		fill("inputVideoCodec", null);
 		fill("inputDisplaySize", null);
 		fill("inputVideoFps", null);

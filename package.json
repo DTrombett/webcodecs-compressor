@@ -1,11 +1,13 @@
 {
 	"scripts": {
-		"dev": "wrangler dev"
+		"dev": "wrangler dev",
+		"test": "tsc"
 	},
 	"dependencies": {
 		"mediabunny": "^1.55.1"
 	},
 	"devDependencies": {
+		"typescript": "^7.0.2",
 		"wrangler": "^4.125.0"
 	},
 	"allowScripts": {
