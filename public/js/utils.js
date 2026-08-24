@@ -46,6 +46,7 @@ export const elements = {
 	sampleRate: /** @type {HTMLInputElement} */ (
 		document.getElementById("sampleRate")
 	),
+	trimEnd: /** @type {HTMLInputElement} */ (document.getElementById("trimEnd")),
 	error: /** @type {HTMLParagraphElement} */ (document.getElementById("error")),
 	statusMessage: /** @type {HTMLParagraphElement} */ (
 		document.getElementById("statusMessage")
@@ -157,6 +158,7 @@ export const getDuration = async (input, size) => {
 		.getDurationFromMetadata()
 		.then((d) => d ?? input.computeDuration());
 
+	elements.trimEnd.max = duration.toString();
 	fill("inputDuration", formatDuration(duration));
 	fill(
 		"inputBitrate",

@@ -108,6 +108,7 @@ elements.fileInput.addEventListener("change", async () => {
 	elements.frameRate.placeholder = "Original";
 	elements.sampleRate.placeholder = "Original";
 	elements.channels.placeholder = "Original";
+	elements.trimEnd.max = "";
 	state.input?.dispose();
 	state.input = null;
 	fill("inputFormat", null);
