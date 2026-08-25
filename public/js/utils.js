@@ -66,7 +66,7 @@ export const elements = {
 };
 
 /** @type {AppState} */
-export const state = { input: null, file: null, currentConversion: null };
+export const state = { input: null, currentConversion: null };
 
 /**
  * @license [Vanilagy/mediabunny](https://github.com/Vanilagy/mediabunny/blob/0f9dc1f91bcc24109ef1ed81bf5d790ba26e98cd/src/encode.ts#L920-L940)
@@ -81,7 +81,7 @@ export const computeVideoBitrate = (codec, width, height, fps) => {
 	return (
 		Math.ceil(
 			(referenceBitrate *
-				Math.pow(((width * height) / (1920 * 1080)) * (fps / 30), 0.9) *
+				Math.pow(((width * height) / (1920 * 1080)) * (fps / 30), 0.95) *
 				{
 					avc: 1.0, // H.264/AVC (baseline)
 					hevc: 0.6, // H.265/HEVC (~40% more efficient than AVC)
@@ -94,6 +94,17 @@ export const computeVideoBitrate = (codec, width, height, fps) => {
 		) * 1000
 	);
 };
+
+/**
+ * Get a quality multiplier based on the quality preference.
+ * @param {Settings["audioQuality"]} quality - The user preference
+ */
+export const getQualityMultiplier = (quality) =>
+	quality && quality !== "custom" ?
+		{ "very-low": 0.5, low: 0.75, medium: 1.0, high: 1.5, "very-high": 2.0 }[
+			quality
+		]
+	:	1;
 
 /**
  * Get a label describing the audio channels.

@@ -146,9 +146,5 @@ declare global {
 		width: NumberInput;
 	}> & { maxSizePreset: NumberInput | "custom"; format: "" | Format };
 
-	type AppState = {
-		input: Input | null;
-		file: File | null;
-		currentConversion: Conversion | null;
-	};
+	type AppState = { input: Input | null; currentConversion: Conversion | null };
 }

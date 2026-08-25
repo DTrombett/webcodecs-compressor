@@ -18,6 +18,7 @@ import {
 	getDuration,
 	getFormat,
 	getFps,
+	getQualityMultiplier,
 	getResolution,
 	getVideo,
 	state,
@@ -78,7 +79,6 @@ elements.dropZone.addEventListener("drop", (ev) => {
 elements.fileInput.addEventListener("change", async () => {
 	const file = elements.fileInput.files?.[0];
 
-	state.file = file ?? null;
 	elements.processing.style.display = "none";
 	elements.downloadUrl.style.display = "none";
 	elements.downloadUrl.href = "";
@@ -150,10 +150,11 @@ elements.settings.addEventListener("submit", async (ev) => {
 	const form = /** @type {Settings} */ (
 		Object.fromEntries(new FormData(elements.settings).entries())
 	);
+	const file = elements.fileInput.files?.[0];
 	let listener;
 
 	ev.preventDefault();
-	if (!state.input || !state.file) return;
+	if (!state.input || !file) return;
 	try {
 		elements.processing.style.display = "";
 		elements.processing.scrollIntoView({ behavior: "smooth" });
@@ -233,7 +234,7 @@ elements.settings.addEventListener("submit", async (ev) => {
 		};
 
 		if (form.maxSizePreset) {
-			const duration = await getDuration(state.input, state.file.size);
+			const duration = await getDuration(state.input, file.size);
 			const targetBitrate =
 				((form.maxSizePreset === "custom" ?
 					Number(form.maxSize) * Number(form.maxSizeUnit)
@@ -273,19 +274,21 @@ elements.settings.addEventListener("submit", async (ev) => {
 
 					audioBitrate =
 						(audioBaseRates[audio.codec] ?? 0) *
-						((audio.channels ?? channels) / 2);
-					videoBitrate = computeVideoBitrate(
-						video.codec,
-						video.width ??
-							(video.height ?
-								(video.height * resolution.w) / resolution.h
-							:	resolution.w),
-						video.height ??
-							(video.width ?
-								(video.width * resolution.h) / resolution.w
-							:	resolution.h),
-						video.frameRate ?? fps.averageFrameRate,
-					);
+						((audio.channels ?? channels) / 2) *
+						getQualityMultiplier(form.audioQuality);
+					videoBitrate =
+						computeVideoBitrate(
+							video.codec,
+							video.width ??
+								(video.height ?
+									(video.height * resolution.w) / resolution.h
+								:	resolution.w),
+							video.height ??
+								(video.width ?
+									(video.width * resolution.h) / resolution.w
+								:	resolution.h),
+							video.frameRate ?? fps.averageFrameRate,
+						) * getQualityMultiplier(form.videoQuality);
 				}
 				if (audioBitrate && videoBitrate) {
 					const sum = audioBitrate + videoBitrate;
@@ -305,7 +308,7 @@ elements.settings.addEventListener("submit", async (ev) => {
 			}
 		}
 		const result = await processVideo(state.input, video, audio, {
-			fileName: state.file.name,
+			fileName: file.name,
 			format: form.format || undefined,
 			trimStart: form.trimStart ? Number(form.trimStart) : undefined,
 			trimEnd: form.trimEnd ? Number(form.trimEnd) : undefined,
