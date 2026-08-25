@@ -14,6 +14,7 @@ import {
 	fill,
 	formatSize,
 	getAudio,
+	getChannels,
 	getDuration,
 	getFormat,
 	getFps,
@@ -137,16 +138,12 @@ elements.removeFile.addEventListener("click", (ev) => {
 });
 document.body.querySelectorAll("select:has(~ .hiddenInput)").forEach((el) =>
 	el.addEventListener("change", () => {
-		const disabled = !(
-			/** @type {HTMLSelectElement} */ (el).value === "custom"
-		);
-
 		for (const element of el.parentElement?.querySelectorAll(
 			".hiddenInput select, .hiddenInput input, .hiddenInput textarea, .hiddenInput fieldset",
 		) ?? [])
 			/** @type {HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement | HTMLFieldSetElement} */ (
 				element
-			).disabled = disabled;
+			).disabled = /** @type {HTMLSelectElement} */ (el).value !== "custom";
 	}),
 );
 elements.settings.addEventListener("submit", async (ev) => {
@@ -161,10 +158,14 @@ elements.settings.addEventListener("submit", async (ev) => {
 		elements.processing.style.display = "";
 		elements.processing.scrollIntoView({ behavior: "smooth" });
 		if (state.currentConversion) await state.currentConversion.cancel();
-		const videoTrack = await state.input.getPrimaryVideoTrack();
-		const [resolution, fps] = await Promise.all([
+		const [videoTrack, audioTrack] = await Promise.all([
+			state.input.getPrimaryVideoTrack(),
+			state.input.getPrimaryAudioTrack(),
+		]);
+		const [resolution, fps, channels] = await Promise.all([
 			videoTrack && getResolution(videoTrack),
 			videoTrack && getFps(videoTrack),
+			audioTrack && getChannels(audioTrack),
 		]);
 		let audioBitrate =
 				form.audioBitrate ?
@@ -186,9 +187,9 @@ elements.settings.addEventListener("submit", async (ev) => {
 			codec: form.videoCodec,
 			rotate: form.rotate ? Number(form.rotate) : undefined,
 			frameRate:
-				form.frameRate ?
-					Number(form.frameRate)
-				:	(fps?.underlyingFrameRate ?? fps?.bestGuessFrameRate),
+				form.frameRate ? Number(form.frameRate)
+				: fps ? Math.floor(fps.bestGuessFrameRate)
+				: undefined,
 			keyFrameInterval:
 				form.keyFrameInterval ? Number(form.keyFrameInterval) : undefined,
 			discard: form.discardVideo === "on",
@@ -232,10 +233,7 @@ elements.settings.addEventListener("submit", async (ev) => {
 		};
 
 		if (form.maxSizePreset) {
-			const [duration, res] = await Promise.all([
-				getDuration(state.input, state.file.size),
-				videoTrack && getResolution(videoTrack),
-			]);
+			const duration = await getDuration(state.input, state.file.size);
 			const targetBitrate =
 				(Number(
 					form.maxSizePreset === "custom" ? form.maxSize : form.maxSizePreset,
@@ -255,8 +253,9 @@ elements.settings.addEventListener("submit", async (ev) => {
 					!videoBitrate &&
 					audio.codec &&
 					video.codec &&
-					res &&
-					fps
+					resolution &&
+					fps &&
+					channels
 				) {
 					/**
 					 * @license [Vanilagy/mediabunny](https://github.com/Vanilagy/mediabunny/blob/0f9dc1f91bcc24109ef1ed81bf5d790ba26e98cd/src/encode.ts#L854-L862)
@@ -272,13 +271,19 @@ elements.settings.addEventListener("submit", async (ev) => {
 						dts: 768000, // 768kbps base for DTS
 					};
 
-					audioBitrate = audioBaseRates[audio.codec] ?? 0;
+					audioBitrate =
+						(audioBaseRates[audio.codec] ?? 0) *
+						((audio.channels ?? channels) / 2);
 					videoBitrate = computeVideoBitrate(
 						video.codec,
 						video.width ??
-							(video.height ? (video.height * res.w) / res.h : res.w),
+							(video.height ?
+								(video.height * resolution.w) / resolution.h
+							:	resolution.w),
 						video.height ??
-							(video.width ? (video.width * res.h) / res.w : res.h),
+							(video.width ?
+								(video.width * resolution.h) / resolution.w
+							:	resolution.h),
 						video.frameRate ?? fps.averageFrameRate,
 					);
 				}
