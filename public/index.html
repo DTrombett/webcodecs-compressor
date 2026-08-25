@@ -970,27 +970,37 @@
 				<div class="card">
 					<h2>Output options</h2>
 					<div class="form-group">
-						<h4>Max size <span style="color: #666">(MB)</span></h4>
+						<h4>Target size</h4>
 						<select name="maxSizePreset">
 							<option value="">No limit</option>
-							<option value="10">Discord (10 MB)</option>
-							<option value="20">Discord (20 MB)</option>
-							<option value="50">Discord Nitro Basic (50 MB)</option>
-							<option value="100">Discord Boost Level 3 (100 MB)</option>
-							<option value="100">Bluesky (100 MB)</option>
-							<option value="100">Microsoft Teams (100 MB)</option>
-							<option value="500">Discord Nitro (500 MB)</option>
-							<option value="512">Twitter (512 MB)</option>
+							<option value="20000000">Discord (20 MiB)</option>
+							<option value="50000000">Discord Nitro Basic (50 MiB)</option>
+							<option value="100000000">Bluesky (100 MB)</option>
+							<option value="100000000">Discord Boost Level 3 (100 MiB)</option>
+							<option value="100000000">Microsoft Teams (100 MiB)</option>
+							<option value="500000000">Discord Nitro (500 MiB)</option>
+							<option value="536870912">Twitter (512 MiB)</option>
 							<option value="custom">Custom…</option>
 						</select>
-						<div class="hiddenInput" style="margin-top: 0.5rem">
+						<div
+							class="hiddenInput form-row"
+							style="margin-top: 0.5rem; gap: 0.25rem">
 							<input
 								type="number"
 								name="maxSize"
 								min="1"
 								step="1"
-								placeholder="Size (MB)"
+								placeholder="Size"
 								disabled />
+							<select
+								name="maxSizeUnit"
+								style="width: auto; background-image: none"
+								disabled>
+								<option value="1">Bytes</option>
+								<option value="1000">KB</option>
+								<option value="1000000" selected>MB</option>
+								<option value="1000000000">GB</option>
+							</select>
 						</div>
 					</div>
 					<div class="form-group">

@@ -107,6 +107,10 @@ export const channelLabel = (n) =>
 /**
  * Convert a number of bytes into a human readable format.
  * @param {number} bytes - Number of bytes
+ * @param {object} [options]
+ * @param {string[]} [options.sizes] - Human readable sizes to use
+ * @param {number} [options.x] - The coefficient
+ * @param {number} [options.fractionDigits] - Number of fraction digits
  * @returns {string} A human readable size
  */
 export const formatSize = (
@@ -114,13 +118,14 @@ export const formatSize = (
 	{
 		sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"],
 		x = 1000,
-		fractionDigits = 1,
+		fractionDigits,
 	} = {},
 ) => {
 	if (!bytes) return `0 ${sizes[0]}`;
 	const i = Math.floor(Math.log(bytes) / Math.log(x));
+	const n = bytes / x ** i;
 
-	return `${(bytes / x ** i).toFixed(fractionDigits)}${sizes[i]}`;
+	return `${n.toFixed(fractionDigits ?? 3 - Math.floor(Math.abs(n)).toString().length)}${sizes[i]}`;
 };
 
 /**

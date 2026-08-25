@@ -180,7 +180,7 @@ elements.settings.addEventListener("submit", async (ev) => {
 				form.videoQuality ?
 					new Quality(
 						form.videoQuality === "custom" ?
-							{ bitrate: Math.round(videoBitrate) }
+							{ bitrate: Math.floor(videoBitrate) }
 						:	form.videoQuality,
 					)
 				:	undefined,
@@ -221,7 +221,7 @@ elements.settings.addEventListener("submit", async (ev) => {
 				form.audioQuality ?
 					new Quality(
 						form.audioQuality === "custom" ?
-							{ bitrate: Math.round(audioBitrate) }
+							{ bitrate: Math.floor(audioBitrate) }
 						:	form.audioQuality,
 					)
 				:	undefined,
@@ -235,10 +235,10 @@ elements.settings.addEventListener("submit", async (ev) => {
 		if (form.maxSizePreset) {
 			const duration = await getDuration(state.input, state.file.size);
 			const targetBitrate =
-				(Number(
-					form.maxSizePreset === "custom" ? form.maxSize : form.maxSizePreset,
-				) *
-					8_000_000) /
+				((form.maxSizePreset === "custom" ?
+					Number(form.maxSize) * Number(form.maxSizeUnit)
+				:	Number(form.maxSizePreset)) *
+					8) /
 				duration;
 			if (
 				(video.codec && !videoBitrate) ||
@@ -294,8 +294,14 @@ elements.settings.addEventListener("submit", async (ev) => {
 					videoBitrate = (targetBitrate * videoBitrate) / sum;
 				} else if (audioBitrate) videoBitrate = targetBitrate - audioBitrate;
 				else if (videoBitrate) audioBitrate = targetBitrate - videoBitrate;
-				video.quality = new Quality({ bitrate: Math.ceil(videoBitrate) });
-				audio.quality = new Quality({ bitrate: Math.ceil(audioBitrate) });
+				video.quality = new Quality({
+					bitrate: Math.floor(videoBitrate),
+					bitrateMode: "constant",
+				});
+				audio.quality = new Quality({
+					bitrate: Math.floor(audioBitrate),
+					bitrateMode: "constant",
+				});
 			}
 		}
 		const result = await processVideo(state.input, video, audio, {
@@ -324,7 +330,23 @@ elements.settings.addEventListener("submit", async (ev) => {
 			new Blob([result.buffer], { type: result.mimeType }),
 		);
 		fill("outputFileName", (elements.downloadUrl.download = result.fileName));
-		elements.statusMessage.textContent = `Done! ${formatSize(result.outputSize)} (${((result.outputSize / result.inputSize) * 100).toFixed(1)}% of source)`;
+		elements.statusMessage.textContent = `Done! ${formatSize(result.outputSize)} (${formatSize(
+			result.outputSize,
+			{
+				sizes: [
+					"Bytes",
+					"KiB",
+					"MiB",
+					"GiB",
+					"TiB",
+					"PiB",
+					"EiB",
+					"ZiB",
+					"YiB",
+				],
+				x: 1024,
+			},
+		)})`;
 		elements.downloadUrl.style.display = "";
 	} catch (err) {
 		console.error(err);

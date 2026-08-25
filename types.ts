@@ -132,6 +132,7 @@ declare global {
 		height: NumberInput;
 		keyFrameInterval: NumberInput;
 		maxSize: NumberInput;
+		maxSizeUnit: NumberInput;
 		resolution: NumberInput | "custom";
 		rotate: `${Rotation}`;
 		sampleFormat: ConversionAudioOptions["sampleFormat"] | "";
