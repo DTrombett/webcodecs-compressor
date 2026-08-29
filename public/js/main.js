@@ -235,7 +235,7 @@ elements.settings.addEventListener("submit", async (ev) => {
 
 		if (form.maxSizePreset) {
 			const duration = await getDuration(state.input, file.size);
-			const targetBitrate =
+			let targetBitrate =
 				((form.maxSizePreset === "custom" ?
 					Number(form.maxSize) * Number(form.maxSizeUnit)
 				:	Number(form.maxSizePreset)) *
@@ -293,8 +293,9 @@ elements.settings.addEventListener("submit", async (ev) => {
 				if (audioBitrate && videoBitrate) {
 					const sum = audioBitrate + videoBitrate;
 
+					if (sum <= targetBitrate) targetBitrate *= 0.95;
 					audioBitrate = (targetBitrate * audioBitrate) / sum;
-					videoBitrate = (targetBitrate * videoBitrate) / sum;
+					videoBitrate = targetBitrate - audioBitrate;
 				} else if (audioBitrate) videoBitrate = targetBitrate - audioBitrate;
 				else if (videoBitrate) audioBitrate = targetBitrate - videoBitrate;
 				video.quality = new Quality({

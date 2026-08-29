@@ -79,19 +79,17 @@ export const computeVideoBitrate = (codec, width, height, fps) => {
 	const referenceBitrate = 3_000_000;
 
 	return (
-		Math.ceil(
-			(referenceBitrate *
-				Math.pow(((width * height) / (1920 * 1080)) * (fps / 30), 0.95) *
-				{
-					avc: 1.0, // H.264/AVC (baseline)
-					hevc: 0.6, // H.265/HEVC (~40% more efficient than AVC)
-					vp9: 0.6, // Similar to HEVC
-					av1: 0.4, // ~60% more efficient than AVC
-					vp8: 1.2, // Slightly less efficient than AVC
-					prores: 220_000_000 / referenceBitrate, // Apple ProRes white paper claims 220 Mbps for 1080p 422 HQ @30Hz
-				}[codec]) /
-				1000,
-		) * 1000
+		referenceBitrate *
+		Math.pow((width * height) / (1920 * 1080), 0.95) *
+		{
+			avc: 1.0, // H.264/AVC (baseline)
+			hevc: 0.6, // H.265/HEVC (~40% more efficient than AVC)
+			vp9: 0.6, // Similar to HEVC
+			av1: 0.4, // ~60% more efficient than AVC
+			vp8: 1.2, // Slightly less efficient than AVC
+			prores: 220_000_000 / referenceBitrate, // Apple ProRes white paper claims 220 Mbps for 1080p 422 HQ @30Hz
+		}[codec] *
+		(fps / 30)
 	);
 };
 

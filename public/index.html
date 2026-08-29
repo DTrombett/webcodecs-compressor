@@ -190,7 +190,13 @@
 
 			.form-row {
 				display: flex;
-				gap: 0.75rem;
+				gap: 0.5rem;
+			}
+			.form-row.priority > :first-child {
+				width: 100%;
+			}
+			.form-row.priority > :last-child {
+				width: auto;
 			}
 			.form-row.two > * {
 				width: 50% !important;
@@ -217,7 +223,6 @@
 				}
 				.form-column {
 					flex-direction: row;
-					gap: 0.5rem;
 				}
 			}
 
@@ -488,6 +493,7 @@
 				background: #ef5350;
 				color: #fff;
 				margin-top: 0.5rem;
+				max-width: 300px;
 			}
 
 			.btn-cancel:hover {
@@ -524,6 +530,11 @@
 			}
 
 			/* status */
+			#processing {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+			}
 			.status.success {
 				background: rgba(129, 199, 132, 0.15);
 				border-radius: 8px;
@@ -534,6 +545,7 @@
 				text-align: center;
 				text-decoration: underline;
 				width: stretch;
+				max-width: 300px;
 			}
 
 			.status.error {
@@ -548,6 +560,7 @@
 				margin: 0.75rem auto auto;
 				padding: 0.75rem;
 				text-align: center;
+				max-width: 300px;
 			}
 
 			/* warning toast */
@@ -763,7 +776,7 @@
 							<option value="custom">Custom…</option>
 						</select>
 						<div
-							class="hiddenInput form-row"
+							class="hiddenInput form-row priority"
 							style="margin-top: 0.5rem; gap: 0.25rem">
 							<input
 								type="number"
@@ -774,7 +787,7 @@
 								disabled />
 							<select
 								name="videoBitrateUnit"
-								style="width: auto; background-image: none"
+								style="background-image: none"
 								disabled>
 								<option value="1">bps</option>
 								<option value="1000" selected>kbps</option>
@@ -842,7 +855,7 @@
 							<option value="custom">Custom…</option>
 						</select>
 						<div
-							class="hiddenInput form-row"
+							class="hiddenInput form-row priority"
 							style="margin-top: 0.5rem; gap: 0.25rem">
 							<input
 								type="number"
@@ -853,7 +866,7 @@
 								disabled />
 							<select
 								name="audioBitrateUnit"
-								style="width: auto; background-image: none"
+								style="background-image: none"
 								disabled>
 								<option value="1">bps</option>
 								<option value="1000" selected>kbps</option>
@@ -983,7 +996,7 @@
 							<option value="custom">Custom…</option>
 						</select>
 						<div
-							class="hiddenInput form-row"
+							class="hiddenInput form-row priority"
 							style="margin-top: 0.5rem; gap: 0.25rem">
 							<input
 								type="number"
@@ -994,7 +1007,7 @@
 								disabled />
 							<select
 								name="maxSizeUnit"
-								style="width: auto; background-image: none"
+								style="background-image: none"
 								disabled>
 								<option value="1">Bytes</option>
 								<option value="1000">KB</option>
@@ -1026,16 +1039,12 @@
 				type="submit"
 				class="btn btn-primary"
 				value="Start processing"
-				style="
-					max-width: var(--default-width);
-					margin: 0 auto;
-					display: block;
-				" />
+				style="max-width: 300px; margin: 0 auto; display: block" />
 		</form>
 		<div
 			id="processing"
-			style="display: none; width: var(--default-width); margin: 0 auto">
-			<div style="margin-top: 1rem">
+			style="display: none; max-width: 300px; width: stretch; margin: 0 auto">
+			<div style="margin-top: 1rem; width: stretch">
 				<progress id="progress" max="1"></progress>
 				<p class="status processing" id="statusMessage">Processing...</p>
 			</div>
