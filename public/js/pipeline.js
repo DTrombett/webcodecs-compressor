@@ -1,6 +1,7 @@
 import {
-	ALL_FORMATS,
+	AdtsOutputFormat,
 	BufferTarget,
+	CmafOutputFormat,
 	Conversion,
 	FlacOutputFormat,
 	Input,
@@ -16,15 +17,16 @@ import {
 	WavOutputFormat,
 	WebMOutputFormat,
 } from "mediabunny";
+import { getDuration } from "./utils.js";
 
-/**
- * Make a number even by rounding to the nearest multiple of 2.
- * @param {number} number - The number to evenify
- */
-const evenify = (number) => {
-	number = Math.round(number);
-	return number % 2 ? number + 1 : number;
-};
+// /**
+//  * Make a number even by rounding to the nearest multiple of 2.
+//  * @param {number} number - The number to evenify
+//  */
+// const evenify = (number) => {
+// 	number = Math.round(number);
+// 	return number % 2 ? number + 1 : number;
+// };
 
 const WebM = WebMOutputFormat.bind(undefined, { minimumClusterDuration: 5 });
 const Mkv = MkvOutputFormat.bind(undefined, { minimumClusterDuration: 5 });
@@ -61,6 +63,7 @@ const audioOnlyFormats = {
 	"pcm-s16be": MovOutputFormat,
 	"pcm-s24be": MovOutputFormat,
 	"pcm-s32be": MovOutputFormat,
+	dts: Mkv,
 };
 /** @type {Partial<Record<VideoCodec, Partial<Record<AudioCodec, new (...args: any[]) => OutputFormat>>>>} */
 const videoAudioFormats = {
@@ -121,13 +124,30 @@ const computeOutputFormat = (audioCodec, videoCodec) => {
 	return videoAudioFormats[videoCodec]?.[audioCodec] ?? Mkv;
 };
 
+/** @type {Record<Format, OutputFormatConstructor>} */
+const formats = {
+	adts: AdtsOutputFormat,
+	cmaf: CmafOutputFormat,
+	flac: FlacOutputFormat,
+	mkv: Mkv,
+	mov: MovOutputFormat,
+	mp3: Mp3OutputFormat,
+	mp4: Mp4OutputFormat,
+	mpegts: MpegTsOutputFormat,
+	ogg: OggOutputFormat,
+	wav: WavOutputFormat,
+	webm: WebM,
+};
+
 /**
  * Full processing pipeline.
- * @param {Source} source - The input file
+ * @param {Input<Source>} input - The input file
  * @param {object} video - Video options
  * @param {VideoCodec} [video.codec] - Codec id
  * @param {Quality} [video.quality] - Video quality
  * @param {CropRectangle} [video.crop] - How to crop the video
+ * @param {ConversionVideoOptions["fit"]} [video.fit] - The fitting algorithm in case both width and height are set
+ * @param {Rotation} [video.rotate] - Rotation to be applied to the video
  * @param {number} [video.frameRate] - Output fps
  * @param {number} [video.keyFrameInterval] - After how many seconds a keyframe should be added
  * @param {number} [video.width] - Custom width
@@ -137,79 +157,95 @@ const computeOutputFormat = (audioCodec, videoCodec) => {
  * @param {AudioCodec} [audio.codec] - Codec id
  * @param {Quality} [audio.quality] - Audio quality
  * @param {boolean} [audio.discard] - Whether to discard the audio track
- * @param {boolean} [audio.mono] - Whether to merge audio channels
+ * @param {number} [audio.channels] - The number of audio channels
  * @param {number} [audio.sampleRate] - The audio sample rate
+ * @param {ConversionAudioOptions["sampleFormat"]} [audio.sampleFormat] - The audio sample format
  * @param {object} opts - Global options
- * @param {Metadata} opts.metadata - Video metadata
+ * @param {string} opts.fileName - The original file name
+ * @param {number} [opts.trimStart] - The time in the input file in seconds at which the output file should start
+ * @param {number} [opts.trimEnd] - The time in the input file in seconds at which the output file should end
+ * @param {OutputFormatConstructor | Format} [opts.format] - The output format to use
  * @param {(conversion: Conversion) => void} [opts.onConversionReady]
  * @param {(progress: number) => void} [opts.onProgress]
  */
 export const processVideo = async (
-	source,
+	input,
 	video,
 	audio,
-	{ metadata, onConversionReady, onProgress },
+	{ onConversionReady, onProgress, fileName, format, trimStart, trimEnd },
 ) => {
-	const input = new Input({ source, formats: ALL_FORMATS });
-	if (metadata.video) {
-		video.width = evenify(
-			Math.min(video.width ?? metadata.video.displayW, metadata.video.displayW),
-		);
-		video.height = evenify(
-			Math.min(
-				video.height ?? metadata.video.displayH,
-				metadata.video.displayH,
-			),
-		);
-	} else video = { discard: true };
-	if (!metadata.audio) audio = { discard: true };
+	const [inputVideoTrack, inputAudioTrack] = await Promise.all([
+		input.getPrimaryVideoTrack(),
+		input.getPrimaryAudioTrack(),
+	]);
+	const size = await input.source.getSize();
+
+	if (!inputVideoTrack) video = { discard: true };
+	if (!inputAudioTrack) audio = { discard: true };
 	const output = new Output({
-		format: new (computeOutputFormat(
-			audio.discard ? undefined : (audio.codec ?? metadata.audio?.codec),
-			video.discard ? undefined : (video.codec ?? metadata.video?.codec),
-		))(),
+		format: new (typeof format === "string" ?
+			formats[format]
+		:	(format ??
+				computeOutputFormat(
+					audio.discard ? undefined : (
+						(audio.codec ?? (await inputAudioTrack?.getCodec()))
+					),
+					video.discard ? undefined : (
+						(video.codec ?? (await inputVideoTrack?.getCodec()))
+					),
+				)))(),
 		target: new BufferTarget(),
 	});
-	const conversion = await Conversion.init({
+	/** @type {ConversionOptions} */
+	const options = {
 		input,
 		output,
-		video: {
-			codec: video.codec,
-			crop: video.crop,
-			discard: video.discard,
-			fit: "contain",
-			frameRate: video.frameRate,
-			height: video.height,
-			keyFrameInterval: video.keyFrameInterval,
-			quality: video.quality,
-			width: video.width,
-		},
-		audio: {
-			codec: audio.codec,
-			discard: audio.discard,
-			numberOfChannels: audio.mono ? 1 : undefined,
-			quality: audio.quality,
-			sampleRate: audio.sampleRate,
-		},
-	});
+		video:
+			video.discard ?
+				{ discard: true }
+			:	{
+					codec: video.codec,
+					crop: video.crop,
+					fit: video.fit,
+					frameRate: video.frameRate,
+					height: video.height,
+					keyFrameInterval: video.keyFrameInterval,
+					quality: video.quality,
+					rotate: video.rotate,
+					width: video.width,
+				},
+		audio:
+			audio.discard ?
+				{ discard: true }
+			:	{
+					codec: audio.codec,
+					numberOfChannels: audio.channels,
+					quality: audio.quality,
+					sampleRate: audio.sampleRate,
+					sampleFormat: audio.sampleFormat,
+				},
+		trim: { end: trimEnd, start: trimStart },
+	};
+	const conversion = await Conversion.init(options);
 
 	if (!conversion.isValid)
 		throw new Error(
 			`Conversion invalid: ${conversion.discardedTracks.map((d) => d.reason).join("; ")}`,
 		);
+	console.log("Starting conversion with options", options);
 	conversion.onProgress = onProgress;
 	onConversionReady?.(conversion);
 	await conversion.execute();
-	if (!output.target.buffer) throw new Error("Conversion not completed!");
+	if (!output.target.buffer) throw new Error("Output is not finalized!");
 	return {
 		buffer: output.target.buffer,
-		fileName: metadata.fileName.replace(
+		fileName: fileName.replace(
 			/\.[^.]+$/,
-			`_compressed${output.format.fileExtension}`,
+			`_processed${output.format.fileExtension}`,
 		),
 		mimeType: output.format.mimeType,
-		inputSize: metadata.fileSize,
+		inputSize: size,
 		outputSize: output.target.buffer.byteLength,
-		srcDuration: metadata.duration,
+		srcDuration: await getDuration(input, size),
 	};
 };

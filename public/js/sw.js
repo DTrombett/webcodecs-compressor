@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Service Worker for Video Compressor PWA
  * Enables offline functionality and caching

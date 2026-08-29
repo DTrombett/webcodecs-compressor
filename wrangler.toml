@@ -1,9 +1,9 @@
-name = "compress"
-compatibility_date = "2026-08-16"
+name = "video"
+compatibility_date = "2026-08-21"
 workers_dev = false
-preview_urls = false
+preview_urls = true
 routes = [
-  { pattern = "compress.trombett.org", custom_domain = true }
+  { pattern = "video.trombett.org", custom_domain = true }
 ]
 
 [observability]
