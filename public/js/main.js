@@ -234,7 +234,9 @@ elements.settings.addEventListener("submit", async (ev) => {
 		};
 
 		if (form.maxSizePreset) {
-			const duration = await getDuration(state.input, file.size);
+			const duration =
+				Number(form.trimEnd || (await getDuration(state.input, file.size))) -
+				Number(form.trimStart || 0);
 			let targetBitrate =
 				((form.maxSizePreset === "custom" ?
 					Number(form.maxSize) * Number(form.maxSizeUnit)
