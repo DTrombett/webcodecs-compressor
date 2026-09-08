@@ -314,6 +314,17 @@ export const getSampleRate = async (track) => {
 };
 
 /**
+ * Same as allSettled but will log errors.
+ * @param {Iterable<any>} values - An array of promises
+ */
+export const settleAndLog = (values) =>
+	Promise.allSettled(values).then((v) =>
+		v
+			.filter((p) => p.status === "rejected")
+			.forEach((p) => console.error(p.reason)),
+	);
+
+/**
  * Get the primary video track from a media input.
  * @param {Input} input - The media input
  */
@@ -321,8 +332,10 @@ export const getVideo = async (input) => {
 	const track = await input.getPrimaryVideoTrack();
 
 	if (track) {
+		if (!(await track.canDecode()))
+			throw new Error("Video track cannot be decoded", { cause: track });
 		elements.metadataVideo.style.display = "";
-		await Promise.allSettled([
+		await settleAndLog([
 			getFps(track),
 			getColorSpace(track),
 			getVideoCodec(track),
@@ -352,8 +365,10 @@ export const getAudio = async (input) => {
 	const track = await input.getPrimaryAudioTrack();
 
 	if (track) {
+		if (!(await track.canDecode()))
+			throw new Error("Audio track cannot be decoded", { cause: track });
 		elements.metadataAudio.style.display = "";
-		await Promise.allSettled([
+		await settleAndLog([
 			getAudioBitrate(track),
 			getAudioCodec(track),
 			getChannels(track),
@@ -375,7 +390,7 @@ export const getAudio = async (input) => {
  * Check which codecs are supported for video encoding.
  */
 export const checkVideoCodecs = async () => {
-	await Promise.allSettled(
+	await settleAndLog(
 		VIDEO_CODEC_DEFINITIONS.map(async (def, i) => {
 			if (await canEncodeVideo(def.id)) {
 				const option = document.createElement("option");
@@ -394,7 +409,7 @@ export const checkVideoCodecs = async () => {
  * Check which codecs are supported for audio encoding.
  */
 export const checkAudioCodecs = async () => {
-	await Promise.allSettled(
+	await settleAndLog(
 		AUDIO_CODEC_DEFINITIONS.map(async (def, i) => {
 			if (await canEncodeAudio(def.id)) {
 				const option = document.createElement("option");

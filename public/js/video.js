@@ -3,8 +3,8 @@ export const VIDEO_CODEC_DEFINITIONS = [
 	{ id: "vp9", label: "VP9" },
 	{ id: "av1", label: "AV1" },
 	{ id: "vp8", label: "VP8" },
-	{ id: "hevc", label: "H.265 / HEVC" },
-	{ id: "avc", label: "H.264 / AVC" },
+	{ id: "hevc", label: "HEVC / H.265" },
+	{ id: "avc", label: "AVC / H.264" },
 ];
 
 /** @type {CodecDefinition<AudioCodec>[]} */

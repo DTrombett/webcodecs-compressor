@@ -1,6 +1,7 @@
 import {
 	ALL_FORMATS,
 	BlobSource,
+	BufferSource,
 	ConversionCanceledError,
 	Input,
 	Quality,
@@ -21,6 +22,7 @@ import {
 	getQualityMultiplier,
 	getResolution,
 	getVideo,
+	settleAndLog,
 	state,
 } from "./utils.js";
 
@@ -78,7 +80,15 @@ elements.dropZone.addEventListener("drop", (ev) => {
 });
 elements.fileInput.addEventListener("change", async () => {
 	const file = elements.fileInput.files?.[0];
+	// This is a workaround for external files
+	const source =
+		file &&
+		(Date.now() - file.lastModified <= 0 ?
+			file.arrayBuffer().then((buffer) => new BufferSource(buffer))
+		:	new BlobSource(file));
 
+	if (source instanceof Promise)
+		console.warn("Storing the whole file in memory");
 	elements.processing.style.display = "none";
 	elements.downloadUrl.style.display = "none";
 	elements.downloadUrl.href = "";
@@ -86,13 +96,16 @@ elements.fileInput.addEventListener("change", async () => {
 	fill("fileName", file?.name ?? null);
 	fill("fileSize", file ? formatSize(file.size) : null);
 	if (file)
-		if (file.type.startsWith("video/") || file.type.startsWith("audio/")) {
+		if (
+			(file.type.startsWith("video/") || file.type.startsWith("audio/")) &&
+			source
+		) {
 			const input = (state.input = new Input({
-				source: new BlobSource(file),
+				source: await source,
 				formats: ALL_FORMATS,
 			}));
 
-			await Promise.allSettled([
+			await settleAndLog([
 				getDuration(input, file.size),
 				getFormat(input),
 				getVideo(input),
