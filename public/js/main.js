@@ -15,6 +15,7 @@ import {
 	fill,
 	formatSize,
 	getAudio,
+	getAudioCodec,
 	getChannels,
 	getDuration,
 	getFormat,
@@ -22,6 +23,7 @@ import {
 	getQualityMultiplier,
 	getResolution,
 	getVideo,
+	getVideoCodec,
 	settleAndLog,
 	state,
 } from "./utils.js";
@@ -159,6 +161,26 @@ document.body.querySelectorAll("select:has(~ .hiddenInput)").forEach((el) =>
 			).disabled = /** @type {HTMLSelectElement} */ (el).value !== "custom";
 	}),
 );
+document.body
+	.querySelectorAll("input[name='mapAudio'], input[name='mapVideo']")
+	.forEach((el) =>
+		el.addEventListener("change", () => {
+			if (!(/** @type {HTMLInputElement}*/ (el).checked)) return;
+			const type =
+				/** @type {HTMLInputElement}*/
+				(el).name === "mapAudio" ? "audio" : "video";
+			const name = JSON.stringify(/** @type {HTMLInputElement}*/ (el).name);
+
+			for (const element of document.body.querySelectorAll(
+				["select", "input", "textarea", "fieldset"]
+					.map((v) => `#${type}Options ${v}:not([name=${name}])`)
+					.join(","),
+			))
+				/** @type {HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement | HTMLFieldSetElement} */ (
+					element
+				).disabled = /** @type {HTMLInputElement} */ (el).value !== "recode";
+		}),
+	);
 elements.settings.addEventListener("submit", async (ev) => {
 	const form = /** @type {Settings} */ (
 		Object.fromEntries(new FormData(elements.settings).entries())
@@ -189,62 +211,74 @@ elements.settings.addEventListener("submit", async (ev) => {
 				form.videoBitrate ?
 					Number(form.videoBitrate) * Number(form.videoBitrateUnit)
 				:	0;
-		const video = {
-			quality:
-				form.videoQuality ?
-					new Quality(
-						form.videoQuality === "custom" ?
-							{ bitrate: Math.floor(videoBitrate) }
-						:	form.videoQuality,
-					)
-				:	undefined,
-			codec: form.videoCodec,
-			rotate: form.rotate ? Number(form.rotate) : undefined,
-			frameRate:
-				form.frameRate ? Number(form.frameRate)
-				: fps ? Math.floor(fps.bestGuessFrameRate)
-				: undefined,
-			keyFrameInterval:
-				form.keyFrameInterval ? Number(form.keyFrameInterval) : undefined,
-			discard: form.discardVideo === "on",
-			height:
-				form.resolution ?
-					form.resolution === "custom" ? Number(form.height)
-					: resolution && resolution.h <= resolution.w ? Number(form.resolution)
-					: undefined
-				:	undefined,
-			width:
-				form.resolution ?
-					form.resolution === "custom" ? Number(form.width)
-					: resolution && resolution.w < resolution.h ? Number(form.resolution)
-					: undefined
-				:	undefined,
-			fit: form.resolution === "custom" ? form.fit : undefined,
-			crop:
-				form.cropHeight || form.cropLeft || form.cropTop || form.cropWidth ?
-					{
-						height: form.cropHeight ? Number(form.cropHeight) : Infinity,
-						width: form.cropWidth ? Number(form.cropWidth) : Infinity,
-						left: form.cropLeft ? Number(form.cropLeft) : Infinity,
-						top: form.cropTop ? Number(form.cropTop) : Infinity,
-					}
-				:	undefined,
-		};
-		const audio = {
-			quality:
-				form.audioQuality ?
-					new Quality(
-						form.audioQuality === "custom" ?
-							{ bitrate: Math.floor(audioBitrate) }
-						:	form.audioQuality,
-					)
-				:	undefined,
-			codec: form.audioCodec,
-			sampleFormat: form.sampleFormat || undefined,
-			sampleRate: form.sampleRate ? Number(form.sampleRate) : undefined,
-			channels: form.channels ? Number(form.channels) : undefined,
-			discard: form.discardAudio === "on",
-		};
+		/** @type {ConversionVideoOptions} */
+		const video =
+			form.mapVideo === "copy" ?
+				{}
+			:	{
+					quality:
+						form.videoQuality ?
+							new Quality(
+								form.videoQuality === "custom" ?
+									{ bitrate: Math.floor(videoBitrate) }
+								:	form.videoQuality,
+							)
+						:	undefined,
+					codec: form.videoCodec,
+					rotate: form.rotate ? Number(form.rotate) : undefined,
+					frameRate:
+						form.frameRate ? Number(form.frameRate)
+						: fps ? Math.floor(fps.bestGuessFrameRate)
+						: undefined,
+					keyFrameInterval:
+						form.keyFrameInterval ? Number(form.keyFrameInterval) : undefined,
+					discard: form.mapVideo === "discard",
+					height:
+						form.resolution ?
+							form.resolution === "custom" ? Number(form.height)
+							: resolution && resolution.h <= resolution.w ?
+								Number(form.resolution)
+							:	undefined
+						:	undefined,
+					width:
+						form.resolution ?
+							form.resolution === "custom" ? Number(form.width)
+							: resolution && resolution.w < resolution.h ?
+								Number(form.resolution)
+							:	undefined
+						:	undefined,
+					fit: form.resolution === "custom" ? form.fit : undefined,
+					crop:
+						form.cropHeight || form.cropLeft || form.cropTop || form.cropWidth ?
+							{
+								height: form.cropHeight ? Number(form.cropHeight) : Infinity,
+								width: form.cropWidth ? Number(form.cropWidth) : Infinity,
+								left: form.cropLeft ? Number(form.cropLeft) : Infinity,
+								top: form.cropTop ? Number(form.cropTop) : Infinity,
+							}
+						:	undefined,
+					forceTranscode: form.mapVideo === "recode",
+				};
+		/** @type {ConversionAudioOptions} */
+		const audio =
+			form.mapAudio === "copy" ?
+				{}
+			:	{
+					quality:
+						form.audioQuality ?
+							new Quality(
+								form.audioQuality === "custom" ?
+									{ bitrate: Math.floor(audioBitrate) }
+								:	form.audioQuality,
+							)
+						:	undefined,
+					codec: form.audioCodec,
+					sampleFormat: form.sampleFormat || undefined,
+					sampleRate: form.sampleRate ? Number(form.sampleRate) : undefined,
+					numberOfChannels: form.channels ? Number(form.channels) : undefined,
+					discard: form.mapAudio === "discard",
+					forceTranscode: form.mapAudio === "recode",
+				};
 
 		if (form.maxSizePreset) {
 			const duration =
@@ -256,9 +290,23 @@ elements.settings.addEventListener("submit", async (ev) => {
 				:	Number(form.maxSizePreset)) *
 					8) /
 				duration;
+			if (form.mapAudio === "copy" && audioTrack)
+				audioBitrate =
+					(
+						await audioTrack.computePacketStats(undefined, {
+							metadataOnly: true,
+						})
+					).averageBitrate ?? 0;
+			if (form.mapVideo === "copy" && videoTrack)
+				videoBitrate =
+					(
+						await videoTrack.computePacketStats(undefined, {
+							metadataOnly: true,
+						})
+					).averageBitrate ?? 0;
 			if (
-				(video.codec && !videoBitrate) ||
-				(audio.codec && !audioBitrate) ||
+				(videoTrack && !video.discard && !videoBitrate) ||
+				(audioTrack && !audio.discard && !audioBitrate) ||
 				videoBitrate + audioBitrate > targetBitrate
 			) {
 				if (audioBitrate > targetBitrate && !videoBitrate) audioBitrate = 0;
@@ -267,8 +315,10 @@ elements.settings.addEventListener("submit", async (ev) => {
 				if (
 					!audioBitrate &&
 					!videoBitrate &&
-					audio.codec &&
-					video.codec &&
+					!audio.discard &&
+					!video.discard &&
+					audioTrack &&
+					videoTrack &&
 					resolution &&
 					fps &&
 					channels
@@ -287,10 +337,16 @@ elements.settings.addEventListener("submit", async (ev) => {
 						dts: 768000, // 768kbps base for DTS
 					};
 
+					audio.codec ??= (await getAudioCodec(audioTrack)) ?? undefined;
+					if (!audio.codec)
+						throw new Error("Audio codec is not supported for recoding.");
 					audioBitrate =
 						(audioBaseRates[audio.codec] ?? 0) *
-						((audio.channels ?? channels) / 2) *
+						((audio.numberOfChannels ?? channels) / 2) *
 						getQualityMultiplier(form.audioQuality);
+					video.codec ??= (await getVideoCodec(videoTrack)) ?? undefined;
+					if (!video.codec)
+						throw new Error("Video codec is not supported for recoding.");
 					videoBitrate =
 						computeVideoBitrate(
 							video.codec,
@@ -313,14 +369,16 @@ elements.settings.addEventListener("submit", async (ev) => {
 					videoBitrate = targetBitrate - audioBitrate;
 				} else if (audioBitrate) videoBitrate = targetBitrate - audioBitrate;
 				else if (videoBitrate) audioBitrate = targetBitrate - videoBitrate;
-				video.quality = new Quality({
-					bitrate: Math.floor(videoBitrate),
-					bitrateMode: "constant",
-				});
-				audio.quality = new Quality({
-					bitrate: Math.floor(audioBitrate),
-					bitrateMode: "constant",
-				});
+				if (video.codec)
+					video.quality = new Quality({
+						bitrate: Math.floor(videoBitrate),
+						bitrateMode: "constant",
+					});
+				if (audio.codec)
+					audio.quality &&= new Quality({
+						bitrate: Math.floor(audioBitrate),
+						bitrateMode: "constant",
+					});
 			}
 		}
 		const result = await processVideo(state.input, video, audio, {
@@ -383,143 +441,3 @@ elements.settings.addEventListener("submit", async (ev) => {
 			elements.cancelProcessing.removeEventListener("click", listener);
 	}
 });
-
-// export default () => ({
-// 	get decodeStatus() {
-// 		const codec = this.selectedCodec;
-
-// 		if (!codec) return null;
-// 		return {
-// 			supported: codec.decodeSupported,
-// 			label: codec.decodeSupported ? "Supported" : "Not supported",
-// 		};
-// 	},
-// 	/* ── processing ─────────────────────────────────────────────── */
-// 	async startProcessing() {
-// 		if (!this.file || this.processing || !this.metadata) return;
-
-// 		// Safety check: custom resolution must not exceed source
-// 		if (this.settings.resolution === "custom") {
-// 			this.validateCustomResolution();
-// 			if (this.warning) {
-// 				this.error = this.warning;
-// 				return;
-// 			}
-// 			if (!this.settings.customWidth || !this.settings.customHeight) {
-// 				this.error =
-// 					"Please enter both width and height for custom resolution.";
-// 				return;
-// 			}
-// 		}
-
-// 		// Warn about HDR→SDR conversion
-// 		if (
-// 			this.isHdrSource &&
-// 			this.settings.videoCodec &&
-// 			SDR_ONLY_CODEC_IDS.includes(this.settings.videoCodec)
-// 		) {
-// 			this.warning =
-// 				"HDR source will be converted to SDR. Colors may appear washed.";
-// 			setTimeout(() => {
-// 				this.warning = null;
-// 			}, 5000);
-// 		}
-
-// 		this.processing = true;
-// 		this.progress = 0;
-// 		this.error = null;
-// 		this.statusMessage = "Initializing…";
-// 		this.downloadUrl = null;
-// 		this.currentConversion = null;
-// 		try {
-// 			const result = await processVideo(
-// 				new BlobSource(this.file),
-// 				{
-// 					codec: this.settings.videoCodec,
-// 					crop: {
-// 						height:
-// 							this.settings.crop.height ??
-// 							this.metadata.video?.displayH ??
-// 							Infinity,
-// 						width:
-// 							this.settings.crop.width ??
-// 							this.metadata.video?.displayW ??
-// 							Infinity,
-// 						left: this.settings.crop.left ?? 0,
-// 						top: this.settings.crop.top ?? 0,
-// 					},
-// 					discard: this.settings.discardVideo,
-// 					frameRate: this.settings.frameRate,
-// 					height:
-// 						this.settings.resolution === "custom" ?
-// 							this.settings.customHeight
-// 						:	RESOLUTION_PRESETS[this.settings.resolution]?.height,
-// 					width:
-// 						this.settings.resolution === "custom" ?
-// 							this.settings.customWidth
-// 						:	undefined,
-// 					keyFrameInterval: this.settings.keyFrameInterval,
-// 					quality: new Quality({
-// 						bitrate: Math.floor(
-// 							(this.settings.size * 1000 * 1000 * 8) / this.metadata.duration,
-// 						),
-// 					}),
-// 				},
-// 				{
-// 					codec: this.settings.audioCodec,
-// 					discard: this.settings.discardAudio,
-// 					mono: this.settings.mono,
-// 					sampleRate: this.settings.sampleRate,
-// 				},
-// 				{
-// 					metadata: this.metadata,
-// 					onProgress: (p) => {
-// 						this.progress = p;
-// 						this.statusMessage = `Processing... (${Math.floor(p * 100)}%)`;
-// 					},
-// 					onConversionReady: (conv) => {
-// 						this.statusMessage = "Processing...";
-// 						this.currentConversion = conv;
-// 					},
-// 				},
-// 			);
-// 			const blob = new Blob([result.buffer], { type: result.mimeType });
-// 			const url = URL.createObjectURL(blob);
-// 			this.downloadUrl = url;
-// 			this.outputFileName = result.fileName;
-// 			const pct = ((result.outputSize / result.inputSize) * 100).toFixed(1);
-// 			this.statusMessage = `Done! ${this.formatSize(result.outputSize)} (${pct}% of source)`;
-// 			if (this.settings.autoDownload)
-// 				this._triggerDownload(url, result.fileName);
-// 		} catch (err) {
-// 			console.error("[app] processing error", err);
-// 			if (err instanceof ConversionCanceledError)
-// 				this.statusMessage = "Cancelled.";
-// 			else {
-// 				this.error =
-// 					err instanceof Error ?
-// 						err.message
-// 					:	"Unexpected error during processing.";
-// 				this.statusMessage = "";
-// 			}
-// 		} finally {
-// 			this.processing = false;
-// 			this.currentConversion = null;
-// 		}
-// 	},
-// 	async cancelProcessing() {
-// 		if (this.currentConversion) await this.currentConversion.cancel();
-// 	},
-// 	/* ── helpers ─────────────────────────────────────────────────── */
-// 	_triggerDownload(url, filename) {
-// 		const a = document.createElement("a");
-// 		a.href = url;
-// 		a.download = filename;
-// 		a.style.display = "none";
-// 		document.body.appendChild(a);
-// 		a.click();
-// 		requestAnimationFrame(() => {
-// 			if (a.parentNode) a.remove();
-// 		});
-// 	},
-// });

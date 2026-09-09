@@ -125,8 +125,8 @@ declare global {
 		cropLeft: NumberInput;
 		cropTop: NumberInput;
 		cropWidth: NumberInput;
-		discardAudio: "on";
-		discardVideo: "on";
+		mapAudio: "recode" | "copy" | "discard";
+		mapVideo: "recode" | "copy" | "discard";
 		fit: ConversionVideoOptions["fit"];
 		frameRate: NumberInput;
 		height: NumberInput;
