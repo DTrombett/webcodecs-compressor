@@ -230,6 +230,25 @@
 				}
 			}
 
+			.slider {
+				display: flex;
+				border: 1px solid #444;
+				border-radius: 24px;
+				overflow: auto;
+			}
+
+			.slider > label {
+				flex: 1;
+				text-align: center;
+				padding: 0.5rem 0;
+				cursor: pointer;
+			}
+			.slider > label:has(input:checked) {
+				background: #81c784;
+				color: black;
+				font-weight: 600;
+			}
+
 			select {
 				cursor: pointer;
 				appearance: none;
@@ -262,6 +281,10 @@
 
 			.checkbox-group label {
 				cursor: pointer;
+			}
+
+			label:not([for]) input {
+				display: none;
 			}
 
 			/* pill buttons for presets */
@@ -668,11 +691,7 @@
 					justify-content: center;
 					align-items: center;
 				">
-				<input
-					type="file"
-					id="fileInput"
-					accept="video/*,audio/*"
-					style="display: none" />
+				<input type="file" id="fileInput" accept="video/*,audio/*" />
 				<svg
 					width="40"
 					height="40"
@@ -770,6 +789,22 @@
 			<div>
 				<div class="card" id="videoOptions">
 					<h2>Video options</h2>
+					<div class="slider">
+						<label
+							><input
+								type="radio"
+								name="mapVideo"
+								value="recode"
+								checked />Recode</label
+						><label
+							><input type="radio" name="mapVideo" value="copy" />Copy</label
+						><label
+							><input
+								type="radio"
+								name="mapVideo"
+								value="discard" />Discard</label
+						>
+					</div>
 					<div class="form-group">
 						<h4>Quality</h4>
 						<select name="videoQuality">
@@ -839,15 +874,25 @@
 								placeholder="5 seconds" />
 						</div>
 					</div>
-					<div class="form-group">
-						<label class="checkbox-group" for="discard_video">
-							<input type="checkbox" id="discard_video" name="discardVideo" />
-							Discard video
-						</label>
-					</div>
 				</div>
 				<div class="card" id="audioOptions">
 					<h2>Audio options</h2>
+					<div class="slider">
+						<label
+							><input
+								type="radio"
+								name="mapAudio"
+								value="recode"
+								checked />Recode</label
+						><label
+							><input type="radio" name="mapAudio" value="copy" />Copy</label
+						><label
+							><input
+								type="radio"
+								name="mapAudio"
+								value="discard" />Discard</label
+						>
+					</div>
 					<div class="form-group">
 						<h4>Quality</h4>
 						<select name="audioQuality">
@@ -916,13 +961,6 @@
 								min="1"
 								placeholder="Original" />
 						</div>
-					</div>
-
-					<div class="form-group">
-						<label class="checkbox-group" for="discard_audio">
-							<input type="checkbox" id="discard_audio" name="discardAudio" />
-							Discard audio
-						</label>
 					</div>
 				</div>
 			</div>
