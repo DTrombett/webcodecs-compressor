@@ -147,4 +147,30 @@ declare global {
 	}> & { maxSizePreset: NumberInput | "custom"; format: "" | Format };
 
 	type AppState = { input: Input | null; currentConversion: Conversion | null };
+
+	interface Window {
+		audioOptions: HTMLDivElement;
+		cancelProcessing: HTMLButtonElement;
+		channels: HTMLInputElement;
+		downloadUrl: HTMLAnchorElement;
+		dropZone: HTMLDivElement;
+		fileInput: HTMLInputElement;
+		fileSelection: HTMLDivElement;
+		frameRate: HTMLInputElement;
+		metadata: HTMLDivElement;
+		metadataAudio: HTMLDetailsElement;
+		metadataVideo: HTMLDetailsElement;
+		processing: HTMLDivElement;
+		progress: HTMLProgressElement;
+		removeFile: HTMLButtonElement;
+		resolution: HTMLSelectElement;
+		sampleRate: HTMLInputElement;
+		settings: HTMLFormElement;
+		settingsAudioCodec: HTMLSelectElement;
+		settingsVideoCodec: HTMLSelectElement;
+		statusMessage: HTMLParagraphElement;
+		transformOptions: HTMLDivElement;
+		trimEnd: HTMLInputElement;
+		videoOptions: HTMLDivElement;
+	}
 }

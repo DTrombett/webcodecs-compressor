@@ -11,7 +11,6 @@ import {
 	checkAudioCodecs,
 	checkVideoCodecs,
 	computeVideoBitrate,
-	elements,
 	fill,
 	formatSize,
 	getAudio,
@@ -36,7 +35,7 @@ window.addEventListener("dragover", (ev) => {
 		[...ev.dataTransfer.items].some((item) => item.kind === "file")
 	) {
 		ev.preventDefault();
-		if (!(ev.target instanceof Node && elements.dropZone.contains(ev.target)))
+		if (!(ev.target instanceof Node && window.dropZone.contains(ev.target)))
 			ev.dataTransfer.dropEffect = "none";
 	}
 });
@@ -47,7 +46,7 @@ window.addEventListener("drop", (ev) => {
 	)
 		ev.preventDefault();
 });
-elements.dropZone.addEventListener("dragover", (e) => {
+window.dropZone.addEventListener("dragover", (e) => {
 	const fileItems =
 		e.dataTransfer ?
 			[...e.dataTransfer?.items].filter((item) => item.kind === "file")
@@ -61,27 +60,27 @@ elements.dropZone.addEventListener("dragover", (e) => {
 					item.type.startsWith("video/") || item.type.startsWith("audio/"),
 			)
 		) {
-			elements.dropZone.classList.add("drag-over");
+			window.dropZone.classList.add("drag-over");
 			e.dataTransfer.dropEffect = "copy";
 		} else {
-			elements.dropZone.classList.add("drag-invalid");
+			window.dropZone.classList.add("drag-invalid");
 			e.dataTransfer.dropEffect = "none";
 		}
 	}
 });
-elements.dropZone.addEventListener("dragleave", () => {
-	elements.dropZone.classList.remove("drag-over", "drag-invalid");
+window.dropZone.addEventListener("dragleave", () => {
+	window.dropZone.classList.remove("drag-over", "drag-invalid");
 });
-elements.dropZone.addEventListener("drop", (ev) => {
+window.dropZone.addEventListener("drop", (ev) => {
 	ev.preventDefault();
-	elements.dropZone.classList.remove("drag-over", "drag-invalid");
-	elements.fileInput.files = ev.dataTransfer?.files ?? null;
-	elements.fileInput.dispatchEvent(
+	window.dropZone.classList.remove("drag-over", "drag-invalid");
+	window.fileInput.files = ev.dataTransfer?.files ?? null;
+	window.fileInput.dispatchEvent(
 		new Event("change", { bubbles: true, cancelable: false, composed: false }),
 	);
 });
-elements.fileInput.addEventListener("change", async () => {
-	const file = elements.fileInput.files?.[0];
+window.fileInput.addEventListener("change", async () => {
+	const file = window.fileInput.files?.[0];
 	// This is a workaround for external files
 	const source =
 		file &&
@@ -91,9 +90,9 @@ elements.fileInput.addEventListener("change", async () => {
 
 	if (source instanceof Promise)
 		console.warn("Storing the whole file in memory");
-	elements.processing.style.display = "none";
-	elements.downloadUrl.style.display = "none";
-	elements.downloadUrl.href = "";
+	window.processing.style.display = "none";
+	window.downloadUrl.style.display = "none";
+	window.downloadUrl.href = "";
 	fill("outputFileName", null);
 	fill("fileName", file?.name ?? null);
 	fill("fileSize", file ? formatSize(file.size) : null);
@@ -113,19 +112,19 @@ elements.fileInput.addEventListener("change", async () => {
 				getVideo(input),
 				getAudio(input),
 			]);
-			elements.fileSelection.style.display = "none";
-			elements.metadata.style.display = "";
-			elements.settings.style.display = "";
+			window.fileSelection.style.display = "none";
+			window.metadata.style.display = "";
+			window.settings.style.display = "";
 			return;
 		} else alert("The selected video or audio is not supported!");
-	elements.settings.style.display = "none";
-	elements.metadata.style.display = "none";
-	elements.fileSelection.style.display = "";
-	elements.fileInput.value = "";
-	elements.frameRate.placeholder = "Original";
-	elements.sampleRate.placeholder = "Original";
-	elements.channels.placeholder = "Original";
-	elements.trimEnd.max = "";
+	window.settings.style.display = "none";
+	window.metadata.style.display = "none";
+	window.fileSelection.style.display = "";
+	window.fileInput.value = "";
+	window.frameRate.placeholder = "Original";
+	window.sampleRate.placeholder = "Original";
+	window.channels.placeholder = "Original";
+	window.trimEnd.max = "";
 	state.input?.dispose();
 	state.input = null;
 	fill("inputFormat", null);
@@ -141,13 +140,13 @@ elements.fileInput.addEventListener("change", async () => {
 	fill("inputAudioSampleRate", null);
 	fill("inputAudioBitrate", null);
 	fill("inputResolution", null);
-	for (const element of elements.resolution.children)
+	for (const element of window.resolution.children)
 		if (element instanceof HTMLOptionElement) element.disabled = false;
 });
-elements.removeFile.addEventListener("click", (ev) => {
+window.removeFile.addEventListener("click", (ev) => {
 	ev.preventDefault();
-	elements.fileInput.value = "";
-	elements.fileInput.dispatchEvent(
+	window.fileInput.value = "";
+	window.fileInput.dispatchEvent(
 		new Event("change", { bubbles: true, cancelable: false, composed: false }),
 	);
 });
@@ -165,34 +164,27 @@ document.body
 	.querySelectorAll("input[name='mapAudio'], input[name='mapVideo']")
 	.forEach((el) =>
 		el.addEventListener("change", () => {
-			if (!(/** @type {HTMLInputElement}*/ (el).checked)) return;
-			const type =
-				/** @type {HTMLInputElement}*/
-				(el).name === "mapAudio" ? "audio" : "video";
-			const name = JSON.stringify(/** @type {HTMLInputElement}*/ (el).name);
-
-			for (const element of document.body.querySelectorAll(
-				["select", "input", "textarea", "fieldset"]
-					.map((v) => `#${type}Options ${v}:not([name=${name}])`)
-					.join(","),
-			))
-				/** @type {HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement | HTMLFieldSetElement} */ (
-					element
-				).disabled = /** @type {HTMLInputElement} */ (el).value !== "recode";
+			if (!(el instanceof HTMLInputElement) || !el.checked) return;
+			(el.name === "mapAudio" ?
+				[window.audioOptions]
+			:	[window.videoOptions, window.transformOptions]
+			).forEach((options) =>
+				options.classList[el.value === "recode" ? "remove" : "add"]("disabled"),
+			);
 		}),
 	);
-elements.settings.addEventListener("submit", async (ev) => {
+window.settings.addEventListener("submit", async (ev) => {
 	const form = /** @type {Settings} */ (
-		Object.fromEntries(new FormData(elements.settings).entries())
+		Object.fromEntries(new FormData(window.settings).entries())
 	);
-	const file = elements.fileInput.files?.[0];
+	const file = window.fileInput.files?.[0];
 	let listener;
 
 	ev.preventDefault();
 	if (!state.input || !file) return;
 	try {
-		elements.processing.style.display = "";
-		elements.processing.scrollIntoView({ behavior: "smooth" });
+		window.processing.style.display = "";
+		window.processing.scrollIntoView({ behavior: "smooth" });
 		if (state.currentConversion) await state.currentConversion.cancel();
 		const [videoTrack, audioTrack] = await Promise.all([
 			state.input.getPrimaryVideoTrack(),
@@ -204,18 +196,18 @@ elements.settings.addEventListener("submit", async (ev) => {
 			audioTrack && getChannels(audioTrack),
 		]);
 		let audioBitrate =
-				form.audioBitrate ?
+				form.audioBitrate && form.mapAudio === "recode" ?
 					Number(form.audioBitrate) * Number(form.audioBitrateUnit)
 				:	0,
 			videoBitrate =
-				form.videoBitrate ?
+				form.videoBitrate && form.mapVideo === "recode" ?
 					Number(form.videoBitrate) * Number(form.videoBitrateUnit)
 				:	0;
 		/** @type {ConversionVideoOptions} */
 		const video =
-			form.mapVideo === "copy" ?
-				{}
-			:	{
+			form.mapVideo === "copy" ? {}
+			: form.mapVideo === "discard" ? { discard: true }
+			: {
 					quality:
 						form.videoQuality ?
 							new Quality(
@@ -232,7 +224,6 @@ elements.settings.addEventListener("submit", async (ev) => {
 						: undefined,
 					keyFrameInterval:
 						form.keyFrameInterval ? Number(form.keyFrameInterval) : undefined,
-					discard: form.mapVideo === "discard",
 					height:
 						form.resolution ?
 							form.resolution === "custom" ? Number(form.height)
@@ -257,13 +248,13 @@ elements.settings.addEventListener("submit", async (ev) => {
 								top: form.cropTop ? Number(form.cropTop) : Infinity,
 							}
 						:	undefined,
-					forceTranscode: form.mapVideo === "recode",
+					forceTranscode: true,
 				};
 		/** @type {ConversionAudioOptions} */
 		const audio =
-			form.mapAudio === "copy" ?
-				{}
-			:	{
+			form.mapAudio === "copy" ? {}
+			: form.mapAudio === "discard" ? { discard: true }
+			: {
 					quality:
 						form.audioQuality ?
 							new Quality(
@@ -276,8 +267,7 @@ elements.settings.addEventListener("submit", async (ev) => {
 					sampleFormat: form.sampleFormat || undefined,
 					sampleRate: form.sampleRate ? Number(form.sampleRate) : undefined,
 					numberOfChannels: form.channels ? Number(form.channels) : undefined,
-					discard: form.mapAudio === "discard",
-					forceTranscode: form.mapAudio === "recode",
+					forceTranscode: true,
 				};
 
 		if (form.maxSizePreset) {
@@ -387,27 +377,36 @@ elements.settings.addEventListener("submit", async (ev) => {
 			trimStart: form.trimStart ? Number(form.trimStart) : undefined,
 			trimEnd: form.trimEnd ? Number(form.trimEnd) : undefined,
 			onProgress: (p) => {
-				elements.progress.value = p;
-				elements.statusMessage.textContent = `Processing... (${Math.floor(p * 100)}%)`;
+				window.progress.value = p;
+				window.statusMessage.textContent = `Processing... (${Math.floor(p * 100)}%)`;
 			},
 			onConversionReady: (conversion) => {
 				state.currentConversion = conversion;
-				elements.cancelProcessing.addEventListener(
+				window.cancelProcessing.addEventListener(
 					"click",
 					(listener = conversion.cancel.bind(conversion)),
 				);
-				elements.progress.value = 0;
-				elements.statusMessage.textContent = "Processing...";
-				elements.cancelProcessing.style.display = "";
-				elements.processing.scrollIntoView({ behavior: "smooth" });
+				window.progress.value = 0;
+				window.statusMessage.textContent = "Processing...";
+				window.cancelProcessing.style.display = "";
+				window.processing.scrollIntoView({ behavior: "smooth" });
 			},
 		});
 
-		elements.downloadUrl.href = URL.createObjectURL(
+		// navigator.share({
+		// 	files: [
+		// 		new File(
+		// 			[new Blob([result.buffer], { type: result.mimeType })],
+		// 			result.fileName,
+		// 			{ type: result.mimeType },
+		// 		),
+		// 	],
+		// });
+		window.downloadUrl.href = URL.createObjectURL(
 			new Blob([result.buffer], { type: result.mimeType }),
 		);
-		fill("outputFileName", (elements.downloadUrl.download = result.fileName));
-		elements.statusMessage.textContent = `Done! ${formatSize(result.outputSize)} (${formatSize(
+		fill("outputFileName", (window.downloadUrl.download = result.fileName));
+		window.statusMessage.textContent = `Done! ${formatSize(result.outputSize)} (${formatSize(
 			result.outputSize,
 			{
 				sizes: [
@@ -424,20 +423,20 @@ elements.settings.addEventListener("submit", async (ev) => {
 				x: 1024,
 			},
 		)})`;
-		elements.downloadUrl.style.display = "";
+		window.downloadUrl.style.display = "";
 	} catch (err) {
 		console.error(err);
 		if (err instanceof ConversionCanceledError)
-			elements.statusMessage.textContent = "Cancelled.";
+			window.statusMessage.textContent = "Cancelled.";
 		else
-			elements.statusMessage.textContent =
+			window.statusMessage.textContent =
 				err instanceof Error ?
 					err.message
 				:	"Unexpected error during processing.";
 	} finally {
 		state.currentConversion = null;
-		elements.cancelProcessing.style.display = "none";
+		window.cancelProcessing.style.display = "none";
 		if (listener)
-			elements.cancelProcessing.removeEventListener("click", listener);
+			window.cancelProcessing.removeEventListener("click", listener);
 	}
 });

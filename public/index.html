@@ -243,10 +243,19 @@
 				padding: 0.5rem 0;
 				cursor: pointer;
 			}
+			.slider > label:hover {
+				background: #81c78440;
+			}
 			.slider > label:has(input:checked) {
 				background: #81c784;
 				color: black;
 				font-weight: 600;
+			}
+
+			.options {
+				display: flex;
+				flex-direction: column;
+				gap: 1rem;
 			}
 
 			select {
@@ -340,6 +349,14 @@
 				background-color: #444;
 				opacity: 0.75;
 				color: revert;
+			}
+
+			.disabled {
+				cursor: not-allowed;
+				opacity: 0.25;
+			}
+			.disabled * {
+				pointer-events: none;
 			}
 
 			/* codec wrapper + tooltip */
@@ -787,7 +804,7 @@
 		</div>
 		<form id="settings" style="display: none">
 			<div>
-				<div class="card" id="videoOptions">
+				<div class="card">
 					<h2>Video options</h2>
 					<div class="slider">
 						<label
@@ -805,77 +822,79 @@
 								value="discard" />Discard</label
 						>
 					</div>
-					<div class="form-group">
-						<h4>Quality</h4>
-						<select name="videoQuality">
-							<option value="">Automatic</option>
-							<option value="very-high">Very high</option>
-							<option value="high">High</option>
-							<option value="medium">Medium</option>
-							<option value="low">Low</option>
-							<option value="very-low">Very low</option>
-							<option value="custom">Custom…</option>
-						</select>
-						<div
-							class="hiddenInput form-row priority"
-							style="margin-top: 0.5rem; gap: 0.25rem">
-							<input
-								type="number"
-								name="videoBitrate"
-								min="1"
-								placeholder="Bitrate"
-								disabled />
-							<select
-								name="videoBitrateUnit"
-								style="background-image: none"
-								disabled>
-								<option value="1">bps</option>
-								<option value="1000" selected>kbps</option>
-								<option value="1000000">Mbps</option>
-								<option value="1000000000">Gbps</option>
+					<div id="videoOptions" class="options">
+						<div class="form-group">
+							<h4>Quality</h4>
+							<select name="videoQuality">
+								<option value="">Automatic</option>
+								<option value="very-high">Very high</option>
+								<option value="high">High</option>
+								<option value="medium">Medium</option>
+								<option value="low">Low</option>
+								<option value="very-low">Very low</option>
+								<option value="custom">Custom…</option>
 							</select>
+							<div
+								class="hiddenInput form-row priority"
+								style="margin-top: 0.5rem; gap: 0.25rem">
+								<input
+									type="number"
+									name="videoBitrate"
+									min="1"
+									placeholder="Bitrate"
+									disabled />
+								<select
+									name="videoBitrateUnit"
+									style="background-image: none"
+									disabled>
+									<option value="1">bps</option>
+									<option value="1000" selected>kbps</option>
+									<option value="1000000">Mbps</option>
+									<option value="1000000000">Gbps</option>
+								</select>
+							</div>
 						</div>
-					</div>
-					<div class="form-column">
-						<div class="form-group">
-							<h4>Codec</h4>
-							<select name="videoCodec" id="settingsVideoCodec">
-								<option></option>
-							</select>
+						<div class="form-column">
+							<div class="form-group">
+								<h4>Codec</h4>
+								<select name="videoCodec" id="settingsVideoCodec">
+									<option></option>
+								</select>
+							</div>
+							<div class="form-group">
+								<h4>Rotate</h4>
+								<select name="rotate">
+									<option value="0">0°</option>
+									<option value="90">90°</option>
+									<option value="180">180°</option>
+									<option value="270">270°</option>
+								</select>
+							</div>
 						</div>
-						<div class="form-group">
-							<h4>Rotate</h4>
-							<select name="rotate">
-								<option value="0">0°</option>
-								<option value="90">90°</option>
-								<option value="180">180°</option>
-								<option value="270">270°</option>
-							</select>
-						</div>
-					</div>
-					<div class="form-column">
-						<div class="form-group">
-							<h4>Frame rate <span style="color: #666">(fps)</span></h4>
-							<input
-								type="number"
-								name="frameRate"
-								id="frameRate"
-								min="1"
-								step="any"
-								placeholder="Original" />
-						</div>
-						<div class="form-group">
-							<h4>Keyframe interval</h4>
-							<input
-								type="number"
-								name="keyFrameInterval"
-								min="1"
-								step="any"
-								placeholder="5 seconds" />
+						<div class="form-column">
+							<div class="form-group">
+								<h4>Frame rate <span style="color: #666">(fps)</span></h4>
+								<input
+									type="number"
+									name="frameRate"
+									id="frameRate"
+									min="1"
+									step="any"
+									placeholder="Original" />
+							</div>
+							<div class="form-group">
+								<h4>Keyframe interval</h4>
+								<input
+									type="number"
+									name="keyFrameInterval"
+									min="1"
+									step="any"
+									placeholder="5 seconds" />
+							</div>
 						</div>
 					</div>
 				</div>
-				<div class="card" id="audioOptions">
+				<div class="card">
 					<h2>Audio options</h2>
 					<div class="slider">
 						<label
@@ -893,132 +912,138 @@
 								value="discard" />Discard</label
 						>
 					</div>
-					<div class="form-group">
-						<h4>Quality</h4>
-						<select name="audioQuality">
-							<option value="">Automatic</option>
-							<option value="very-high">Very high</option>
-							<option value="high">High</option>
-							<option value="medium">Medium</option>
-							<option value="low">Low</option>
-							<option value="very-low">Very low</option>
-							<option value="custom">Custom…</option>
-						</select>
-						<div
-							class="hiddenInput form-row priority"
-							style="margin-top: 0.5rem; gap: 0.25rem">
-							<input
-								type="number"
-								name="audioBitrate"
-								min="1"
-								placeholder="Bitrate"
-								disabled />
-							<select
-								name="audioBitrateUnit"
-								style="background-image: none"
-								disabled>
-								<option value="1">bps</option>
-								<option value="1000" selected>kbps</option>
-								<option value="1000000">Mbps</option>
-								<option value="1000000000">Gbps</option>
+					<div class="options" id="audioOptions">
+						<div class="form-group">
+							<h4>Quality</h4>
+							<select name="audioQuality">
+								<option value="">Automatic</option>
+								<option value="very-high">Very high</option>
+								<option value="high">High</option>
+								<option value="medium">Medium</option>
+								<option value="low">Low</option>
+								<option value="very-low">Very low</option>
+								<option value="custom">Custom…</option>
 							</select>
+							<div
+								class="hiddenInput form-row priority"
+								style="margin-top: 0.5rem; gap: 0.25rem">
+								<input
+									type="number"
+									name="audioBitrate"
+									min="1"
+									placeholder="Bitrate"
+									disabled />
+								<select
+									name="audioBitrateUnit"
+									style="background-image: none"
+									disabled>
+									<option value="1">bps</option>
+									<option value="1000" selected>kbps</option>
+									<option value="1000000">Mbps</option>
+									<option value="1000000000">Gbps</option>
+								</select>
+							</div>
 						</div>
-					</div>
-					<div class="form-column">
-						<div class="form-group">
-							<h4>Codec</h4>
-							<select name="audioCodec" id="settingsAudioCodec">
-								<option></option>
-							</select>
+						<div class="form-column">
+							<div class="form-group">
+								<h4>Codec</h4>
+								<select name="audioCodec" id="settingsAudioCodec">
+									<option></option>
+								</select>
+							</div>
+							<div class="form-group">
+								<h4>Sample format</h4>
+								<select name="sampleFormat">
+									<option value="">Original</option>
+									<option value="u8">Unsigned 8-bit</option>
+									<option value="s16">Signed 16-bit</option>
+									<option value="s32">Signed 32-bit</option>
+									<option value="f32">Floating point 32-bit</option>
+								</select>
+							</div>
 						</div>
-						<div class="form-group">
-							<h4>Sample format</h4>
-							<select name="sampleFormat">
-								<option value="">Original</option>
-								<option value="u8">Unsigned 8-bit</option>
-								<option value="s16">Signed 16-bit</option>
-								<option value="s32">Signed 32-bit</option>
-								<option value="f32">Floating point 32-bit</option>
-							</select>
-						</div>
-					</div>
-					<div class="form-column">
-						<div class="form-group">
-							<h4>Sample rate <span style="color: #666">(Hz)</span></h4>
-							<input
-								type="number"
-								name="sampleRate"
-								id="sampleRate"
-								min="1"
-								placeholder="Original" />
-						</div>
-						<div class="form-group">
-							<h4>Number of channels</h4>
-							<input
-								type="number"
-								name="channels"
-								id="channels"
-								min="1"
-								placeholder="Original" />
+						<div class="form-column">
+							<div class="form-group">
+								<h4>Sample rate <span style="color: #666">(Hz)</span></h4>
+								<input
+									type="number"
+									name="sampleRate"
+									id="sampleRate"
+									min="1"
+									placeholder="Original" />
+							</div>
+							<div class="form-group">
+								<h4>Number of channels</h4>
+								<input
+									type="number"
+									name="channels"
+									id="channels"
+									min="1"
+									placeholder="Original" />
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 			<div>
-				<div class="card" id="sizeOptions">
+				<div class="card">
 					<h2>Transform options</h2>
-					<div class="form-group">
-						<h4>Resolution</h4>
-						<select name="resolution" id="resolution">
-							<option value="">
-								Original <span data-prop="inputResolution"></span>
-							</option>
-							<option value="2160">4K UHD (2160p)</option>
-							<option value="1620">3K (1620p)</option>
-							<option value="1440">QHD (1440p)</option>
-							<option value="1080">FHD (1080p)</option>
-							<option value="720">HD (720p)</option>
-							<option value="480">SD (480p)</option>
-							<option value="custom">Custom…</option>
-						</select>
-						<div class="form-row three hiddenInput" style="margin-top: 0.5rem">
-							<input
-								type="number"
-								name="width"
-								placeholder="Width (px)"
-								min="64"
-								max="3840"
-								disabled />
-							<input
-								type="number"
-								name="height"
-								placeholder="Height (px)"
-								min="64"
-								max="2160"
-								disabled />
-							<select name="fit" disabled>
-								<option value="fill">Fill</option>
-								<option value="contain">Contain</option>
-								<option value="cover">Cover</option>
+					<div class="options" id="transformOptions">
+						<div class="form-group">
+							<h4>Resolution</h4>
+							<select name="resolution" id="resolution">
+								<option value="">
+									Original <span data-prop="inputResolution"></span>
+								</option>
+								<option value="2160">4K UHD (2160p)</option>
+								<option value="1620">3K (1620p)</option>
+								<option value="1440">QHD (1440p)</option>
+								<option value="1080">FHD (1080p)</option>
+								<option value="720">HD (720p)</option>
+								<option value="480">SD (480p)</option>
+								<option value="custom">Custom…</option>
 							</select>
+							<div
+								class="form-row three hiddenInput"
+								style="margin-top: 0.5rem">
+								<input
+									type="number"
+									name="width"
+									placeholder="Width (px)"
+									min="64"
+									max="3840"
+									disabled />
+								<input
+									type="number"
+									name="height"
+									placeholder="Height (px)"
+									min="64"
+									max="2160"
+									disabled />
+								<select name="fit" disabled>
+									<option value="fill">Fill</option>
+									<option value="contain">Contain</option>
+									<option value="cover">Cover</option>
+								</select>
+							</div>
 						</div>
-					</div>
-					<div class="form-group">
-						<h4>Trim <span style="color: #666">(seconds)</span></h4>
-						<div class="form-row two">
-							<input
-								type="number"
-								name="trimStart"
-								placeholder="Start"
-								step="any"
-								min="0" />
-							<input
-								type="number"
-								name="trimEnd"
-								id="trimEnd"
-								placeholder="End"
-								step="any"
-								min="0" />
+						<div class="form-group">
+							<h4>Trim <span style="color: #666">(seconds)</span></h4>
+							<div class="form-row two">
+								<input
+									type="number"
+									name="trimStart"
+									placeholder="Start"
+									step="any"
+									min="0" />
+								<input
+									type="number"
+									name="trimEnd"
+									id="trimEnd"
+									placeholder="End"
+									step="any"
+									min="0" />
+							</div>
 						</div>
 					</div>
 				</div>
