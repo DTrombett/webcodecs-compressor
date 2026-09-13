@@ -125,6 +125,11 @@ window.fileInput.addEventListener("change", async () => {
 	window.sampleRate.placeholder = "Original";
 	window.channels.placeholder = "Original";
 	window.trimEnd.max = "";
+	window.trimStart.max = "";
+	window.cropHeight.max = "";
+	window.cropLeft.max = "";
+	window.cropTop.max = "";
+	window.cropWidth.max = "";
 	state.input?.dispose();
 	state.input = null;
 	fill("inputFormat", null);
@@ -186,6 +191,10 @@ window.settings.addEventListener("submit", async (ev) => {
 		window.processing.style.display = "";
 		window.processing.scrollIntoView({ behavior: "smooth" });
 		if (state.currentConversion) await state.currentConversion.cancel();
+		const duration =
+			Number(form.trimEnd || (await getDuration(state.input, file.size))) -
+			Number(form.trimStart || 0);
+		if (duration <= 0) throw new Error("Invalid duration");
 		const [videoTrack, audioTrack] = await Promise.all([
 			state.input.getPrimaryVideoTrack(),
 			state.input.getPrimaryAudioTrack(),
@@ -242,10 +251,16 @@ window.settings.addEventListener("submit", async (ev) => {
 					crop:
 						form.cropHeight || form.cropLeft || form.cropTop || form.cropWidth ?
 							{
-								height: form.cropHeight ? Number(form.cropHeight) : Infinity,
-								width: form.cropWidth ? Number(form.cropWidth) : Infinity,
-								left: form.cropLeft ? Number(form.cropLeft) : Infinity,
-								top: form.cropTop ? Number(form.cropTop) : Infinity,
+								height:
+									form.cropHeight ?
+										Number(form.cropHeight)
+									:	(resolution?.h ?? Number.MAX_SAFE_INTEGER),
+								width:
+									form.cropWidth ?
+										Number(form.cropWidth)
+									:	(resolution?.w ?? Number.MAX_SAFE_INTEGER),
+								left: form.cropLeft ? Number(form.cropLeft) : 0,
+								top: form.cropTop ? Number(form.cropTop) : 0,
 							}
 						:	undefined,
 					forceTranscode: true,
@@ -272,9 +287,6 @@ window.settings.addEventListener("submit", async (ev) => {
 				};
 
 		if (form.maxSizePreset) {
-			const duration =
-				Number(form.trimEnd || (await getDuration(state.input, file.size))) -
-				Number(form.trimStart || 0);
 			let targetBitrate =
 				((form.maxSizePreset === "custom" ?
 					Number(form.maxSize) * Number(form.maxSizeUnit)
