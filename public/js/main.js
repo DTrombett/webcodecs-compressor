@@ -338,6 +338,10 @@ window.settings.addEventListener("submit", async (ev) => {
 					video.codec ??= (await getVideoCodec(videoTrack)) ?? undefined;
 					if (!video.codec)
 						throw new Error("Video codec is not supported for recoding.");
+					if (video.crop?.width) resolution.w = video.crop.width;
+					else if (video.crop?.left) resolution.w -= video.crop.left;
+					if (video.crop?.height) resolution.h = video.crop.height;
+					else if (video.crop?.top) resolution.h -= video.crop.top;
 					videoBitrate =
 						computeVideoBitrate(
 							video.codec,
