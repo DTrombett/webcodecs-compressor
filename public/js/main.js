@@ -242,10 +242,16 @@ window.settings.addEventListener("submit", async (ev) => {
 					crop:
 						form.cropHeight || form.cropLeft || form.cropTop || form.cropWidth ?
 							{
-								height: form.cropHeight ? Number(form.cropHeight) : Infinity,
-								width: form.cropWidth ? Number(form.cropWidth) : Infinity,
-								left: form.cropLeft ? Number(form.cropLeft) : Infinity,
-								top: form.cropTop ? Number(form.cropTop) : Infinity,
+								height:
+									form.cropHeight ?
+										Number(form.cropHeight)
+									:	(resolution?.h ?? Number.MAX_SAFE_INTEGER),
+								width:
+									form.cropWidth ?
+										Number(form.cropWidth)
+									:	(resolution?.w ?? Number.MAX_SAFE_INTEGER),
+								left: form.cropLeft ? Number(form.cropLeft) : 0,
+								top: form.cropTop ? Number(form.cropTop) : 0,
 							}
 						:	undefined,
 					forceTranscode: true,
