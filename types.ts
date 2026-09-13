@@ -153,6 +153,10 @@ declare global {
 		audioOptions: HTMLDivElement;
 		cancelProcessing: HTMLButtonElement;
 		channels: HTMLInputElement;
+		cropHeight: HTMLInputElement;
+		cropLeft: HTMLInputElement;
+		cropTop: HTMLInputElement;
+		cropWidth: HTMLInputElement;
 		downloadUrl: HTMLAnchorElement;
 		dropZone: HTMLDivElement;
 		fileInput: HTMLInputElement;
@@ -172,6 +176,7 @@ declare global {
 		statusMessage: HTMLParagraphElement;
 		transformOptions: HTMLDivElement;
 		trimEnd: HTMLInputElement;
+		trimStart: HTMLInputElement;
 		videoOptions: HTMLDivElement;
 	}
 }

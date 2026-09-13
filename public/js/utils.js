@@ -116,6 +116,7 @@ export const getDuration = async (input, size) => {
 		.then((d) => d ?? input.computeDuration());
 
 	window.trimEnd.max = duration.toString();
+	window.trimStart.max = duration.toString();
 	fill("inputDuration", formatDuration(duration));
 	fill(
 		"inputBitrate",
@@ -186,6 +187,10 @@ export const getResolution = async (track) => {
 	for (const element of window.resolution.children)
 		if (element instanceof HTMLOptionElement)
 			element.disabled = +element.value >= res;
+	window.cropTop.max = String(h - 1);
+	window.cropHeight.max = String(h);
+	window.cropLeft.max = String(w - 1);
+	window.cropWidth.max = String(w);
 	return { w, h };
 };
 

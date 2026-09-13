@@ -188,13 +188,13 @@ export const processVideo = async (
 		copy: { shiftTolerance: Infinity },
 		trim: { end: trimEnd, start: trimStart },
 	};
+	console.log("Starting conversion with options", options);
 	const conversion = await Conversion.init(options);
 
 	if (!conversion.isValid)
 		throw new Error(
 			`Conversion invalid: ${conversion.discardedTracks.map((d) => d.reason).join("; ")}`,
 		);
-	console.log("Starting conversion with options", options);
 	conversion.onProgress = onProgress;
 	onConversionReady?.(conversion);
 	await conversion.execute();
