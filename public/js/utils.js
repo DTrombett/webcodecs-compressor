@@ -7,64 +7,6 @@ import {
 } from "mediabunny";
 import { AUDIO_CODEC_DEFINITIONS, VIDEO_CODEC_DEFINITIONS } from "./video.js";
 
-export const elements = {
-	downloadUrl: /** @type {HTMLAnchorElement} */ (
-		document.getElementById("downloadUrl")
-	),
-	cancelProcessing: /** @type {HTMLButtonElement} */ (
-		document.getElementById("cancelProcessing")
-	),
-	removeFile: /** @type {HTMLButtonElement} */ (
-		document.getElementById("removeFile")
-	),
-	metadataAudio: /** @type {HTMLDetailsElement} */ (
-		document.getElementById("metadataAudio")
-	),
-	metadataVideo: /** @type {HTMLDetailsElement} */ (
-		document.getElementById("metadataVideo")
-	),
-	dropZone: /** @type {HTMLDivElement} */ (document.getElementById("dropZone")),
-	fileSelection: /** @type {HTMLDivElement} */ (
-		document.getElementById("fileSelection")
-	),
-	metadata: /** @type {HTMLDivElement} */ (document.getElementById("metadata")),
-	processing: /** @type {HTMLDivElement} */ (
-		document.getElementById("processing")
-	),
-	settings: /** @type {HTMLFormElement} */ (
-		document.getElementById("settings")
-	),
-	channels: /** @type {HTMLInputElement} */ (
-		document.getElementById("channels")
-	),
-	fileInput: /** @type {HTMLInputElement} */ (
-		document.getElementById("fileInput")
-	),
-	frameRate: /** @type {HTMLInputElement} */ (
-		document.getElementById("frameRate")
-	),
-	sampleRate: /** @type {HTMLInputElement} */ (
-		document.getElementById("sampleRate")
-	),
-	trimEnd: /** @type {HTMLInputElement} */ (document.getElementById("trimEnd")),
-	error: /** @type {HTMLParagraphElement} */ (document.getElementById("error")),
-	statusMessage: /** @type {HTMLParagraphElement} */ (
-		document.getElementById("statusMessage")
-	),
-	progress: /** @type {HTMLProgressElement} */ (
-		document.getElementById("progress")
-	),
-	resolution: /** @type {HTMLSelectElement} */ (
-		document.getElementById("resolution")
-	),
-	settingsAudioCodec: /** @type {HTMLSelectElement} */ (
-		document.getElementById("settingsAudioCodec")
-	),
-	settingsVideoCodec: /** @type {HTMLSelectElement} */ (
-		document.getElementById("settingsVideoCodec")
-	),
-};
-
 /** @type {AppState} */
 export const state = { input: null, currentConversion: null };
 
@@ -173,7 +115,7 @@ export const getDuration = async (input, size) => {
 		.getDurationFromMetadata()
 		.then((d) => d ?? input.computeDuration());
 
-	elements.trimEnd.max = duration.toString();
+	window.trimEnd.max = duration.toString();
 	fill("inputDuration", formatDuration(duration));
 	fill(
 		"inputBitrate",
@@ -202,7 +144,7 @@ export const getFps = async (track) => {
 	const textContent = `${frm.bestGuessFrameRate.toLocaleString()} fps`;
 
 	fill("inputVideoFps", textContent);
-	elements.frameRate.placeholder = `Original (${textContent})`;
+	window.frameRate.placeholder = `Original (${textContent})`;
 	return frm;
 };
 
@@ -241,7 +183,7 @@ export const getResolution = async (track) => {
 
 	fill("inputDisplaySize", `${w}×${h}`);
 	fill("inputResolution", `(${res}p)`);
-	for (const element of elements.resolution.children)
+	for (const element of window.resolution.children)
 		if (element instanceof HTMLOptionElement)
 			element.disabled = +element.value >= res;
 	return { w, h };
@@ -296,8 +238,8 @@ export const getChannels = async (track) => {
 	const channels = await track.getNumberOfChannels();
 
 	fill("inputAudioChannels", channelLabel(channels));
-	elements.channels.placeholder = `Original (${channels} ch)`;
-	elements.channels.max = channels.toString();
+	window.channels.placeholder = `Original (${channels} ch)`;
+	window.channels.max = channels.toString();
 	return channels;
 };
 
@@ -309,7 +251,7 @@ export const getSampleRate = async (track) => {
 	const sampleRate = await track.getSampleRate();
 
 	fill("inputAudioSampleRate", `${sampleRate.toLocaleString()} Hz`);
-	elements.sampleRate.placeholder = `Original (${sampleRate} Hz)`;
+	window.sampleRate.placeholder = `Original (${sampleRate} Hz)`;
 	return sampleRate;
 };
 
@@ -334,7 +276,7 @@ export const getVideo = async (input) => {
 	if (track) {
 		if (!(await track.canDecode()))
 			throw new Error("Video track cannot be decoded", { cause: track });
-		elements.metadataVideo.style.display = "";
+		window.metadataVideo.style.display = "";
 		await settleAndLog([
 			getFps(track),
 			getColorSpace(track),
@@ -343,15 +285,15 @@ export const getVideo = async (input) => {
 			getVideoBitrate(track),
 		]);
 	} else {
-		elements.metadataVideo.style.display = "none";
-		elements.frameRate.placeholder = "Original";
+		window.metadataVideo.style.display = "none";
+		window.frameRate.placeholder = "Original";
 		fill("inputVideoCodec", null);
 		fill("inputDisplaySize", null);
 		fill("inputVideoFps", null);
 		fill("inputVideoBitrate", null);
 		fill("inputVideoColorSpace", null);
 		fill("inputResolution", null);
-		for (const element of elements.resolution.children)
+		for (const element of window.resolution.children)
 			if (element instanceof HTMLOptionElement) element.disabled = false;
 	}
 	return track;
@@ -367,7 +309,7 @@ export const getAudio = async (input) => {
 	if (track) {
 		if (!(await track.canDecode()))
 			throw new Error("Audio track cannot be decoded", { cause: track });
-		elements.metadataAudio.style.display = "";
+		window.metadataAudio.style.display = "";
 		await settleAndLog([
 			getAudioBitrate(track),
 			getAudioCodec(track),
@@ -375,9 +317,9 @@ export const getAudio = async (input) => {
 			getSampleRate(track),
 		]);
 	} else {
-		elements.metadataAudio.style.display = "none";
-		elements.sampleRate.placeholder = "Original";
-		elements.channels.placeholder = "Original";
+		window.metadataAudio.style.display = "none";
+		window.sampleRate.placeholder = "Original";
+		window.channels.placeholder = "Original";
 		fill("inputAudioCodec", null);
 		fill("inputAudioChannels", null);
 		fill("inputAudioSampleRate", null);
@@ -397,12 +339,12 @@ export const checkVideoCodecs = async () => {
 
 				option.text = def.label;
 				option.value = def.id;
-				elements.settingsVideoCodec.options.add(option, i + 1);
+				window.settingsVideoCodec.options.add(option, i + 1);
 			}
 		}),
 	);
-	elements.settingsVideoCodec.options.remove(0);
-	elements.settingsVideoCodec.selectedIndex = 0;
+	window.settingsVideoCodec.options.remove(0);
+	window.settingsVideoCodec.selectedIndex = 0;
 };
 
 /**
@@ -416,10 +358,10 @@ export const checkAudioCodecs = async () => {
 
 				option.text = def.label;
 				option.value = def.id;
-				elements.settingsAudioCodec.options.add(option, i + 1);
+				window.settingsAudioCodec.options.add(option, i + 1);
 			}
 		}),
 	);
-	elements.settingsAudioCodec.options.remove(0);
-	elements.settingsAudioCodec.selectedIndex = 0;
+	window.settingsAudioCodec.options.remove(0);
+	window.settingsAudioCodec.selectedIndex = 0;
 };

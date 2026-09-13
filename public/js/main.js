@@ -11,10 +11,10 @@ import {
 	checkAudioCodecs,
 	checkVideoCodecs,
 	computeVideoBitrate,
-	elements,
 	fill,
 	formatSize,
 	getAudio,
+	getAudioCodec,
 	getChannels,
 	getDuration,
 	getFormat,
@@ -22,6 +22,7 @@ import {
 	getQualityMultiplier,
 	getResolution,
 	getVideo,
+	getVideoCodec,
 	settleAndLog,
 	state,
 } from "./utils.js";
@@ -34,7 +35,7 @@ window.addEventListener("dragover", (ev) => {
 		[...ev.dataTransfer.items].some((item) => item.kind === "file")
 	) {
 		ev.preventDefault();
-		if (!(ev.target instanceof Node && elements.dropZone.contains(ev.target)))
+		if (!(ev.target instanceof Node && window.dropZone.contains(ev.target)))
 			ev.dataTransfer.dropEffect = "none";
 	}
 });
@@ -45,7 +46,7 @@ window.addEventListener("drop", (ev) => {
 	)
 		ev.preventDefault();
 });
-elements.dropZone.addEventListener("dragover", (e) => {
+window.dropZone.addEventListener("dragover", (e) => {
 	const fileItems =
 		e.dataTransfer ?
 			[...e.dataTransfer?.items].filter((item) => item.kind === "file")
@@ -59,27 +60,27 @@ elements.dropZone.addEventListener("dragover", (e) => {
 					item.type.startsWith("video/") || item.type.startsWith("audio/"),
 			)
 		) {
-			elements.dropZone.classList.add("drag-over");
+			window.dropZone.classList.add("drag-over");
 			e.dataTransfer.dropEffect = "copy";
 		} else {
-			elements.dropZone.classList.add("drag-invalid");
+			window.dropZone.classList.add("drag-invalid");
 			e.dataTransfer.dropEffect = "none";
 		}
 	}
 });
-elements.dropZone.addEventListener("dragleave", () => {
-	elements.dropZone.classList.remove("drag-over", "drag-invalid");
+window.dropZone.addEventListener("dragleave", () => {
+	window.dropZone.classList.remove("drag-over", "drag-invalid");
 });
-elements.dropZone.addEventListener("drop", (ev) => {
+window.dropZone.addEventListener("drop", (ev) => {
 	ev.preventDefault();
-	elements.dropZone.classList.remove("drag-over", "drag-invalid");
-	elements.fileInput.files = ev.dataTransfer?.files ?? null;
-	elements.fileInput.dispatchEvent(
+	window.dropZone.classList.remove("drag-over", "drag-invalid");
+	window.fileInput.files = ev.dataTransfer?.files ?? null;
+	window.fileInput.dispatchEvent(
 		new Event("change", { bubbles: true, cancelable: false, composed: false }),
 	);
 });
-elements.fileInput.addEventListener("change", async () => {
-	const file = elements.fileInput.files?.[0];
+window.fileInput.addEventListener("change", async () => {
+	const file = window.fileInput.files?.[0];
 	// This is a workaround for external files
 	const source =
 		file &&
@@ -89,9 +90,9 @@ elements.fileInput.addEventListener("change", async () => {
 
 	if (source instanceof Promise)
 		console.warn("Storing the whole file in memory");
-	elements.processing.style.display = "none";
-	elements.downloadUrl.style.display = "none";
-	elements.downloadUrl.href = "";
+	window.processing.style.display = "none";
+	window.downloadUrl.style.display = "none";
+	window.downloadUrl.href = "";
 	fill("outputFileName", null);
 	fill("fileName", file?.name ?? null);
 	fill("fileSize", file ? formatSize(file.size) : null);
@@ -111,19 +112,19 @@ elements.fileInput.addEventListener("change", async () => {
 				getVideo(input),
 				getAudio(input),
 			]);
-			elements.fileSelection.style.display = "none";
-			elements.metadata.style.display = "";
-			elements.settings.style.display = "";
+			window.fileSelection.style.display = "none";
+			window.metadata.style.display = "";
+			window.settings.style.display = "";
 			return;
 		} else alert("The selected video or audio is not supported!");
-	elements.settings.style.display = "none";
-	elements.metadata.style.display = "none";
-	elements.fileSelection.style.display = "";
-	elements.fileInput.value = "";
-	elements.frameRate.placeholder = "Original";
-	elements.sampleRate.placeholder = "Original";
-	elements.channels.placeholder = "Original";
-	elements.trimEnd.max = "";
+	window.settings.style.display = "none";
+	window.metadata.style.display = "none";
+	window.fileSelection.style.display = "";
+	window.fileInput.value = "";
+	window.frameRate.placeholder = "Original";
+	window.sampleRate.placeholder = "Original";
+	window.channels.placeholder = "Original";
+	window.trimEnd.max = "";
 	state.input?.dispose();
 	state.input = null;
 	fill("inputFormat", null);
@@ -139,13 +140,13 @@ elements.fileInput.addEventListener("change", async () => {
 	fill("inputAudioSampleRate", null);
 	fill("inputAudioBitrate", null);
 	fill("inputResolution", null);
-	for (const element of elements.resolution.children)
+	for (const element of window.resolution.children)
 		if (element instanceof HTMLOptionElement) element.disabled = false;
 });
-elements.removeFile.addEventListener("click", (ev) => {
+window.removeFile.addEventListener("click", (ev) => {
 	ev.preventDefault();
-	elements.fileInput.value = "";
-	elements.fileInput.dispatchEvent(
+	window.fileInput.value = "";
+	window.fileInput.dispatchEvent(
 		new Event("change", { bubbles: true, cancelable: false, composed: false }),
 	);
 });
@@ -159,18 +160,31 @@ document.body.querySelectorAll("select:has(~ .hiddenInput)").forEach((el) =>
 			).disabled = /** @type {HTMLSelectElement} */ (el).value !== "custom";
 	}),
 );
-elements.settings.addEventListener("submit", async (ev) => {
-	const form = /** @type {Settings} */ (
-		Object.fromEntries(new FormData(elements.settings).entries())
+document.body
+	.querySelectorAll("input[name='mapAudio'], input[name='mapVideo']")
+	.forEach((el) =>
+		el.addEventListener("change", () => {
+			if (!(el instanceof HTMLInputElement) || !el.checked) return;
+			(el.name === "mapAudio" ?
+				[window.audioOptions]
+			:	[window.videoOptions, window.transformOptions]
+			).forEach((options) =>
+				options.classList[el.value === "recode" ? "remove" : "add"]("disabled"),
+			);
+		}),
 	);
-	const file = elements.fileInput.files?.[0];
+window.settings.addEventListener("submit", async (ev) => {
+	const form = /** @type {Settings} */ (
+		Object.fromEntries(new FormData(window.settings).entries())
+	);
+	const file = window.fileInput.files?.[0];
 	let listener;
 
 	ev.preventDefault();
 	if (!state.input || !file) return;
 	try {
-		elements.processing.style.display = "";
-		elements.processing.scrollIntoView({ behavior: "smooth" });
+		window.processing.style.display = "";
+		window.processing.scrollIntoView({ behavior: "smooth" });
 		if (state.currentConversion) await state.currentConversion.cancel();
 		const [videoTrack, audioTrack] = await Promise.all([
 			state.input.getPrimaryVideoTrack(),
@@ -182,69 +196,80 @@ elements.settings.addEventListener("submit", async (ev) => {
 			audioTrack && getChannels(audioTrack),
 		]);
 		let audioBitrate =
-				form.audioBitrate ?
+				form.audioBitrate && form.mapAudio === "recode" ?
 					Number(form.audioBitrate) * Number(form.audioBitrateUnit)
 				:	0,
 			videoBitrate =
-				form.videoBitrate ?
+				form.videoBitrate && form.mapVideo === "recode" ?
 					Number(form.videoBitrate) * Number(form.videoBitrateUnit)
 				:	0;
-		const video = {
-			quality:
-				form.videoQuality ?
-					new Quality(
-						form.videoQuality === "custom" ?
-							{ bitrate: Math.floor(videoBitrate) }
-						:	form.videoQuality,
-					)
-				:	undefined,
-			codec: form.videoCodec,
-			rotate: form.rotate ? Number(form.rotate) : undefined,
-			frameRate:
-				form.frameRate ? Number(form.frameRate)
-				: fps ? Math.floor(fps.bestGuessFrameRate)
-				: undefined,
-			keyFrameInterval:
-				form.keyFrameInterval ? Number(form.keyFrameInterval) : undefined,
-			discard: form.discardVideo === "on",
-			height:
-				form.resolution ?
-					form.resolution === "custom" ? Number(form.height)
-					: resolution && resolution.h <= resolution.w ? Number(form.resolution)
-					: undefined
-				:	undefined,
-			width:
-				form.resolution ?
-					form.resolution === "custom" ? Number(form.width)
-					: resolution && resolution.w < resolution.h ? Number(form.resolution)
-					: undefined
-				:	undefined,
-			fit: form.resolution === "custom" ? form.fit : undefined,
-			crop:
-				form.cropHeight || form.cropLeft || form.cropTop || form.cropWidth ?
-					{
-						height: form.cropHeight ? Number(form.cropHeight) : Infinity,
-						width: form.cropWidth ? Number(form.cropWidth) : Infinity,
-						left: form.cropLeft ? Number(form.cropLeft) : Infinity,
-						top: form.cropTop ? Number(form.cropTop) : Infinity,
-					}
-				:	undefined,
-		};
-		const audio = {
-			quality:
-				form.audioQuality ?
-					new Quality(
-						form.audioQuality === "custom" ?
-							{ bitrate: Math.floor(audioBitrate) }
-						:	form.audioQuality,
-					)
-				:	undefined,
-			codec: form.audioCodec,
-			sampleFormat: form.sampleFormat || undefined,
-			sampleRate: form.sampleRate ? Number(form.sampleRate) : undefined,
-			channels: form.channels ? Number(form.channels) : undefined,
-			discard: form.discardAudio === "on",
-		};
+		/** @type {ConversionVideoOptions} */
+		const video =
+			form.mapVideo === "copy" ? {}
+			: form.mapVideo === "discard" ? { discard: true }
+			: {
+					quality:
+						form.videoQuality ?
+							new Quality(
+								form.videoQuality === "custom" ?
+									{ bitrate: Math.floor(videoBitrate) }
+								:	form.videoQuality,
+							)
+						:	undefined,
+					codec: form.videoCodec,
+					rotate: form.rotate ? Number(form.rotate) : undefined,
+					frameRate:
+						form.frameRate ? Number(form.frameRate)
+						: fps ? Math.floor(fps.bestGuessFrameRate)
+						: undefined,
+					keyFrameInterval:
+						form.keyFrameInterval ? Number(form.keyFrameInterval) : undefined,
+					height:
+						form.resolution ?
+							form.resolution === "custom" ? Number(form.height)
+							: resolution && resolution.h <= resolution.w ?
+								Number(form.resolution)
+							:	undefined
+						:	undefined,
+					width:
+						form.resolution ?
+							form.resolution === "custom" ? Number(form.width)
+							: resolution && resolution.w < resolution.h ?
+								Number(form.resolution)
+							:	undefined
+						:	undefined,
+					fit: form.resolution === "custom" ? form.fit : undefined,
+					crop:
+						form.cropHeight || form.cropLeft || form.cropTop || form.cropWidth ?
+							{
+								height: form.cropHeight ? Number(form.cropHeight) : Infinity,
+								width: form.cropWidth ? Number(form.cropWidth) : Infinity,
+								left: form.cropLeft ? Number(form.cropLeft) : Infinity,
+								top: form.cropTop ? Number(form.cropTop) : Infinity,
+							}
+						:	undefined,
+					forceTranscode: true,
+					alpha: form.alpha === "on" ? "keep" : "discard",
+				};
+		/** @type {ConversionAudioOptions} */
+		const audio =
+			form.mapAudio === "copy" ? {}
+			: form.mapAudio === "discard" ? { discard: true }
+			: {
+					quality:
+						form.audioQuality ?
+							new Quality(
+								form.audioQuality === "custom" ?
+									{ bitrate: Math.floor(audioBitrate) }
+								:	form.audioQuality,
+							)
+						:	undefined,
+					codec: form.audioCodec,
+					sampleFormat: form.sampleFormat || undefined,
+					sampleRate: form.sampleRate ? Number(form.sampleRate) : undefined,
+					numberOfChannels: form.channels ? Number(form.channels) : undefined,
+					forceTranscode: true,
+				};
 
 		if (form.maxSizePreset) {
 			const duration =
@@ -256,9 +281,23 @@ elements.settings.addEventListener("submit", async (ev) => {
 				:	Number(form.maxSizePreset)) *
 					8) /
 				duration;
+			if (form.mapAudio === "copy" && audioTrack)
+				audioBitrate =
+					(
+						await audioTrack.computePacketStats(undefined, {
+							metadataOnly: true,
+						})
+					).averageBitrate ?? 0;
+			if (form.mapVideo === "copy" && videoTrack)
+				videoBitrate =
+					(
+						await videoTrack.computePacketStats(undefined, {
+							metadataOnly: true,
+						})
+					).averageBitrate ?? 0;
 			if (
-				(video.codec && !videoBitrate) ||
-				(audio.codec && !audioBitrate) ||
+				(videoTrack && !video.discard && !videoBitrate) ||
+				(audioTrack && !audio.discard && !audioBitrate) ||
 				videoBitrate + audioBitrate > targetBitrate
 			) {
 				if (audioBitrate > targetBitrate && !videoBitrate) audioBitrate = 0;
@@ -267,8 +306,10 @@ elements.settings.addEventListener("submit", async (ev) => {
 				if (
 					!audioBitrate &&
 					!videoBitrate &&
-					audio.codec &&
-					video.codec &&
+					!audio.discard &&
+					!video.discard &&
+					audioTrack &&
+					videoTrack &&
 					resolution &&
 					fps &&
 					channels
@@ -287,10 +328,20 @@ elements.settings.addEventListener("submit", async (ev) => {
 						dts: 768000, // 768kbps base for DTS
 					};
 
+					audio.codec ??= (await getAudioCodec(audioTrack)) ?? undefined;
+					if (!audio.codec)
+						throw new Error("Audio codec is not supported for recoding.");
 					audioBitrate =
 						(audioBaseRates[audio.codec] ?? 0) *
-						((audio.channels ?? channels) / 2) *
+						((audio.numberOfChannels ?? channels) / 2) *
 						getQualityMultiplier(form.audioQuality);
+					video.codec ??= (await getVideoCodec(videoTrack)) ?? undefined;
+					if (!video.codec)
+						throw new Error("Video codec is not supported for recoding.");
+					if (video.crop?.width) resolution.w = video.crop.width;
+					else if (video.crop?.left) resolution.w -= video.crop.left;
+					if (video.crop?.height) resolution.h = video.crop.height;
+					else if (video.crop?.top) resolution.h -= video.crop.top;
 					videoBitrate =
 						computeVideoBitrate(
 							video.codec,
@@ -308,19 +359,52 @@ elements.settings.addEventListener("submit", async (ev) => {
 				if (audioBitrate && videoBitrate) {
 					const sum = audioBitrate + videoBitrate;
 
-					if (sum <= targetBitrate) targetBitrate *= 0.95;
+					if (sum <= targetBitrate)
+						targetBitrate = Math.min(targetBitrate * 0.95, sum * 4);
 					audioBitrate = (targetBitrate * audioBitrate) / sum;
+					if (audio.codec === "aac" || audio.codec === "mp3")
+						audioBitrate = (
+							audio.codec === "aac" ?
+								[96000, 128000, 160000, 192000]
+							:	[
+									8000, 16000, 24000, 32000, 40000, 48000, 64000, 80000, 96000,
+									112000, 128000, 160000, 192000, 224000, 256000, 320000,
+								]).reduce((prev, curr) =>
+							Math.abs(curr - audioBitrate) < Math.abs(prev - audioBitrate) ?
+								curr
+							:	prev,
+						);
+					else if (audio.codec === "opus" || audio.codec === "vorbis")
+						audioBitrate = Math.max(audioBitrate, 6000);
 					videoBitrate = targetBitrate - audioBitrate;
 				} else if (audioBitrate) videoBitrate = targetBitrate - audioBitrate;
-				else if (videoBitrate) audioBitrate = targetBitrate - videoBitrate;
-				video.quality = new Quality({
-					bitrate: Math.floor(videoBitrate),
-					bitrateMode: "constant",
-				});
-				audio.quality = new Quality({
-					bitrate: Math.floor(audioBitrate),
-					bitrateMode: "constant",
-				});
+				else if (videoBitrate) {
+					audioBitrate = targetBitrate - videoBitrate;
+					if (audio.codec === "aac" || audio.codec === "mp3")
+						audioBitrate = (
+							audio.codec === "aac" ?
+								[96000, 128000, 160000, 192000]
+							:	[
+									8000, 16000, 24000, 32000, 40000, 48000, 64000, 80000, 96000,
+									112000, 128000, 160000, 192000, 224000, 256000, 320000,
+								]).reduce((prev, curr) =>
+							Math.abs(curr - audioBitrate) < Math.abs(prev - audioBitrate) ?
+								curr
+							:	prev,
+						);
+					else if (audio.codec === "opus" || audio.codec === "vorbis")
+						audioBitrate = Math.max(audioBitrate, 6000);
+				}
+				if (video.codec)
+					video.quality = new Quality({
+						bitrate: Math.floor(videoBitrate),
+						bitrateMode: "constant",
+					});
+				if (audio.codec)
+					audio.quality = new Quality({
+						bitrate: Math.floor(audioBitrate),
+						bitrateMode: "constant",
+					});
 			}
 		}
 		const result = await processVideo(state.input, video, audio, {
@@ -329,27 +413,36 @@ elements.settings.addEventListener("submit", async (ev) => {
 			trimStart: form.trimStart ? Number(form.trimStart) : undefined,
 			trimEnd: form.trimEnd ? Number(form.trimEnd) : undefined,
 			onProgress: (p) => {
-				elements.progress.value = p;
-				elements.statusMessage.textContent = `Processing... (${Math.floor(p * 100)}%)`;
+				window.progress.value = p;
+				window.statusMessage.textContent = `Processing... (${Math.floor(p * 100)}%)`;
 			},
 			onConversionReady: (conversion) => {
 				state.currentConversion = conversion;
-				elements.cancelProcessing.addEventListener(
+				window.cancelProcessing.addEventListener(
 					"click",
 					(listener = conversion.cancel.bind(conversion)),
 				);
-				elements.progress.value = 0;
-				elements.statusMessage.textContent = "Processing...";
-				elements.cancelProcessing.style.display = "";
-				elements.processing.scrollIntoView({ behavior: "smooth" });
+				window.progress.value = 0;
+				window.statusMessage.textContent = "Processing...";
+				window.cancelProcessing.style.display = "";
+				window.processing.scrollIntoView({ behavior: "smooth" });
 			},
 		});
 
-		elements.downloadUrl.href = URL.createObjectURL(
+		// navigator.share({
+		// 	files: [
+		// 		new File(
+		// 			[new Blob([result.buffer], { type: result.mimeType })],
+		// 			result.fileName,
+		// 			{ type: result.mimeType },
+		// 		),
+		// 	],
+		// });
+		window.downloadUrl.href = URL.createObjectURL(
 			new Blob([result.buffer], { type: result.mimeType }),
 		);
-		fill("outputFileName", (elements.downloadUrl.download = result.fileName));
-		elements.statusMessage.textContent = `Done! ${formatSize(result.outputSize)} (${formatSize(
+		fill("outputFileName", (window.downloadUrl.download = result.fileName));
+		window.statusMessage.textContent = `Done! ${formatSize(result.outputSize)} (${formatSize(
 			result.outputSize,
 			{
 				sizes: [
@@ -366,160 +459,20 @@ elements.settings.addEventListener("submit", async (ev) => {
 				x: 1024,
 			},
 		)})`;
-		elements.downloadUrl.style.display = "";
+		window.downloadUrl.style.display = "";
 	} catch (err) {
 		console.error(err);
 		if (err instanceof ConversionCanceledError)
-			elements.statusMessage.textContent = "Cancelled.";
+			window.statusMessage.textContent = "Cancelled.";
 		else
-			elements.statusMessage.textContent =
+			window.statusMessage.textContent =
 				err instanceof Error ?
 					err.message
 				:	"Unexpected error during processing.";
 	} finally {
 		state.currentConversion = null;
-		elements.cancelProcessing.style.display = "none";
+		window.cancelProcessing.style.display = "none";
 		if (listener)
-			elements.cancelProcessing.removeEventListener("click", listener);
+			window.cancelProcessing.removeEventListener("click", listener);
 	}
 });
-
-// export default () => ({
-// 	get decodeStatus() {
-// 		const codec = this.selectedCodec;
-
-// 		if (!codec) return null;
-// 		return {
-// 			supported: codec.decodeSupported,
-// 			label: codec.decodeSupported ? "Supported" : "Not supported",
-// 		};
-// 	},
-// 	/* ── processing ─────────────────────────────────────────────── */
-// 	async startProcessing() {
-// 		if (!this.file || this.processing || !this.metadata) return;
-
-// 		// Safety check: custom resolution must not exceed source
-// 		if (this.settings.resolution === "custom") {
-// 			this.validateCustomResolution();
-// 			if (this.warning) {
-// 				this.error = this.warning;
-// 				return;
-// 			}
-// 			if (!this.settings.customWidth || !this.settings.customHeight) {
-// 				this.error =
-// 					"Please enter both width and height for custom resolution.";
-// 				return;
-// 			}
-// 		}
-
-// 		// Warn about HDR→SDR conversion
-// 		if (
-// 			this.isHdrSource &&
-// 			this.settings.videoCodec &&
-// 			SDR_ONLY_CODEC_IDS.includes(this.settings.videoCodec)
-// 		) {
-// 			this.warning =
-// 				"HDR source will be converted to SDR. Colors may appear washed.";
-// 			setTimeout(() => {
-// 				this.warning = null;
-// 			}, 5000);
-// 		}
-
-// 		this.processing = true;
-// 		this.progress = 0;
-// 		this.error = null;
-// 		this.statusMessage = "Initializing…";
-// 		this.downloadUrl = null;
-// 		this.currentConversion = null;
-// 		try {
-// 			const result = await processVideo(
-// 				new BlobSource(this.file),
-// 				{
-// 					codec: this.settings.videoCodec,
-// 					crop: {
-// 						height:
-// 							this.settings.crop.height ??
-// 							this.metadata.video?.displayH ??
-// 							Infinity,
-// 						width:
-// 							this.settings.crop.width ??
-// 							this.metadata.video?.displayW ??
-// 							Infinity,
-// 						left: this.settings.crop.left ?? 0,
-// 						top: this.settings.crop.top ?? 0,
-// 					},
-// 					discard: this.settings.discardVideo,
-// 					frameRate: this.settings.frameRate,
-// 					height:
-// 						this.settings.resolution === "custom" ?
-// 							this.settings.customHeight
-// 						:	RESOLUTION_PRESETS[this.settings.resolution]?.height,
-// 					width:
-// 						this.settings.resolution === "custom" ?
-// 							this.settings.customWidth
-// 						:	undefined,
-// 					keyFrameInterval: this.settings.keyFrameInterval,
-// 					quality: new Quality({
-// 						bitrate: Math.floor(
-// 							(this.settings.size * 1000 * 1000 * 8) / this.metadata.duration,
-// 						),
-// 					}),
-// 				},
-// 				{
-// 					codec: this.settings.audioCodec,
-// 					discard: this.settings.discardAudio,
-// 					mono: this.settings.mono,
-// 					sampleRate: this.settings.sampleRate,
-// 				},
-// 				{
-// 					metadata: this.metadata,
-// 					onProgress: (p) => {
-// 						this.progress = p;
-// 						this.statusMessage = `Processing... (${Math.floor(p * 100)}%)`;
-// 					},
-// 					onConversionReady: (conv) => {
-// 						this.statusMessage = "Processing...";
-// 						this.currentConversion = conv;
-// 					},
-// 				},
-// 			);
-// 			const blob = new Blob([result.buffer], { type: result.mimeType });
-// 			const url = URL.createObjectURL(blob);
-// 			this.downloadUrl = url;
-// 			this.outputFileName = result.fileName;
-// 			const pct = ((result.outputSize / result.inputSize) * 100).toFixed(1);
-// 			this.statusMessage = `Done! ${this.formatSize(result.outputSize)} (${pct}% of source)`;
-// 			if (this.settings.autoDownload)
-// 				this._triggerDownload(url, result.fileName);
-// 		} catch (err) {
-// 			console.error("[app] processing error", err);
-// 			if (err instanceof ConversionCanceledError)
-// 				this.statusMessage = "Cancelled.";
-// 			else {
-// 				this.error =
-// 					err instanceof Error ?
-// 						err.message
-// 					:	"Unexpected error during processing.";
-// 				this.statusMessage = "";
-// 			}
-// 		} finally {
-// 			this.processing = false;
-// 			this.currentConversion = null;
-// 		}
-// 	},
-// 	async cancelProcessing() {
-// 		if (this.currentConversion) await this.currentConversion.cancel();
-// 	},
-// 	/* ── helpers ─────────────────────────────────────────────────── */
-// 	_triggerDownload(url, filename) {
-// 		const a = document.createElement("a");
-// 		a.href = url;
-// 		a.download = filename;
-// 		a.style.display = "none";
-// 		document.body.appendChild(a);
-// 		a.click();
-// 		requestAnimationFrame(() => {
-// 			if (a.parentNode) a.remove();
-// 		});
-// 	},
-// });

@@ -116,6 +116,7 @@ declare global {
 		| "mpegts";
 
 	type Settings = Partial<{
+		alpha: "on";
 		audioBitrate: NumberInput;
 		audioBitrateUnit: NumberInput;
 		audioCodec: AudioCodec;
@@ -125,8 +126,8 @@ declare global {
 		cropLeft: NumberInput;
 		cropTop: NumberInput;
 		cropWidth: NumberInput;
-		discardAudio: "on";
-		discardVideo: "on";
+		mapAudio: "recode" | "copy" | "discard";
+		mapVideo: "recode" | "copy" | "discard";
 		fit: ConversionVideoOptions["fit"];
 		frameRate: NumberInput;
 		height: NumberInput;
@@ -147,4 +148,30 @@ declare global {
 	}> & { maxSizePreset: NumberInput | "custom"; format: "" | Format };
 
 	type AppState = { input: Input | null; currentConversion: Conversion | null };
+
+	interface Window {
+		audioOptions: HTMLDivElement;
+		cancelProcessing: HTMLButtonElement;
+		channels: HTMLInputElement;
+		downloadUrl: HTMLAnchorElement;
+		dropZone: HTMLDivElement;
+		fileInput: HTMLInputElement;
+		fileSelection: HTMLDivElement;
+		frameRate: HTMLInputElement;
+		metadata: HTMLDivElement;
+		metadataAudio: HTMLDetailsElement;
+		metadataVideo: HTMLDetailsElement;
+		processing: HTMLDivElement;
+		progress: HTMLProgressElement;
+		removeFile: HTMLButtonElement;
+		resolution: HTMLSelectElement;
+		sampleRate: HTMLInputElement;
+		settings: HTMLFormElement;
+		settingsAudioCodec: HTMLSelectElement;
+		settingsVideoCodec: HTMLSelectElement;
+		statusMessage: HTMLParagraphElement;
+		transformOptions: HTMLDivElement;
+		trimEnd: HTMLInputElement;
+		videoOptions: HTMLDivElement;
+	}
 }

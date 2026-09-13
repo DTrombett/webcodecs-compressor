@@ -13,7 +13,6 @@ import {
 	OggOutputFormat,
 	Output,
 	OutputFormat,
-	Quality,
 	WavOutputFormat,
 	WebMOutputFormat,
 } from "mediabunny";
@@ -142,24 +141,8 @@ const formats = {
 /**
  * Full processing pipeline.
  * @param {Input<Source>} input - The input file
- * @param {object} video - Video options
- * @param {VideoCodec} [video.codec] - Codec id
- * @param {Quality} [video.quality] - Video quality
- * @param {CropRectangle} [video.crop] - How to crop the video
- * @param {ConversionVideoOptions["fit"]} [video.fit] - The fitting algorithm in case both width and height are set
- * @param {Rotation} [video.rotate] - Rotation to be applied to the video
- * @param {number} [video.frameRate] - Output fps
- * @param {number} [video.keyFrameInterval] - After how many seconds a keyframe should be added
- * @param {number} [video.width] - Custom width
- * @param {number} [video.height] - Custom height
- * @param {boolean} [video.discard] - Whether to discard the video track
- * @param {object} audio - Audio options
- * @param {AudioCodec} [audio.codec] - Codec id
- * @param {Quality} [audio.quality] - Audio quality
- * @param {boolean} [audio.discard] - Whether to discard the audio track
- * @param {number} [audio.channels] - The number of audio channels
- * @param {number} [audio.sampleRate] - The audio sample rate
- * @param {ConversionAudioOptions["sampleFormat"]} [audio.sampleFormat] - The audio sample format
+ * @param {ConversionVideoOptions} video - Video options
+ * @param {ConversionAudioOptions} audio - Audio options
  * @param {object} opts - Global options
  * @param {string} opts.fileName - The original file name
  * @param {number} [opts.trimStart] - The time in the input file in seconds at which the output file should start
@@ -200,30 +183,9 @@ export const processVideo = async (
 	const options = {
 		input,
 		output,
-		video:
-			video.discard ?
-				{ discard: true }
-			:	{
-					codec: video.codec,
-					crop: video.crop,
-					fit: video.fit,
-					frameRate: video.frameRate,
-					height: video.height,
-					keyFrameInterval: video.keyFrameInterval,
-					quality: video.quality,
-					rotate: video.rotate,
-					width: video.width,
-				},
-		audio:
-			audio.discard ?
-				{ discard: true }
-			:	{
-					codec: audio.codec,
-					numberOfChannels: audio.channels,
-					quality: audio.quality,
-					sampleRate: audio.sampleRate,
-					sampleFormat: audio.sampleFormat,
-				},
+		video,
+		audio,
+		copy: { shiftTolerance: Infinity },
 		trim: { end: trimEnd, start: trimStart },
 	};
 	const conversion = await Conversion.init(options);
