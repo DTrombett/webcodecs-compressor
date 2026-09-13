@@ -249,6 +249,7 @@ window.settings.addEventListener("submit", async (ev) => {
 							}
 						:	undefined,
 					forceTranscode: true,
+					alpha: form.alpha === "on" ? "keep" : "discard",
 				};
 		/** @type {ConversionAudioOptions} */
 		const audio =
@@ -354,18 +355,49 @@ window.settings.addEventListener("submit", async (ev) => {
 				if (audioBitrate && videoBitrate) {
 					const sum = audioBitrate + videoBitrate;
 
-					if (sum <= targetBitrate) targetBitrate *= 0.95;
+					if (sum <= targetBitrate)
+						targetBitrate = Math.min(targetBitrate * 0.95, sum * 4);
 					audioBitrate = (targetBitrate * audioBitrate) / sum;
+					if (audio.codec === "aac" || audio.codec === "mp3")
+						audioBitrate = (
+							audio.codec === "aac" ?
+								[96000, 128000, 160000, 192000]
+							:	[
+									8000, 16000, 24000, 32000, 40000, 48000, 64000, 80000, 96000,
+									112000, 128000, 160000, 192000, 224000, 256000, 320000,
+								]).reduce((prev, curr) =>
+							Math.abs(curr - audioBitrate) < Math.abs(prev - audioBitrate) ?
+								curr
+							:	prev,
+						);
+					else if (audio.codec === "opus" || audio.codec === "vorbis")
+						audioBitrate = Math.max(audioBitrate, 6000);
 					videoBitrate = targetBitrate - audioBitrate;
 				} else if (audioBitrate) videoBitrate = targetBitrate - audioBitrate;
-				else if (videoBitrate) audioBitrate = targetBitrate - videoBitrate;
+				else if (videoBitrate) {
+					audioBitrate = targetBitrate - videoBitrate;
+					if (audio.codec === "aac" || audio.codec === "mp3")
+						audioBitrate = (
+							audio.codec === "aac" ?
+								[96000, 128000, 160000, 192000]
+							:	[
+									8000, 16000, 24000, 32000, 40000, 48000, 64000, 80000, 96000,
+									112000, 128000, 160000, 192000, 224000, 256000, 320000,
+								]).reduce((prev, curr) =>
+							Math.abs(curr - audioBitrate) < Math.abs(prev - audioBitrate) ?
+								curr
+							:	prev,
+						);
+					else if (audio.codec === "opus" || audio.codec === "vorbis")
+						audioBitrate = Math.max(audioBitrate, 6000);
+				}
 				if (video.codec)
 					video.quality = new Quality({
 						bitrate: Math.floor(videoBitrate),
 						bitrateMode: "constant",
 					});
 				if (audio.codec)
-					audio.quality &&= new Quality({
+					audio.quality = new Quality({
 						bitrate: Math.floor(audioBitrate),
 						bitrateMode: "constant",
 					});

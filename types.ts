@@ -116,6 +116,7 @@ declare global {
 		| "mpegts";
 
 	type Settings = Partial<{
+		alpha: "on";
 		audioBitrate: NumberInput;
 		audioBitrateUnit: NumberInput;
 		audioCodec: AudioCodec;

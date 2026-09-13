@@ -272,24 +272,12 @@
 				display: none;
 			}
 
-			/* checkbox */
-			.checkbox-group {
-				display: flex;
-				align-items: center;
-				gap: 0.5rem;
-				cursor: pointer;
-			}
-
-			.checkbox-group input[type="checkbox"] {
+			input[type="checkbox"] {
 				width: 1.25rem;
 				height: 1.25rem;
 				accent-color: #81c784;
 				cursor: pointer;
 				margin: 0 0.25rem;
-			}
-
-			.checkbox-group label {
-				cursor: pointer;
 			}
 
 			label:not([for]) input {
@@ -1028,23 +1016,41 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<h4>Trim <span style="color: #666">(seconds)</span></h4>
+							<h4>Crop</h4>
 							<div class="form-row two">
 								<input
 									type="number"
-									name="trimStart"
-									placeholder="Start"
-									step="any"
+									name="cropLeft"
+									placeholder="Left (px)"
 									min="0" />
 								<input
 									type="number"
-									name="trimEnd"
-									id="trimEnd"
-									placeholder="End"
-									step="any"
+									name="cropTop"
+									placeholder="Top (px)"
 									min="0" />
 							</div>
+							<div class="form-row two" style="margin-top: 0.5rem">
+								<input
+									type="number"
+									name="cropWidth"
+									placeholder="Width (px)"
+									min="2"
+									step="2" />
+								<input
+									type="number"
+									name="cropHeight"
+									placeholder="Height (px)"
+									min="2"
+									step="2" />
+							</div>
 						</div>
+						<label style="cursor: pointer; display: flex; align-items: center">
+							<input
+								type="checkbox"
+								name="alpha"
+								checked
+								style="display: revert" />Keep transparency</label
+						>
 					</div>
 				</div>
 				<div class="card">
@@ -1098,6 +1104,24 @@
 							<option value="flac">FLAC</option>
 							<option value="mpegts">MPEG-TS</option>
 						</select>
+					</div>
+					<div class="form-group">
+						<h4>Trim <span style="color: #666">(seconds)</span></h4>
+						<div class="form-row two">
+							<input
+								type="number"
+								name="trimStart"
+								placeholder="Start"
+								step="any"
+								min="0" />
+							<input
+								type="number"
+								name="trimEnd"
+								id="trimEnd"
+								placeholder="End"
+								step="any"
+								min="0" />
+						</div>
 					</div>
 				</div>
 			</div>
