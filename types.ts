@@ -177,6 +177,7 @@ declare global {
 		transformOptions: HTMLDivElement;
 		trimEnd: HTMLInputElement;
 		trimStart: HTMLInputElement;
+		video: HTMLVideoElement;
 		videoOptions: HTMLDivElement;
 	}
 }

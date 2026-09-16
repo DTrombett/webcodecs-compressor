@@ -1,0 +1,8 @@
+#settings > div {
+	flex-direction: row;
+	gap: 1rem;
+	margin-bottom: 1rem;
+}
+#settings .card {
+	margin: 0;
+}

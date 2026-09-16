@@ -90,6 +90,7 @@ window.fileInput.addEventListener("change", async () => {
 
 	if (source instanceof Promise)
 		console.warn("Storing the whole file in memory");
+	window.video.src = file ? URL.createObjectURL(file) : "";
 	window.processing.style.display = "none";
 	window.downloadUrl.style.display = "none";
 	window.downloadUrl.href = "";
