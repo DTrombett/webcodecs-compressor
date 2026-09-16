@@ -86,11 +86,23 @@
 			</label>
 		</div>
 		<div class="card" id="metadata" style="display: none">
-			<h2 style="display: flex; align-items: center">
-				<span data-prop="fileName"></span>
-				<button class="remove" id="removeFile">&times;</button>
-			</h2>
-			<video id="video" playsinline></video>
+			<h2 data-prop="fileName"></h2>
+			<div class="videoContainer">
+				<video id="video" playsinline></video>
+				<div class="controls">
+					<div class="playPause">
+						<button>
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+								<path
+									fill="white"
+									fill-rule="evenodd"
+									d="M0 0H100V100H0Z M35 25H45V75H35Z M55 25H65V75H55Z" />
+							</svg>
+						</button>
+					</div>
+					<div class="progressBar"></div>
+				</div>
+			</div>
 			<!-- <details class="meta-section">
 				<summary>File info</summary>
 				<table class="meta-table">

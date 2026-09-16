@@ -136,6 +136,19 @@ export const getFormat = async (input) => {
 	return format;
 };
 
+// /**
+//  * Get the metadata from a media input.
+//  * @param {Input} input - The media input
+//  */
+// export const getMetadata = async (input) => {
+// 	const metadata = await input.getMetadataTags();
+// 	const artist = metadata.artist ?? metadata.albumArtist ?? metadata.album;
+
+// 	console.log(metadata);
+// 	if (artist) fill("artist", artist);
+// 	return metadata;
+// };
+
 /**
  * Get the frame rate of a video track.
  * @param {InputVideoTrack} track - The video track

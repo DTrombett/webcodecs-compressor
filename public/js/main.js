@@ -133,6 +133,7 @@ window.fileInput.addEventListener("change", async () => {
 	window.cropWidth.max = "";
 	state.input?.dispose();
 	state.input = null;
+	fill("artist", null);
 	fill("inputFormat", null);
 	fill("inputDuration", null);
 	fill("inputBitrate", null);
