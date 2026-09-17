@@ -452,15 +452,21 @@ video {
 	padding: 0 0.5rem;
 	position: relative;
 }
+.progressBar:active::before {
+	transition: none;
+}
 .progressBar::before {
+	-webkit-tap-highlight-color: transparent;
 	background-color: var(--color-primary);
 	border-radius: 100%;
 	content: "";
+	cursor: pointer;
 	height: 1rem;
 	left: calc(var(--progress, 0) * (100% - 9rem));
 	margin-left: 4.5rem;
 	outline: 1px solid
 		color-mix(in srgb, var(--color-on-primary) 90%, transparent);
+	pointer-events: none;
 	position: absolute;
 	top: 50%;
 	transition: left 0.25s linear;

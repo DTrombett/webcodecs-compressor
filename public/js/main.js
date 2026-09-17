@@ -513,16 +513,38 @@ window.video.addEventListener("pause", () => {
 	window.playPauseButton.title = "Play";
 });
 window.video.addEventListener("timeupdate", () => {
-	window.metadata.style.setProperty(
-		"--progress",
-		String(
-			(window.progressBar.value = window.video.currentTime) /
-				window.video.duration,
-		),
-	);
+	window.progressBar.value = window.video.currentTime;
+	if (!state.dragging)
+		window.metadata.style.setProperty(
+			"--progress",
+			String(window.video.currentTime / window.video.duration),
+		);
 	fill("currentTime", formatDuration(window.video.currentTime));
 });
 window.progressBar.addEventListener("click", (event) => {
 	window.video.currentTime =
 		(event.offsetX / window.progressBar.offsetWidth) * window.video.duration;
+});
+window.progressBar.addEventListener("pointerdown", (event) => {
+	window.progressBar.setPointerCapture(event.pointerId);
+	state.dragging = true;
+	window.metadata.style.setProperty(
+		"--progress",
+		String(
+			Math.min(Math.max(event.offsetX / window.progressBar.offsetWidth, 0), 1),
+		),
+	);
+});
+window.progressBar.addEventListener("pointermove", (event) => {
+	if (!window.progressBar.hasPointerCapture(event.pointerId)) return;
+	window.metadata.style.setProperty(
+		"--progress",
+		String(
+			Math.min(Math.max(event.offsetX / window.progressBar.offsetWidth, 0), 1),
+		),
+	);
+});
+window.progressBar.addEventListener("pointerup", (event) => {
+	state.dragging = false;
+	window.progressBar.releasePointerCapture(event.pointerId);
 });

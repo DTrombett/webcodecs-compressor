@@ -8,7 +8,7 @@ import {
 import { AUDIO_CODEC_DEFINITIONS, VIDEO_CODEC_DEFINITIONS } from "./video.js";
 
 /** @type {AppState} */
-export const state = { input: null, currentConversion: null };
+export const state = { input: null, currentConversion: null, dragging: false };
 
 /**
  * @license [Vanilagy/mediabunny](https://github.com/Vanilagy/mediabunny/blob/0f9dc1f91bcc24109ef1ed81bf5d790ba26e98cd/src/encode.ts#L920-L940)
