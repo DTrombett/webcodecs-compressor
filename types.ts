@@ -171,6 +171,7 @@ declare global {
 		playPauseButton: HTMLButtonElement;
 		processing: HTMLDivElement;
 		progress: HTMLProgressElement;
+		progressBar: HTMLProgressElement;
 		removeFile: HTMLButtonElement;
 		resolution: HTMLSelectElement;
 		sampleRate: HTMLInputElement;

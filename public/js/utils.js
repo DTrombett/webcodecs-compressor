@@ -117,6 +117,7 @@ export const getDuration = async (input, size) => {
 
 	window.trimEnd.max = duration.toString();
 	window.trimStart.max = duration.toString();
+	window.progressBar.max = duration;
 	fill("inputDuration", formatDuration(duration));
 	fill(
 		"inputBitrate",

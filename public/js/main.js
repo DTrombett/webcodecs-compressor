@@ -12,6 +12,7 @@ import {
 	checkVideoCodecs,
 	computeVideoBitrate,
 	fill,
+	formatDuration,
 	formatSize,
 	getAudio,
 	getAudioCodec,
@@ -120,6 +121,7 @@ window.fileInput.addEventListener("change", async () => {
 		} else alert("The selected video or audio is not supported!");
 	window.settings.style.display = "none";
 	window.metadata.style.display = "none";
+	window.metadata.style.setProperty("--progress", "0");
 	window.fileSelection.style.display = "";
 	window.fileInput.value = "";
 	window.frameRate.placeholder = "Original";
@@ -127,6 +129,7 @@ window.fileInput.addEventListener("change", async () => {
 	window.channels.placeholder = "Original";
 	window.trimEnd.max = "";
 	window.trimStart.max = "";
+	window.progressBar.max = 1;
 	window.cropHeight.max = "";
 	window.cropLeft.max = "";
 	window.cropTop.max = "";
@@ -134,6 +137,10 @@ window.fileInput.addEventListener("change", async () => {
 	state.input?.dispose();
 	state.input = null;
 	fill("artist", null);
+	fill(
+		"currentTime",
+		formatDuration((window.progressBar.value = window.video.currentTime = 0)),
+	);
 	fill("inputFormat", null);
 	fill("inputDuration", null);
 	fill("inputBitrate", null);
@@ -504,4 +511,18 @@ window.video.addEventListener("pause", () => {
 	window.play.style.display = "";
 	window.pause.style.display = "none";
 	window.playPauseButton.title = "Play";
+});
+window.video.addEventListener("timeupdate", () => {
+	window.metadata.style.setProperty(
+		"--progress",
+		String(
+			(window.progressBar.value = window.video.currentTime) /
+				window.video.duration,
+		),
+	);
+	fill("currentTime", formatDuration(window.video.currentTime));
+});
+window.progressBar.addEventListener("click", (event) => {
+	window.video.currentTime =
+		(event.offsetX / window.progressBar.offsetWidth) * window.video.duration;
 });
