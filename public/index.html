@@ -90,90 +90,105 @@
 			<div class="videoContainer">
 				<video id="video" playsinline></video>
 				<div class="controls">
-					<div class="playPause">
-						<button>
-							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+					<div class="playPause" id="playPause">
+						<button title="Play" id="playPauseButton">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								viewBox="0 0 100 100"
+								id="play">
 								<path
-									fill="white"
+									fill="currentColor"
 									fill-rule="evenodd"
-									d="M0 0H100V100H0Z M35 25H45V75H35Z M55 25H65V75H55Z" />
+									d="M0 0H100V100H0Z M37 29L72 50L37 71Z" />
+							</svg>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								viewBox="0 0 100 100"
+								id="pause"
+								style="display: none">
+								<path
+									fill="currentColor"
+									fill-rule="evenodd"
+									d="M0 0H100V100H0Z M35 30H44V70H35Z M56 30H65V70H56Z" />
 							</svg>
 						</button>
 					</div>
 					<div class="progressBar"></div>
 				</div>
 			</div>
-			<!-- <details class="meta-section">
-				<summary>File info</summary>
-				<table class="meta-table">
-					<tr>
-						<th>File</th>
-						<td data-prop="fileName"></td>
-					</tr>
-					<tr>
-						<th>Size</th>
-						<td data-prop="fileSize"></td>
-					</tr>
-					<tr>
-						<th>Format</th>
-						<td data-prop="inputFormat"></td>
-					</tr>
-					<tr>
-						<th>Duration</th>
-						<td data-prop="inputDuration"></td>
-					</tr>
-					<tr>
-						<th>Avg. bitrate</th>
-						<td data-prop="inputBitrate"></td>
-					</tr>
-				</table>
-			</details>
-			<details class="meta-section" id="metadataVideo">
-				<summary>Video</summary>
-				<table class="meta-table">
-					<tr>
-						<th>Codec</th>
-						<td data-prop="inputVideoCodec"></td>
-					</tr>
-					<tr>
-						<th>Display size</th>
-						<td data-prop="inputDisplaySize"></td>
-					</tr>
-					<tr>
-						<th>Frame rate</th>
-						<td data-prop="inputVideoFps"></td>
-					</tr>
-					<tr>
-						<th>Bitrate</th>
-						<td data-prop="inputVideoBitrate"></td>
-					</tr>
-					<tr>
-						<th>Color space</th>
-						<td data-prop="inputVideoColorSpace"></td>
-					</tr>
-				</table>
-			</details>
-			<details class="meta-section" id="metadataAudio">
-				<summary>Audio</summary>
-				<table class="meta-table">
-					<tr>
-						<th>Codec</th>
-						<td data-prop="inputAudioCodec"></td>
-					</tr>
-					<tr>
-						<th>Channels</th>
-						<td data-prop="inputAudioChannels"></td>
-					</tr>
-					<tr>
-						<th>Sample rate</th>
-						<td data-prop="inputAudioSampleRate"></td>
-					</tr>
-					<tr>
-						<th>Bitrate</th>
-						<td data-prop="inputAudioBitrate"></td>
-					</tr>
-				</table>
-			</details> -->
+			<div style="display: none">
+				<details class="meta-section">
+					<summary>File info</summary>
+					<table class="meta-table">
+						<tr>
+							<th>File</th>
+							<td data-prop="fileName"></td>
+						</tr>
+						<tr>
+							<th>Size</th>
+							<td data-prop="fileSize"></td>
+						</tr>
+						<tr>
+							<th>Format</th>
+							<td data-prop="inputFormat"></td>
+						</tr>
+						<tr>
+							<th>Duration</th>
+							<td data-prop="inputDuration"></td>
+						</tr>
+						<tr>
+							<th>Avg. bitrate</th>
+							<td data-prop="inputBitrate"></td>
+						</tr>
+					</table>
+				</details>
+				<details class="meta-section" id="metadataVideo">
+					<summary>Video</summary>
+					<table class="meta-table">
+						<tr>
+							<th>Codec</th>
+							<td data-prop="inputVideoCodec"></td>
+						</tr>
+						<tr>
+							<th>Display size</th>
+							<td data-prop="inputDisplaySize"></td>
+						</tr>
+						<tr>
+							<th>Frame rate</th>
+							<td data-prop="inputVideoFps"></td>
+						</tr>
+						<tr>
+							<th>Bitrate</th>
+							<td data-prop="inputVideoBitrate"></td>
+						</tr>
+						<tr>
+							<th>Color space</th>
+							<td data-prop="inputVideoColorSpace"></td>
+						</tr>
+					</table>
+				</details>
+				<details class="meta-section" id="metadataAudio">
+					<summary>Audio</summary>
+					<table class="meta-table">
+						<tr>
+							<th>Codec</th>
+							<td data-prop="inputAudioCodec"></td>
+						</tr>
+						<tr>
+							<th>Channels</th>
+							<td data-prop="inputAudioChannels"></td>
+						</tr>
+						<tr>
+							<th>Sample rate</th>
+							<td data-prop="inputAudioSampleRate"></td>
+						</tr>
+						<tr>
+							<th>Bitrate</th>
+							<td data-prop="inputAudioBitrate"></td>
+						</tr>
+					</table>
+				</details>
+			</div>
 		</div>
 		<form id="settings" style="display: none">
 			<div>

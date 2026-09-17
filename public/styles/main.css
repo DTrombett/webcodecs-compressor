@@ -1,5 +1,5 @@
 * {
-	transition: all 0.2s;
+	transition: all 0.2s ease-out;
 }
 
 :root {
@@ -401,6 +401,7 @@ video {
 	width: 100%;
 	max-height: min(calc(100vw - 5rem - 16px), var(--default-width));
 	position: relative;
+	display: flex;
 }
 .videoContainer > video {
 	width: 100%;
@@ -416,31 +417,47 @@ video {
 	height: 100%;
 	background-color: color-mix(
 		in srgb,
-		var(--color-on-surface-variant) 16%,
+		var(--color-surface-variant) 84%,
 		transparent
 	);
 	border-radius: inherit;
 	opacity: 0;
 }
-.controls:hover {
+.controls:hover,
+.controls:focus-within {
 	opacity: 1;
 }
 .playPause {
 	height: 75%;
 	position: relative;
+	cursor: pointer;
+}
+.playPause * {
+	cursor: pointer;
 }
 .playPause > button {
 	width: 3rem;
 	height: 3rem;
 	position: absolute;
-	cursor: pointer;
 	background-color: transparent;
 	padding-block: 0;
 	padding-inline: 0;
 	border: none;
 	inset: 50% auto auto 50%;
-	transform: translate(-50%, -50%);
+	translate: -50% -50%;
 	border-radius: 100%;
+	color: var(--color-primary);
+	transition-duration: 0.1s;
+}
+.playPause > button:hover {
+	scale: 108%;
+}
+.playPause > button:active {
+	scale: 90%;
+}
+.playPause > button:focus-visible {
+	outline: 1px solid
+		color-mix(in srgb, var(--color-on-primary) 90%, transparent);
 }
 .playPause > button svg {
 	border-radius: inherit;

@@ -150,13 +150,13 @@ window.fileInput.addEventListener("change", async () => {
 	for (const element of window.resolution.children)
 		if (element instanceof HTMLOptionElement) element.disabled = false;
 });
-window.removeFile.addEventListener("click", (ev) => {
-	ev.preventDefault();
-	window.fileInput.value = "";
-	window.fileInput.dispatchEvent(
-		new Event("change", { bubbles: true, cancelable: false, composed: false }),
-	);
-});
+// window.removeFile.addEventListener("click", (ev) => {
+// 	ev.preventDefault();
+// 	window.fileInput.value = "";
+// 	window.fileInput.dispatchEvent(
+// 		new Event("change", { bubbles: true, cancelable: false, composed: false }),
+// 	);
+// });
 document.body.querySelectorAll("select:has(~ .hiddenInput)").forEach((el) =>
 	el.addEventListener("change", () => {
 		for (const element of el.parentElement?.querySelectorAll(
@@ -489,4 +489,19 @@ window.settings.addEventListener("submit", async (ev) => {
 		if (listener)
 			window.cancelProcessing.removeEventListener("click", listener);
 	}
+});
+window.playPause.addEventListener("click", () => {
+	if (window.video.ended) window.video.currentTime = 0;
+	if (window.video.paused) window.video.play();
+	else window.video.pause();
+});
+window.video.addEventListener("play", () => {
+	window.play.style.display = "none";
+	window.pause.style.display = "";
+	window.playPauseButton.title = "Pause";
+});
+window.video.addEventListener("pause", () => {
+	window.play.style.display = "";
+	window.pause.style.display = "none";
+	window.playPauseButton.title = "Play";
 });

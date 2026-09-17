@@ -165,6 +165,10 @@ declare global {
 		metadata: HTMLDivElement;
 		metadataAudio: HTMLDetailsElement;
 		metadataVideo: HTMLDetailsElement;
+		pause: SVGSVGElement;
+		play: SVGSVGElement;
+		playPause: HTMLDivElement;
+		playPauseButton: HTMLButtonElement;
 		processing: HTMLDivElement;
 		progress: HTMLProgressElement;
 		removeFile: HTMLButtonElement;
