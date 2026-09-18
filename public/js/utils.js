@@ -137,18 +137,22 @@ export const getFormat = async (input) => {
 	return format;
 };
 
-// /**
-//  * Get the metadata from a media input.
-//  * @param {Input} input - The media input
-//  */
-// export const getMetadata = async (input) => {
-// 	const metadata = await input.getMetadataTags();
-// 	const artist = metadata.artist ?? metadata.albumArtist ?? metadata.album;
+/**
+ * Get the metadata from a media input.
+ * @param {Input} input - The media input
+ */
+export const getMetadata = async (input) => {
+	const metadata = await input.getMetadataTags();
+	const image = metadata.images?.[0];
 
-// 	console.log(metadata);
-// 	if (artist) fill("artist", artist);
-// 	return metadata;
-// };
+	if (image)
+		window.thumbnail.src = URL.createObjectURL(
+			new Blob([/**@type {Uint8Array<ArrayBuffer>} */ (image.data)], {
+				type: image.mimeType,
+			}),
+		);
+	return metadata;
+};
 
 /**
  * Get the frame rate of a video track.
@@ -292,9 +296,7 @@ export const settleAndLog = (values) =>
 export const getVideo = async (input) => {
 	const track = await input.getPrimaryVideoTrack();
 
-	if (track) {
-		if (!(await track.canDecode()))
-			throw new Error("Video track cannot be decoded", { cause: track });
+	if (track && (await track.canDecode())) {
 		window.metadataVideo.style.display = "";
 		await settleAndLog([
 			getFps(track),
@@ -304,6 +306,10 @@ export const getVideo = async (input) => {
 			getVideoBitrate(track),
 		]);
 	} else {
+		if (window.thumbnail.src) {
+			window.thumbnail.style.display = "";
+			window.video.style.display = "none";
+		}
 		window.metadataVideo.style.display = "none";
 		window.frameRate.placeholder = "Original";
 		fill("inputVideoCodec", null);
@@ -325,9 +331,7 @@ export const getVideo = async (input) => {
 export const getAudio = async (input) => {
 	const track = await input.getPrimaryAudioTrack();
 
-	if (track) {
-		if (!(await track.canDecode()))
-			throw new Error("Audio track cannot be decoded", { cause: track });
+	if (track && (await track.canDecode())) {
 		window.metadataAudio.style.display = "";
 		await settleAndLog([
 			getAudioBitrate(track),

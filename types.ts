@@ -183,6 +183,7 @@ declare global {
 		settingsAudioCodec: HTMLSelectElement;
 		settingsVideoCodec: HTMLSelectElement;
 		statusMessage: HTMLParagraphElement;
+		thumbnail: HTMLImageElement;
 		transformOptions: HTMLDivElement;
 		trimEnd: HTMLInputElement;
 		trimStart: HTMLInputElement;

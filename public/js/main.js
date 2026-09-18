@@ -20,6 +20,7 @@ import {
 	getDuration,
 	getFormat,
 	getFps,
+	getMetadata,
 	getQualityMultiplier,
 	getResolution,
 	getVideo,
@@ -109,16 +110,19 @@ window.fileInput.addEventListener("change", async () => {
 			}));
 
 			await settleAndLog([
+				getMetadata(input),
 				getDuration(input, file.size),
-				getFormat(input),
-				getVideo(input),
 				getAudio(input),
+				getVideo(input),
+				getFormat(input),
 			]);
 			window.fileSelection.style.display = "none";
 			window.metadata.style.display = "";
 			window.settings.style.display = "";
 			return;
 		} else alert("The selected video or audio is not supported!");
+	window.thumbnail.style.display = "none";
+	window.video.style.display = "";
 	window.settings.style.display = "none";
 	window.metadata.style.display = "none";
 	window.metadata.style.setProperty("--progress", "0");

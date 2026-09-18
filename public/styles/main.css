@@ -381,7 +381,9 @@ video {
 	user-select: none;
 	width: 100%;
 }
-.videoContainer > video {
+.videoContainer > video,
+.videoContainer > img {
+	border-radius: inherit;
 	max-height: inherit;
 	width: 100%;
 }
@@ -408,7 +410,7 @@ video {
 .playPause {
 	-webkit-tap-highlight-color: transparent;
 	cursor: pointer;
-	height: 75%;
+	flex: 1;
 	position: relative;
 }
 .playPause * {
@@ -450,6 +452,7 @@ video {
 	box-sizing: border-box;
 	display: flex;
 	height: 25%;
+	max-height: 2.75rem;
 	padding: 0 1rem;
 	position: relative;
 }
