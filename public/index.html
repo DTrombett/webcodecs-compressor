@@ -122,34 +122,33 @@
 					</label>
 				</div>
 			</div>
-			<div style="display: none">
-				<details class="meta-section">
-					<summary>File info</summary>
-					<table class="meta-table">
-						<tr>
-							<th>File</th>
-							<td data-prop="fileName"></td>
-						</tr>
-						<tr>
-							<th>Size</th>
-							<td data-prop="fileSize"></td>
-						</tr>
-						<tr>
-							<th>Format</th>
-							<td data-prop="inputFormat"></td>
-						</tr>
-						<tr>
-							<th>Duration</th>
-							<td data-prop="inputDuration"></td>
-						</tr>
-						<tr>
-							<th>Avg. bitrate</th>
-							<td data-prop="inputBitrate"></td>
-						</tr>
-					</table>
-				</details>
-				<details class="meta-section" id="metadataVideo">
-					<summary>Video</summary>
+			<details>
+				<summary><button class="button medium text">Details</button></summary>
+				<h3>File info</h3>
+				<table class="meta-table">
+					<tr>
+						<th>File</th>
+						<td data-prop="fileName"></td>
+					</tr>
+					<tr>
+						<th>Size</th>
+						<td data-prop="fileSize"></td>
+					</tr>
+					<tr>
+						<th>Format</th>
+						<td data-prop="inputFormat"></td>
+					</tr>
+					<tr>
+						<th>Duration</th>
+						<td data-prop="inputDuration"></td>
+					</tr>
+					<tr>
+						<th>Avg. bitrate</th>
+						<td data-prop="inputBitrate"></td>
+					</tr>
+				</table>
+				<section id="metadataVideo">
+					<h3>Video</h3>
 					<table class="meta-table">
 						<tr>
 							<th>Codec</th>
@@ -172,9 +171,9 @@
 							<td data-prop="inputVideoColorSpace"></td>
 						</tr>
 					</table>
-				</details>
-				<details class="meta-section" id="metadataAudio">
-					<summary>Audio</summary>
+				</section>
+				<section id="metadataAudio">
+					<h3>Audio</h3>
 					<table class="meta-table">
 						<tr>
 							<th>Codec</th>
@@ -193,8 +192,8 @@
 							<td data-prop="inputAudioBitrate"></td>
 						</tr>
 					</table>
-				</details>
-			</div>
+				</section>
+			</details>
 		</div>
 		<form id="settings" style="display: none">
 			<div>
