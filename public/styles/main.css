@@ -144,6 +144,7 @@ video {
 	max-height: calc(min(calc(100vw - 5rem - 16px), var(--default-width)) + 2rem);
 }
 .drop-zone {
+	-webkit-tap-highlight-color: transparent;
 	align-items: center;
 	aspect-ratio: 2 / 1;
 	background-color: var(--color-surface);
@@ -449,7 +450,7 @@ video {
 	box-sizing: border-box;
 	display: flex;
 	height: 25%;
-	padding: 0 0.5rem;
+	padding: 0 1rem;
 	position: relative;
 }
 .progressBar:active::before {
@@ -462,8 +463,8 @@ video {
 	content: "";
 	cursor: pointer;
 	height: 1rem;
-	left: calc(var(--progress, 0) * (100% - 9rem));
-	margin-left: 4.5rem;
+	left: calc(var(--progress, 0) * (100% - 8rem));
+	margin-left: 4rem;
 	outline: 1px solid
 		color-mix(in srgb, var(--color-on-primary) 90%, transparent);
 	pointer-events: none;
@@ -478,9 +479,8 @@ video {
 	box-sizing: border-box;
 	font-size: 0.75rem;
 	line-height: 1rem;
-	padding-inline: 1rem;
 	text-align: center;
-	width: 4rem;
+	width: 2rem;
 }
 .progressBar > progress {
 	-webkit-tap-highlight-color: transparent;
@@ -489,6 +489,7 @@ video {
 	cursor: pointer;
 	flex: 1;
 	height: auto;
+	margin: 0 1rem;
 	overflow: hidden;
 	position: relative;
 }

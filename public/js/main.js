@@ -524,6 +524,11 @@ window.video.addEventListener("timeupdate", () => {
 window.progressBar.addEventListener("click", (event) => {
 	window.video.currentTime =
 		(event.offsetX / window.progressBar.offsetWidth) * window.video.duration;
+	window.progressBar.value = window.video.currentTime;
+	window.metadata.style.setProperty(
+		"--progress",
+		String(window.video.currentTime / window.video.duration),
+	);
 });
 window.progressBar.addEventListener("pointerdown", (event) => {
 	window.progressBar.setPointerCapture(event.pointerId);
@@ -544,7 +549,15 @@ window.progressBar.addEventListener("pointermove", (event) => {
 		),
 	);
 });
-window.progressBar.addEventListener("pointerup", (event) => {
+/** @param {HTMLElementEventMap["pointerup" | "pointercancel" | "pointerleave"]} ev */
+const listener = (ev) => {
 	state.dragging = false;
-	window.progressBar.releasePointerCapture(event.pointerId);
-});
+	window.progressBar.releasePointerCapture(ev.pointerId);
+	window.metadata.style.setProperty(
+		"--progress",
+		String(window.video.currentTime / window.video.duration),
+	);
+};
+window.progressBar.addEventListener("pointerup", listener);
+window.progressBar.addEventListener("pointercancel", listener);
+window.progressBar.addEventListener("pointerleave", listener);
