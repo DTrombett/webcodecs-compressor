@@ -479,7 +479,6 @@ video {
 	z-index: 10;
 }
 .progressBar > span {
-	box-sizing: border-box;
 	font-size: 0.75rem;
 	line-height: 1rem;
 	text-align: center;
@@ -542,6 +541,26 @@ video {
 	background: linear-gradient(90deg, #81c784, #4caf50);
 	border-radius: 4px;
 	transition: width 0.3s;
+}
+#timeTooltip {
+	background-color: var(--color-inverse-surface);
+	border-radius: 4px;
+	box-sizing: content-box;
+	color: var(--color-inverse-on-surface);
+	left: calc(var(--tooltip-progress, var(--progress, 0)) * (100% - 8rem));
+	margin-left: 4rem;
+	margin-top: -1.5rem;
+	opacity: 0;
+	padding: 0.25rem;
+	pointer-events: none;
+	position: absolute;
+	top: 50%;
+	transition: opacity 0.2s ease-out;
+	translate: -50% -50%;
+	z-index: 10;
+}
+#progressBar:hover + #timeTooltip {
+	opacity: 1;
 }
 
 @container (min-width: 24rem) {

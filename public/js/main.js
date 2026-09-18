@@ -93,6 +93,7 @@ window.fileInput.addEventListener("change", async () => {
 	if (source instanceof Promise)
 		console.warn("Storing the whole file in memory");
 	window.video.src = file ? URL.createObjectURL(file) : "";
+	window.timeTooltip.textContent = "00:00";
 	window.processing.style.display = "none";
 	window.downloadUrl.style.display = "none";
 	window.downloadUrl.href = "";
@@ -523,7 +524,10 @@ window.video.addEventListener("timeupdate", () => {
 			"--progress",
 			String(window.video.currentTime / window.video.duration),
 		);
-	fill("currentTime", formatDuration(window.video.currentTime));
+	const textContent = formatDuration(window.video.currentTime);
+
+	if (!state.hovering) window.timeTooltip.textContent = textContent;
+	fill("currentTime", textContent);
 });
 window.progressBar.addEventListener("click", (event) => {
 	window.video.currentTime =
@@ -545,22 +549,30 @@ window.progressBar.addEventListener("pointerdown", (event) => {
 	);
 });
 window.progressBar.addEventListener("pointermove", (event) => {
-	if (!window.progressBar.hasPointerCapture(event.pointerId)) return;
-	window.metadata.style.setProperty(
-		"--progress",
-		String(
-			Math.min(Math.max(event.offsetX / window.progressBar.offsetWidth, 0), 1),
-		),
+	const progress = Math.min(
+		Math.max(event.offsetX / window.progressBar.offsetWidth, 0),
+		1,
 	);
+
+	state.hovering = true;
+	window.timeTooltip.textContent = formatDuration(
+		progress * window.video.duration,
+	);
+	window.metadata.style.setProperty("--tooltip-progress", String(progress));
+	if (!window.progressBar.hasPointerCapture(event.pointerId)) return;
+	window.metadata.style.setProperty("--progress", String(progress));
 });
 /** @param {HTMLElementEventMap["pointerup" | "pointercancel" | "pointerleave"]} ev */
 const listener = (ev) => {
 	state.dragging = false;
+	state.hovering = false;
 	window.progressBar.releasePointerCapture(ev.pointerId);
+	window.timeTooltip.textContent = formatDuration(window.video.currentTime);
 	window.metadata.style.setProperty(
 		"--progress",
 		String(window.video.currentTime / window.video.duration),
 	);
+	window.metadata.style.removeProperty("--tooltip-progress");
 };
 window.progressBar.addEventListener("pointerup", listener);
 window.progressBar.addEventListener("pointercancel", listener);

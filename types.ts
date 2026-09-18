@@ -151,6 +151,7 @@ declare global {
 		input: Input | null;
 		currentConversion: Conversion | null;
 		dragging: boolean;
+		hovering: boolean;
 	};
 
 	interface Window {
@@ -184,6 +185,7 @@ declare global {
 		settingsVideoCodec: HTMLSelectElement;
 		statusMessage: HTMLParagraphElement;
 		thumbnail: HTMLImageElement;
+		timeTooltip: HTMLSpanElement;
 		transformOptions: HTMLDivElement;
 		trimEnd: HTMLInputElement;
 		trimStart: HTMLInputElement;
