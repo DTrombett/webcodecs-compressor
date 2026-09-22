@@ -205,21 +205,26 @@
 			<div>
 				<div class="card">
 					<h2>Video options</h2>
-					<div class="slider">
-						<label
-							><input
-								type="radio"
-								name="mapVideo"
-								value="recode"
-								checked />Recode</label
-						><label
-							><input type="radio" name="mapVideo" value="copy" />Copy</label
-						><label
-							><input
-								type="radio"
-								name="mapVideo"
-								value="discard" />Discard</label
-						>
+					<div class="segmentedButton">
+						<input
+							type="radio"
+							name="mapVideo"
+							value="recode"
+							id="mapVideoRecode"
+							checked />
+						<label for="mapVideoRecode">Recode</label>
+						<input
+							type="radio"
+							name="mapVideo"
+							value="copy"
+							id="mapVideoCopy" />
+						<label for="mapVideoCopy">Copy</label>
+						<input
+							type="radio"
+							name="mapVideo"
+							value="discard"
+							id="mapVideoDiscard" />
+						<label for="mapVideoDiscard">Discard</label>
 					</div>
 					<fieldset id="videoOptions">
 						<div class="form-group">
@@ -295,21 +300,26 @@
 				</div>
 				<div class="card">
 					<h2>Audio options</h2>
-					<div class="slider">
-						<label
-							><input
-								type="radio"
-								name="mapAudio"
-								value="recode"
-								checked />Recode</label
-						><label
-							><input type="radio" name="mapAudio" value="copy" />Copy</label
-						><label
-							><input
-								type="radio"
-								name="mapAudio"
-								value="discard" />Discard</label
-						>
+					<div class="segmentedButton">
+						<input
+							type="radio"
+							name="mapAudio"
+							value="recode"
+							id="mapAudioRecode"
+							checked />
+						<label for="mapAudioRecode">Recode</label>
+						<input
+							type="radio"
+							name="mapAudio"
+							value="copy"
+							id="mapAudioCopy" />
+						<label for="mapAudioCopy">Copy</label>
+						<input
+							type="radio"
+							name="mapAudio"
+							value="discard"
+							id="mapAudioDiscard" />
+						<label for="mapAudioDiscard">Discard</label>
 					</div>
 					<fieldset id="audioOptions">
 						<div class="form-group">
