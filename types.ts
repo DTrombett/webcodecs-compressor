@@ -162,15 +162,15 @@ declare global {
 		cropLeft: HTMLInputElement;
 		cropTop: HTMLInputElement;
 		cropWidth: HTMLInputElement;
-		details: HTMLButtonElement;
+		details: HTMLDetailsElement;
 		downloadUrl: HTMLAnchorElement;
 		dropZone: HTMLDivElement;
 		fileInput: HTMLInputElement;
 		fileSelection: HTMLDivElement;
 		frameRate: HTMLInputElement;
 		metadata: HTMLDivElement;
-		metadataAudio: HTMLDetailsElement;
-		metadataVideo: HTMLDetailsElement;
+		metadataAudio: HTMLElement;
+		metadataVideo: HTMLElement;
 		pause: SVGSVGElement;
 		play: SVGSVGElement;
 		playPause: HTMLDivElement;
@@ -187,6 +187,7 @@ declare global {
 		statusMessage: HTMLParagraphElement;
 		thumbnail: HTMLImageElement;
 		timeTooltip: HTMLSpanElement;
+		toggleDetails: HTMLButtonElement;
 		transformOptions: HTMLDivElement;
 		trimEnd: HTMLInputElement;
 		trimStart: HTMLInputElement;

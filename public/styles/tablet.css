@@ -6,3 +6,41 @@
 #settings .card {
 	margin: 0;
 }
+.card > #details {
+	background: inherit;
+	border-bottom-left-radius: 12px;
+	border-bottom-right-radius: 12px;
+	bottom: 0;
+	box-sizing: border-box;
+	display: block;
+	height: 0;
+	left: 0;
+	max-height: fit-content;
+	overflow: auto;
+	padding: inherit;
+	padding-bottom: 0;
+	padding-top: 0;
+	position: absolute;
+	scroll-padding-top: 0;
+	transition: height 0.5s ease-out;
+	translate: 0 100%;
+	width: 100%;
+	z-index: 10;
+}
+.card > #details.open {
+	height: calc(var(--default-width) / 2);
+	padding-bottom: inherit;
+}
+.card:has(> #details.open) {
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	transition:
+		all 0.2s ease-out,
+		border-radius 0s;
+}
+.card > .actions {
+	padding-bottom: 1rem;
+}
+.card > #details > div > :first-child {
+	margin-block-start: 0;
+}
