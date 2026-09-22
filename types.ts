@@ -155,7 +155,7 @@ declare global {
 	};
 
 	interface Window {
-		audioOptions: HTMLDivElement;
+		audioOptions: HTMLFieldSetElement;
 		cancelProcessing: HTMLButtonElement;
 		channels: HTMLInputElement;
 		cropHeight: HTMLInputElement;
@@ -188,10 +188,10 @@ declare global {
 		thumbnail: HTMLImageElement;
 		timeTooltip: HTMLSpanElement;
 		toggleDetails: HTMLButtonElement;
-		transformOptions: HTMLDivElement;
+		transformOptions: HTMLFieldSetElement;
 		trimEnd: HTMLInputElement;
 		trimStart: HTMLInputElement;
 		video: HTMLVideoElement;
-		videoOptions: HTMLDivElement;
+		videoOptions: HTMLFieldSetElement;
 	}
 }

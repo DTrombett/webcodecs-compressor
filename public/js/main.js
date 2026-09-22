@@ -189,9 +189,7 @@ document.body
 			(el.name === "mapAudio" ?
 				[window.audioOptions]
 			:	[window.videoOptions, window.transformOptions]
-			).forEach((options) =>
-				options.classList[el.value === "recode" ? "remove" : "add"]("disabled"),
-			);
+			).forEach((options) => (options.disabled = el.value !== "recode"));
 		}),
 	);
 window.settings.addEventListener("submit", async (ev) => {
