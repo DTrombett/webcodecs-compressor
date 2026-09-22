@@ -1,4 +1,5 @@
 * {
+	box-sizing: border-box;
 	transition: all 0.2s ease-out;
 }
 
@@ -60,7 +61,7 @@ body {
 	background: var(--color-background);
 	color: var(--color-on-background);
 	min-height: 100vh;
-	padding: 0 1rem 0.75rem;
+	padding: 0 0.5rem 0.75rem;
 	line-height: 1.5;
 	display: flex;
 	flex-direction: column;
@@ -84,6 +85,7 @@ h1 {
 header {
 	max-width: var(--default-width);
 	margin: 0 auto 1.75rem;
+	padding: 0 0.5rem;
 }
 input[type="checkbox"] {
 	width: 1.25rem;
@@ -225,7 +227,6 @@ video {
 .card {
 	background-color: var(--color-surface-container-low);
 	border-radius: 12px;
-	color: var(--color-on-surface);
 	container-type: inline-size;
 	display: flex;
 	flex-direction: column;
@@ -238,7 +239,24 @@ video {
 	transition:
 		all 0.2s ease-out,
 		border-radius 0s 0.5s ease-out;
-	width: calc(100% - 3rem);
+	width: 100%;
+}
+.card.disabled {
+	background-color: var(--color-surface);
+	opacity: 0.38;
+}
+.card.filled {
+	background-color: var(--color-surface-container-highest);
+}
+.card.filled.disabled {
+	background-color: var(--color-on-surface);
+}
+.card.outlined {
+	background-color: var(--color-surface);
+	border: 1px solid var(--color-outline-variant);
+}
+.card.outlined.disabled {
+	border-color: color-mix(in srgb, var(--color-outline) 12%, transparent);
 }
 .card > #details {
 	display: grid;
@@ -271,7 +289,7 @@ video {
 	border-radius: 12px;
 	width: calc(100% + 2rem);
 	margin: -1rem -1rem 0;
-	max-height: calc(min(calc(100vw - 5rem - 16px), var(--default-width)) + 2rem);
+	max-height: min(calc(100vw - 3rem - 18px), var(--default-width));
 }
 .card > .actions {
 	align-items: center;
@@ -503,7 +521,7 @@ video {
 .videoContainer {
 	border-radius: 16px;
 	display: flex;
-	max-height: min(calc(100vw - 5rem - 16px), var(--default-width));
+	max-height: min(calc(100vw - 3rem - 18px), var(--default-width));
 	position: relative;
 	user-select: none;
 	width: 100%;

@@ -10,11 +10,13 @@
 	background: inherit;
 	border-bottom-left-radius: 12px;
 	border-bottom-right-radius: 12px;
-	bottom: 0;
-	box-sizing: border-box;
+	border-color: inherit;
+	border-style: solid;
+	border-width: 0;
+	bottom: 1px;
 	display: block;
 	height: 0;
-	left: 0;
+	left: -1px;
 	max-height: fit-content;
 	overflow: auto;
 	padding: inherit;
@@ -22,14 +24,20 @@
 	padding-top: 0;
 	position: absolute;
 	scroll-padding-top: 0;
-	transition: height 0.5s ease-out;
+	transition:
+		height 0.5s ease-out,
+		border-width 0s 0.5s;
 	translate: 0 100%;
-	width: 100%;
+	width: calc(100% + 2px);
 	z-index: 10;
 }
 .card > #details.open {
+	border-width: 0 1px 1px;
 	height: calc(var(--default-width) / 2);
 	padding-bottom: inherit;
+	transition:
+		height 0.5s ease-out,
+		border-width 0s;
 }
 .card:has(> #details.open) {
 	border-bottom-left-radius: 0;
@@ -39,7 +47,7 @@
 		border-radius 0s;
 }
 .card > .actions {
-	padding-bottom: 1rem;
+	padding-bottom: 1.25rem;
 }
 .card > #details > div > :first-child {
 	margin-block-start: 0;
