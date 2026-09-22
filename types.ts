@@ -162,6 +162,7 @@ declare global {
 		cropLeft: HTMLInputElement;
 		cropTop: HTMLInputElement;
 		cropWidth: HTMLInputElement;
+		details: HTMLButtonElement;
 		downloadUrl: HTMLAnchorElement;
 		dropZone: HTMLDivElement;
 		fileInput: HTMLInputElement;
@@ -177,7 +178,7 @@ declare global {
 		processing: HTMLDivElement;
 		progress: HTMLProgressElement;
 		progressBar: HTMLProgressElement;
-		removeFile: HTMLButtonElement;
+		remove: HTMLButtonElement;
 		resolution: HTMLSelectElement;
 		sampleRate: HTMLInputElement;
 		settings: HTMLFormElement;

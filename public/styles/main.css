@@ -68,8 +68,10 @@ body {
 	margin: 0 8px 8px;
 }
 details {
-	border-top: 1px solid var(--color-outline-variant);
-	padding-top: 1rem;
+	margin-top: -1.5rem;
+}
+.card details h3 {
+	margin-block-start: 0.75rem;
 }
 fieldset:disabled,
 input:disabled,
@@ -119,6 +121,7 @@ video {
 }
 
 .button {
+	-webkit-tap-highlight-color: transparent;
 	background-color: var(--color-primary);
 	border-radius: calc(infinity * 1px);
 	border: none;
@@ -130,23 +133,35 @@ video {
 	letter-spacing: 0.1px;
 	line-height: 1.25rem;
 	outline-width: 1px;
+	overflow: clip;
 	padding: 0.5rem 1rem;
 	transition:
 		all 0.2s ease-out,
 		border-radius 0s;
 	user-select: none;
+	white-space: nowrap;
+}
+.button.responsive {
+	width: 100%;
+}
+.button.medium {
+	font-size: 1rem;
+	letter-spacing: 0.15px;
+	line-height: 1.5;
+}
+.button.text {
+	background-color: transparent;
+	color: var(--color-primary);
+}
+.button.tonal {
+	background-color: var(--color-secondary-container);
+	color: var(--color-on-secondary-container);
+}
+.button.danger {
+	color: var(--color-error);
 }
 .button:active {
 	border-radius: 8px;
-}
-.button:disabled {
-	background-color: color-mix(
-		in srgb,
-		var(--color-on-surface) 10%,
-		transparent
-	);
-	color: color-mix(in srgb, var(--color-on-surface) 38%, transparent);
-	cursor: not-allowed;
 }
 .button:hover {
 	background-color: color-mix(in srgb, currentColor 8%, var(--color-primary));
@@ -161,15 +176,6 @@ video {
 .button:focus-visible:active {
 	background-color: color-mix(in srgb, currentColor 28%, var(--color-primary));
 }
-.button.medium {
-	font-size: 1rem;
-	letter-spacing: 0.15px;
-	line-height: 1.5;
-}
-.button.text {
-	background-color: transparent;
-	color: var(--color-primary);
-}
 .button.text:hover {
 	background-color: color-mix(in srgb, currentColor 8%, transparent);
 }
@@ -182,6 +188,44 @@ video {
 }
 .button.text:focus-visible:active {
 	background-color: color-mix(in srgb, currentColor 28%, transparent);
+}
+.button.tonal:hover {
+	background-color: color-mix(
+		in srgb,
+		currentColor 8%,
+		var(--color-secondary-container)
+	);
+}
+.button.tonal:focus-visible {
+	background-color: color-mix(
+		in srgb,
+		currentColor 10%,
+		var(--color-secondary-container)
+	);
+}
+.button.tonal:hover:focus-visible,
+.button.tonal:active {
+	background-color: color-mix(
+		in srgb,
+		currentColor 18%,
+		var(--color-secondary-container)
+	);
+}
+.button.tonal:focus-visible:active {
+	background-color: color-mix(
+		in srgb,
+		currentColor 28%,
+		var(--color-secondary-container)
+	);
+}
+.button:disabled {
+	background-color: color-mix(
+		in srgb,
+		var(--color-on-surface) 10%,
+		transparent
+	);
+	color: color-mix(in srgb, var(--color-on-surface) 38%, transparent);
+	cursor: not-allowed;
 }
 
 .card {
@@ -215,6 +259,14 @@ video {
 	width: calc(100% + 2rem);
 	margin: -1rem -1rem 0;
 	max-height: calc(min(calc(100vw - 5rem - 16px), var(--default-width)) + 2rem);
+}
+.card > .details {
+	align-items: center;
+	border-top: 1px solid var(--color-outline-variant);
+	display: flex;
+	justify-content: space-between;
+	padding: 0.75rem 0.5rem 0.25rem;
+	margin: 0 -1rem;
 }
 .drop-zone {
 	-webkit-tap-highlight-color: transparent;

@@ -162,13 +162,19 @@ window.fileInput.addEventListener("change", async () => {
 	for (const element of window.resolution.children)
 		if (element instanceof HTMLOptionElement) element.disabled = false;
 });
-// window.removeFile.addEventListener("click", (ev) => {
-// 	ev.preventDefault();
-// 	window.fileInput.value = "";
-// 	window.fileInput.dispatchEvent(
-// 		new Event("change", { bubbles: true, cancelable: false, composed: false }),
-// 	);
-// });
+window.remove.addEventListener("click", (ev) => {
+	ev.preventDefault();
+	window.fileInput.value = "";
+	window.fileInput.dispatchEvent(
+		new Event("change", { bubbles: true, cancelable: false, composed: false }),
+	);
+});
+window.details.addEventListener("click", (ev) => {
+	ev.preventDefault();
+	const details = window.details.parentElement?.nextElementSibling;
+
+	if (details instanceof HTMLDetailsElement) details.open = !details.open;
+});
 document.body.querySelectorAll("select:has(~ .hiddenInput)").forEach((el) =>
 	el.addEventListener("change", () => {
 		for (const element of el.parentElement?.querySelectorAll(
