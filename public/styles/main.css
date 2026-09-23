@@ -317,7 +317,6 @@ video {
 	cursor: pointer;
 	display: flex;
 	flex-direction: column;
-	gap: 0.5rem;
 	justify-content: center;
 	text-align: center;
 	transition: all 0.2s;
@@ -424,8 +423,9 @@ video {
 	align-items: center;
 	border-radius: calc(infinity * 1px);
 	color: var(--color-on-surface);
-	line-height: 1.25;
+	line-height: 1.25rem;
 	letter-spacing: 0.1px;
+	font-size: 0.875rem;
 	font-weight: 500;
 	overflow: hidden;
 	user-select: none;
@@ -441,6 +441,7 @@ video {
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	gap: 0.5rem;
 }
 .segmentedButton:disabled {
 	outline-color: color-mix(in srgb, var(--color-on-surface) 12%, transparent);
@@ -460,6 +461,13 @@ video {
 .segmentedButton > input:checked + label {
 	background-color: var(--color-secondary-container);
 	color: var(--color-on-secondary-container);
+}
+.segmentedButton > input:checked + label::before {
+	background-color: currentColor;
+	content: "";
+	height: 1.125rem;
+	width: 1.125rem;
+	mask: url("data:image/svg+xml,<svg viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M8.80001 15.8998L4.60001 11.6998L3.20001 13.0998L8.80001 18.6998L20.8 6.6998L19.4 5.2998L8.80001 15.8998Z' fill='currentColor'/></svg>");
 }
 .segmentedButton > label:focus-visible:active {
 	background-color: color-mix(in srgb, currentColor 28%, transparent);
@@ -624,15 +632,13 @@ video {
 	color: var(--color-primary);
 	display: flex;
 	inset: 50% auto auto 50%;
-	max-width: 96px;
-	min-width: 40px;
-	padding-block: 0;
-	padding-inline: 0;
-	padding: 0.5px;
+	max-width: 115px;
+	min-width: 48px;
+	padding: 0;
 	position: absolute;
 	transition-duration: 0.1s;
 	translate: -50% -50%;
-	width: 10%;
+	width: 14%;
 }
 .playPause > button:hover {
 	scale: 108%;

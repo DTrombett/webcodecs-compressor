@@ -72,15 +72,14 @@
 			<label class="drop-zone" id="dropZone">
 				<input type="file" id="fileInput" accept="video/*,audio/*" />
 				<svg
-					width="40"
-					height="40"
+					width="48"
+					height="48"
 					viewBox="0 0 24 24"
 					fill="none"
-					stroke="currentColor"
-					stroke-width="1.5">
-					<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-					<polyline points="17 8 12 3 7 8" />
-					<line x1="12" y1="3" x2="12" y2="15" />
+					xmlns="http://www.w3.org/2000/svg">
+					<path
+						d="M18 15V18H6V15H4V18C4 19.1 4.9 20 6 20H18C19.1 20 20 19.1 20 18V15H18ZM7 9L8.41 10.41L11 7.83V16H13V7.83L15.59 10.41L17 9L12 4L7 9Z"
+						fill="currentColor" />
 				</svg>
 				<small>Click or drag video file here</small>
 			</label>
@@ -94,23 +93,23 @@
 					<div class="playPause" id="playPause">
 						<button title="Play" id="playPauseButton">
 							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 100 100"
-								id="play">
+								id="play"
+								fill="none"
+								viewBox="0 0 24 24"
+								xmlns="http://www.w3.org/2000/svg">
 								<path
-									fill="currentColor"
-									fill-rule="evenodd"
-									d="M0 0H100V100H0Z M37 29L72 50L37 71Z" />
+									d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 16.5V7.5L16 12L10 16.5Z"
+									fill="currentColor" />
 							</svg>
 							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 100 100"
 								id="pause"
-								style="display: none">
+								style="display: none"
+								fill="none"
+								viewBox="0 0 24 24"
+								xmlns="http://www.w3.org/2000/svg">
 								<path
-									fill="currentColor"
-									fill-rule="evenodd"
-									d="M0 0H100V100H0Z M35 30H44V70H35Z M56 30H65V70H56Z" />
+									d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM11 16H9V8H11V16ZM15 16H13V8H15V16Z"
+									fill="currentColor" />
 							</svg>
 						</button>
 					</div>
