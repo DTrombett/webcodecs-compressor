@@ -4,7 +4,7 @@
 }
 
 :root {
-	--default-width: 425px;
+	--default-width: 441px;
 	--color-primary: rgb(158 212 157);
 	--color-surface-tint: rgb(158 212 157);
 	--color-on-primary: rgb(4 57 18);
@@ -72,27 +72,22 @@ fieldset {
 	border: none;
 	display: flex;
 	flex-direction: column;
-	gap: 1rem;
+	gap: 1.25rem;
 	margin: 0;
+	margin-top: 0.5rem;
 	padding: 0;
+	width: 100cqw;
 }
-input:disabled,
-select:disabled,
-textarea:disabled {
-	cursor: not-allowed;
-	box-shadow: none;
-	border-color: transparent;
-	background-color: #444;
-	opacity: 0.75;
-	color: revert;
+fieldset > * {
+	width: 100cqw;
 }
 h1 {
+	color: var(--color-primary);
 	margin-block-end: 0.5rem;
 }
 header {
-	max-width: var(--default-width);
+	max-width: calc(var(--default-width) - 2rem);
 	margin: 0 auto 1.75rem;
-	padding: 0 0.5rem;
 }
 input[type="checkbox"] {
 	width: 1.25rem;
@@ -107,11 +102,6 @@ label:not([for]) input {
 select {
 	cursor: pointer;
 	appearance: none;
-	-webkit-appearance: none;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='2' fill='none'/%3E%3C/svg%3E");
-	background-repeat: no-repeat;
-	background-position: right 0.75rem center;
-	padding-right: 2.25rem;
 }
 select option[disabled] {
 	display: none;
@@ -121,6 +111,187 @@ summary {
 }
 video {
 	border-radius: 16px;
+}
+
+.input {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+.input > .icon {
+	width: 1.5rem;
+	height: 1.5rem;
+}
+.input > label {
+	position: absolute;
+	left: 1rem;
+	top: 1rem;
+	cursor: auto;
+}
+.input > .icon.trailing {
+	position: absolute;
+	right: 0.75rem;
+	pointer-events: none;
+}
+.input > .suffix,
+.input > .prefix,
+input::placeholder,
+select::placeholder,
+textarea::placeholder,
+.input:has(input:hover, select:hover, textarea:hover) > .icon,
+.input:has(input:hover, select:hover, textarea:hover) > .description,
+.input > label,
+.input > .icon,
+.input > .description,
+.input:has(input:focus, select:focus, textarea:focus) > .icon,
+.input:has(input:focus, select:focus, textarea:focus) > .description,
+.input:has(input:invalid, select:invalid, textarea:invalid) > .icon.leading,
+.input:has(input:invalid:hover, select:invalid:hover, textarea:invalid:hover)
+	> .icon.leading,
+.input:has(input:invalid:focus, select:invalid:focus, textarea:invalid:focus)
+	> .icon.leading {
+	color: var(--color-on-surface-variant);
+}
+input,
+select,
+textarea {
+	border-radius: 4px;
+	outline: 1px solid var(--color-outline);
+	outline-offset: 1px;
+	caret-color: var(--color-primary);
+	min-height: 3.5rem;
+	padding: 1rem;
+	background-color: transparent;
+	border: none;
+	width: 100%;
+}
+.input:has(.icon.trailing) > input,
+.input:has(.icon.trailing) > select,
+.input:has(.icon.trailing) > textarea {
+	padding-right: 3.25rem;
+}
+.input:has(.icon.leading) > input,
+.input:has(.icon.leading) > select,
+.input:has(.icon.leading) > textarea {
+	padding-left: 3.25rem;
+}
+.input > label,
+input,
+select,
+textarea {
+	line-height: 1.5rem;
+	font-size: 1rem;
+	letter-spacing: 0.5px;
+}
+.input:not(:has(:placeholder-shown)) > label,
+.input:focus-within > label {
+	top: calc((0.5rem + 2px) * -1);
+	left: 0.5rem;
+	background-color: var(--color-surface-container-low);
+	padding: 0 0.25rem;
+	pointer-events: none;
+}
+.input:not(:has(:placeholder-shown)) > label,
+.input:focus-within > label,
+.input > .description {
+	line-height: 1rem;
+	font-size: 0.75rem;
+}
+.input > .description {
+	letter-spacing: 0.4px;
+}
+.input > .description,
+.input > label,
+input,
+select,
+textarea {
+	font-family: "Open Sans";
+	font-weight: 400;
+}
+input:invalid:focus,
+select:invalid:focus,
+textarea:invalid:focus {
+	caret-color: var(--color-error);
+}
+.input:has(input:disabled, select:disabled, textarea:disabled) > label,
+.input:has(input:disabled, select:disabled, textarea:disabled) > .icon,
+.input:has(input:disabled, select:disabled, textarea:disabled) > .description,
+input:disabled,
+select:disabled,
+textarea:disabled {
+	color: color-mix(in srgb, var(--color-on-surface) 38%, transparent);
+}
+input:disabled,
+select:disabled,
+textarea:disabled {
+	cursor: not-allowed;
+	outline: 1px solid
+		color-mix(in srgb, var(--color-on-surface) 12%, transparent);
+}
+input,
+input:focus,
+input:hover,
+.input:hover > label,
+select,
+select:focus,
+select:hover,
+textarea,
+textarea:focus,
+textarea:hover,
+input:invalid,
+select:invalid,
+textarea:invalid,
+input:invalid:focus,
+select:invalid:focus,
+textarea:invalid:focus,
+input:invalid:hover,
+select:invalid:hover,
+textarea:invalid:hover {
+	color: var(--color-on-surface);
+}
+input:hover,
+select:hover,
+textarea:hover {
+	outline: 1px solid var(--color-on-surface);
+}
+.input:focus-within > label {
+	color: var(--color-primary);
+}
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 3px solid var(--color-primary);
+	outline-offset: 0;
+}
+input:invalid,
+select:invalid,
+textarea:invalid,
+input:invalid:focus,
+select:invalid:focus,
+textarea:invalid:focus {
+	outline-color: var(--color-error);
+}
+.input:has(:invalid) > label,
+input:has(:invalid):focus-within > label,
+.input:has(input:invalid, select:invalid, textarea:invalid) > .description,
+.input:has(input:invalid, select:invalid, textarea:invalid) > .icon.trailing,
+.input:has(input:invalid:focus, select:invalid:focus, textarea:invalid:focus)
+	> .description,
+.input:has(input:invalid:hover, select:invalid:hover, textarea:invalid:hover)
+	> .description,
+.input:has(input:invalid:focus, select:invalid:focus, textarea:invalid:focus)
+	> .icon.trailing {
+	color: var(--color-error);
+}
+input:invalid:hover,
+select:invalid:hover,
+textarea:invalid:hover {
+	outline-color: var(--color-on-error-container);
+}
+.input:hover:has(:invalid) > label,
+.input:has(input:invalid:hover, select:invalid:hover, textarea:invalid:hover)
+	> .icon.trailing {
+	color: var(--color-on-error-container);
 }
 
 .button {
@@ -367,40 +538,12 @@ video {
 		transparent
 	);
 }
-.form-group h4 {
-	margin-block: 0 0.5rem;
-	color: #bbb;
-	line-height: normal;
-}
-.form-group input,
-.form-group select,
-.form-group textarea,
-.form-group fieldset {
-	width: 100%;
-	box-sizing: border-box;
-	padding: 0.5rem 0.75rem;
-	background-color: #252525;
-	border: 1px solid #444;
-	border-radius: 6px;
-	color: #e0e0e0;
-	font-size: 1rem;
-	font-family: "Open Sans";
-	line-height: 1.5;
-}
-.form-group input:focus,
-.form-group select:focus {
-	outline: none;
-	border-color: #81c784;
-}
 .form-row {
 	display: flex;
 	gap: 0.5rem;
 }
 .form-row.priority > :first-child {
-	width: 100%;
-}
-.form-row.priority > :last-child {
-	width: auto;
+	flex-grow: 1;
 }
 .form-row.two > * {
 	width: 50% !important;

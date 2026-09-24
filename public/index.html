@@ -226,9 +226,9 @@
 						<label for="mapVideoDiscard">Discard</label>
 					</div>
 					<fieldset id="videoOptions">
-						<div class="form-group">
-							<h4>Quality</h4>
-							<select name="videoQuality">
+						<div class="input">
+							<label for="videoQuality">Quality</label>
+							<select name="videoQuality" id="videoQuality">
 								<option value="">Automatic</option>
 								<option value="very-high">Very high</option>
 								<option value="high">High</option>
@@ -237,15 +237,26 @@
 								<option value="very-low">Very low</option>
 								<option value="custom">Custom…</option>
 							</select>
-							<div
-								class="hiddenInput form-row priority"
-								style="margin-top: 0.5rem; gap: 0.25rem">
+							<svg
+								class="icon trailing"
+								viewBox="0 0 24 24"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg">
+								<path d="M7 9.5L12 14.5L17 9.5H7Z" fill="currentColor" />
+							</svg>
+						</div>
+						<div class="hiddenInput form-row priority">
+							<div class="input">
+								<label for="videoBitrate">Bitrate</label>
 								<input
 									type="number"
 									name="videoBitrate"
+									id="videoBitrate"
 									min="1"
-									placeholder="Bitrate"
+									placeholder=" "
 									disabled />
+							</div>
+							<div class="input">
 								<select
 									name="videoBitrateUnit"
 									style="background-image: none"
@@ -255,44 +266,66 @@
 									<option value="1000000">Mbps</option>
 									<option value="1000000000">Gbps</option>
 								</select>
+								<svg
+									class="icon trailing"
+									viewBox="0 0 24 24"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg">
+									<path d="M7 9.5L12 14.5L17 9.5H7Z" fill="currentColor" />
+								</svg>
 							</div>
 						</div>
 						<div class="form-column">
-							<div class="form-group">
-								<h4>Codec</h4>
+							<div class="input">
+								<label for="settingsVideoCodec">Codec</label>
 								<select name="videoCodec" id="settingsVideoCodec">
 									<option></option>
 								</select>
+								<svg
+									class="icon trailing"
+									viewBox="0 0 24 24"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg">
+									<path d="M7 9.5L12 14.5L17 9.5H7Z" fill="currentColor" />
+								</svg>
 							</div>
-							<div class="form-group">
-								<h4>Rotate</h4>
-								<select name="rotate">
+							<div class="input">
+								<label for="rotate">Rotate</label>
+								<select name="rotate" id="rotate">
 									<option value="0">0°</option>
 									<option value="90">90°</option>
 									<option value="180">180°</option>
 									<option value="270">270°</option>
 								</select>
+								<svg
+									class="icon trailing"
+									viewBox="0 0 24 24"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg">
+									<path d="M7 9.5L12 14.5L17 9.5H7Z" fill="currentColor" />
+								</svg>
 							</div>
 						</div>
 						<div class="form-column">
-							<div class="form-group">
-								<h4>Frame rate <span style="color: #666">(fps)</span></h4>
+							<div class="input">
+								<label for="frameRate">Frame rate (fps)</label>
 								<input
 									type="number"
 									name="frameRate"
 									id="frameRate"
+									placeholder=" "
 									min="1"
-									step="any"
-									placeholder="Original" />
+									step="any" />
 							</div>
-							<div class="form-group">
-								<h4>Keyframe interval</h4>
+							<div class="input">
+								<label for="keyFrameInterval">Keyframe interval</label>
 								<input
 									type="number"
 									name="keyFrameInterval"
+									id="keyFrameInterval"
+									placeholder=" "
 									min="1"
-									step="any"
-									placeholder="5 seconds" />
+									step="any" />
 							</div>
 						</div>
 					</fieldset>
@@ -321,9 +354,9 @@
 						<label for="mapAudioDiscard">Discard</label>
 					</div>
 					<fieldset id="audioOptions">
-						<div class="form-group">
-							<h4>Quality</h4>
-							<select name="audioQuality">
+						<div class="input">
+							<label for="audioQuality">Quality</label>
+							<select name="audioQuality" id="audioQuality">
 								<option value="">Automatic</option>
 								<option value="very-high">Very high</option>
 								<option value="high">High</option>
@@ -332,15 +365,26 @@
 								<option value="very-low">Very low</option>
 								<option value="custom">Custom…</option>
 							</select>
-							<div
-								class="hiddenInput form-row priority"
-								style="margin-top: 0.5rem; gap: 0.25rem">
+							<svg
+								class="icon trailing"
+								viewBox="0 0 24 24"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg">
+								<path d="M7 9.5L12 14.5L17 9.5H7Z" fill="currentColor" />
+							</svg>
+						</div>
+						<div class="hiddenInput form-row priority">
+							<div class="input">
+								<label for="audioBitrate">Bitrate</label>
 								<input
 									type="number"
 									name="audioBitrate"
+									id="audioBitrate"
+									placeholder=" "
 									min="1"
-									placeholder="Bitrate"
 									disabled />
+							</div>
+							<div class="input">
 								<select
 									name="audioBitrateUnit"
 									style="background-image: none"
@@ -350,44 +394,65 @@
 									<option value="1000000">Mbps</option>
 									<option value="1000000000">Gbps</option>
 								</select>
+								<svg
+									class="icon trailing"
+									viewBox="0 0 24 24"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg">
+									<path d="M7 9.5L12 14.5L17 9.5H7Z" fill="currentColor" />
+								</svg>
 							</div>
 						</div>
 						<div class="form-column">
-							<div class="form-group">
-								<h4>Codec</h4>
+							<div class="input">
+								<label for="settingsAudioCodec">Codec</label>
 								<select name="audioCodec" id="settingsAudioCodec">
 									<option></option>
 								</select>
+								<svg
+									class="icon trailing"
+									viewBox="0 0 24 24"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg">
+									<path d="M7 9.5L12 14.5L17 9.5H7Z" fill="currentColor" />
+								</svg>
 							</div>
-							<div class="form-group">
-								<h4>Sample format</h4>
-								<select name="sampleFormat">
+							<div class="input">
+								<label for="sampleFormat">Sample format</label>
+								<select name="sampleFormat" id="sampleFormat">
 									<option value="">Original</option>
 									<option value="u8">Unsigned 8-bit</option>
 									<option value="s16">Signed 16-bit</option>
 									<option value="s32">Signed 32-bit</option>
 									<option value="f32">Floating point 32-bit</option>
 								</select>
+								<svg
+									class="icon trailing"
+									viewBox="0 0 24 24"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg">
+									<path d="M7 9.5L12 14.5L17 9.5H7Z" fill="currentColor" />
+								</svg>
 							</div>
 						</div>
 						<div class="form-column">
-							<div class="form-group">
-								<h4>Sample rate <span style="color: #666">(Hz)</span></h4>
+							<div class="input">
+								<label for="sampleRate">Sample rate (Hz)</label>
 								<input
 									type="number"
+									placeholder=" "
 									name="sampleRate"
 									id="sampleRate"
-									min="1"
-									placeholder="Original" />
+									min="1" />
 							</div>
-							<div class="form-group">
-								<h4>Number of channels</h4>
+							<div class="input">
+								<label for="channels">Number of channels</label>
 								<input
 									type="number"
 									name="channels"
 									id="channels"
-									min="1"
-									placeholder="Original" />
+									placeholder=" "
+									min="1" />
 							</div>
 						</div>
 					</fieldset>
@@ -397,8 +462,8 @@
 				<div class="card">
 					<h2>Transform options</h2>
 					<fieldset id="transformOptions">
-						<div class="form-group">
-							<h4>Resolution</h4>
+						<div class="input">
+							<label for="resolution">Resolution</label>
 							<select name="resolution" id="resolution">
 								<option value="">
 									Original <span data-prop="inputResolution"></span>
@@ -411,59 +476,91 @@
 								<option value="480">SD (480p)</option>
 								<option value="custom">Custom…</option>
 							</select>
-							<div
-								class="form-row three hiddenInput"
-								style="margin-top: 0.5rem">
+							<svg
+								class="icon trailing"
+								viewBox="0 0 24 24"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg">
+								<path d="M7 9.5L12 14.5L17 9.5H7Z" fill="currentColor" />
+							</svg>
+						</div>
+						<div class="form-row three hiddenInput">
+							<div class="input">
+								<label for="width">Width (px)</label>
 								<input
 									type="number"
 									name="width"
-									placeholder="Width (px)"
+									id="width"
 									min="64"
 									max="3840"
+									placeholder=" "
 									disabled />
+							</div>
+							<div class="input">
+								<label for="height">Height (px)</label>
 								<input
 									type="number"
 									name="height"
-									placeholder="Height (px)"
+									placeholder=" "
+									id="height"
 									min="64"
 									max="2160"
 									disabled />
+							</div>
+							<div class="input">
 								<select name="fit" disabled>
 									<option value="fill">Fill</option>
 									<option value="contain">Contain</option>
 									<option value="cover">Cover</option>
 								</select>
+								<svg
+									class="icon trailing"
+									viewBox="0 0 24 24"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg">
+									<path d="M7 9.5L12 14.5L17 9.5H7Z" fill="currentColor" />
+								</svg>
 							</div>
 						</div>
-						<div class="form-group">
-							<h4>Crop</h4>
-							<div class="form-row two">
+						<h4>Crop</h4>
+						<div class="form-row two">
+							<div class="input">
+								<label for="cropLeft">Left (px)</label>
 								<input
 									type="number"
 									name="cropLeft"
 									id="cropLeft"
-									placeholder="Left (px)"
+									placeholder=" "
 									min="0" />
+							</div>
+							<div class="input">
+								<label for="cropTop">Top (px)</label>
 								<input
 									type="number"
 									name="cropTop"
 									id="cropTop"
-									placeholder="Top (px)"
+									placeholder=" "
 									min="0" />
 							</div>
-							<div class="form-row two" style="margin-top: 0.5rem">
+						</div>
+						<div class="form-row two">
+							<div class="input">
+								<label for="cropWidth">Width (px)</label>
 								<input
 									type="number"
+									placeholder=" "
 									name="cropWidth"
 									id="cropWidth"
-									placeholder="Width (px)"
 									min="2"
 									step="2" />
+							</div>
+							<div class="input">
+								<label for="cropHeight">Height (px)</label>
 								<input
+									placeholder=" "
 									type="number"
 									name="cropHeight"
 									id="cropHeight"
-									placeholder="Height (px)"
 									min="2"
 									step="2" />
 							</div>
@@ -479,9 +576,9 @@
 				</div>
 				<div class="card">
 					<h2>Output options</h2>
-					<div class="form-group">
-						<h4>Target size</h4>
-						<select name="maxSizePreset">
+					<div class="input">
+						<label for="maxSizePreset">Target size</label>
+						<select name="maxSizePreset" id="maxSizePreset">
 							<option value="">No limit</option>
 							<option value="20000000">Discord (20 MiB)</option>
 							<option value="50000000">Discord Nitro Basic (50 MiB)</option>
@@ -492,15 +589,25 @@
 							<option value="536870912">Twitter (512 MiB)</option>
 							<option value="custom">Custom…</option>
 						</select>
-						<div
-							class="hiddenInput form-row priority"
-							style="margin-top: 0.5rem; gap: 0.25rem">
+						<svg
+							class="icon trailing"
+							viewBox="0 0 24 24"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg">
+							<path d="M7 9.5L12 14.5L17 9.5H7Z" fill="currentColor" />
+						</svg>
+					</div>
+					<div class="hiddenInput form-row priority">
+						<div class="input">
+							<label for="maxSize">Size</label>
 							<input
 								type="number"
 								name="maxSize"
 								min="1"
-								placeholder="Size"
-								disabled />
+								disabled
+								placeholder=" " />
+						</div>
+						<div class="input">
 							<select
 								name="maxSizeUnit"
 								style="background-image: none"
@@ -510,11 +617,18 @@
 								<option value="1000000" selected>MB</option>
 								<option value="1000000000">GB</option>
 							</select>
+							<svg
+								class="icon trailing"
+								viewBox="0 0 24 24"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg">
+								<path d="M7 9.5L12 14.5L17 9.5H7Z" fill="currentColor" />
+							</svg>
 						</div>
 					</div>
-					<div class="form-group">
-						<h4>Format</h4>
-						<select name="format">
+					<div class="input">
+						<label for="format">Format</label>
+						<select name="format" id="format">
 							<option value="">Automatic</option>
 							<option value="mp4">MP4</option>
 							<option value="cmaf">CMAF</option>
@@ -528,24 +642,37 @@
 							<option value="flac">FLAC</option>
 							<option value="mpegts">MPEG-TS</option>
 						</select>
+						<svg
+							class="icon trailing"
+							viewBox="0 0 24 24"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg">
+							<path d="M7 9.5L12 14.5L17 9.5H7Z" fill="currentColor" />
+						</svg>
 					</div>
 					<div class="form-group">
 						<h4>Trim <span style="color: #666">(seconds)</span></h4>
 						<div class="form-row two">
-							<input
-								type="number"
-								name="trimStart"
-								id="trimStart"
-								placeholder="Start"
-								step="any"
-								min="0" />
-							<input
-								type="number"
-								name="trimEnd"
-								id="trimEnd"
-								placeholder="End"
-								step="any"
-								min="0" />
+							<div class="input">
+								<label for="trimStart">Start</label>
+								<input
+									type="number"
+									placeholder=" "
+									name="trimStart"
+									id="trimStart"
+									step="any"
+									min="0" />
+							</div>
+							<div class="input">
+								<label for="trimEnd">End</label>
+								<input
+									type="number"
+									placeholder=" "
+									name="trimEnd"
+									id="trimEnd"
+									step="any"
+									min="0" />
+							</div>
 						</div>
 					</div>
 				</div>
