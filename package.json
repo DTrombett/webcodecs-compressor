@@ -4,14 +4,13 @@
 		"test": "tsc"
 	},
 	"dependencies": {
-		"mediabunny": "^1.56.0"
+		"mediabunny": "^1.60.0"
 	},
 	"devDependencies": {
 		"typescript": "^7.0.2",
-		"wrangler": "^4.130.0"
+		"wrangler": "^4.141.0"
 	},
 	"allowScripts": {
-		"esbuild@0.28.1": true,
-		"workerd@1.20260908.1": true
+		"esbuild@0.28.1": true
 	}
 }
